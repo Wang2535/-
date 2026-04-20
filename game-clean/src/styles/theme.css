@@ -1,0 +1,518 @@
+/**
+ * 《道高一丈：数字博弈》主题样式系统
+ * 
+ * 严格遵循完善的美工.md (v18.0.0) 实现
+ * A2.0 色彩系统规范
+ */
+
+/* ============================================
+   CSS 变量定义
+   ============================================ */
+
+:root {
+  /* A2.1.1 阵营色彩 */
+  --faction-attacker: #FF2A6D;
+  --faction-attacker-rgb: 255, 42, 109;
+  --faction-defender: #05D9E8;
+  --faction-defender-rgb: 5, 217, 232;
+  --faction-neutral: #A855F7;
+  --faction-neutral-rgb: 168, 85, 247;
+
+  /* A2.1.2 背景色彩 */
+  --bg-deep-space: #0A0A0F;
+  --bg-darknet: #1A1A2E;
+  --bg-matrix: #0D2818;
+  --bg-frosted: rgba(15, 15, 26, 0.85);
+
+  /* A2.1.3 功能色彩 */
+  --success: #39FF14;
+  --warning: #FFD700;
+  --failure: #FF4444;
+  --info: #00BFFF;
+
+  /* A2.1.4 稀有度色彩 */
+  --rarity-common: #E0E0E0;
+  --rarity-rare: #4FC3F7;
+  --rarity-epic: #BA68C8;
+  --rarity-legendary: #FFD700;
+
+  /* A2.2.1 渐变 */
+  --gradient-attacker: linear-gradient(135deg, #FF2A6D 0%, #FF6B6B 100%);
+  --gradient-defender: linear-gradient(135deg, #05D9E8 0%, #4FC3F7 100%);
+  --gradient-neutral: linear-gradient(135deg, #A855F7 0%, #C084FC 100%);
+  --gradient-background: linear-gradient(180deg, #0A0A0F 0%, #1A1A2E 100%);
+
+  /* A2.2.2 霓虹光效 */
+  --neon-red: 0 0 10px #FF2A6D, 0 0 20px #FF2A6D, 0 0 30px #FF2A6D;
+  --neon-blue: 0 0 10px #05D9E8, 0 0 20px #05D9E8, 0 0 30px #05D9E8;
+  --neon-gold: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 40px #FFD700;
+
+  /* A2.2.3 透明度 */
+  --opacity-main: 1;
+  --opacity-secondary: 0.85;
+  --opacity-tooltip: 0.75;
+  --opacity-disabled: 0.45;
+  --opacity-overlay: 0.65;
+
+  /* A3.2.1 卡牌文字 */
+  --card-name-size: 18pt;
+  --card-effect-size: 11pt;
+  --card-cost-size: 14pt;
+  --card-id-size: 9pt;
+  --card-type-size: 10pt;
+
+  /* A3.2.2 UI文字 */
+  --ui-title-size: 32pt;
+  --ui-section-size: 24pt;
+  --ui-button-size: 16pt;
+  --ui-body-size: 14pt;
+  --ui-helper-size: 12pt;
+  --ui-label-size: 10pt;
+
+  /* A4.1.1 卡牌尺寸 */
+  --card-width: 240px;
+  --card-height: 336px;
+  --card-radius: 12px;
+
+  /* A4.3.1 角色卡尺寸 */
+  --character-card-width: 266px;
+  --character-card-height: 456px;
+
+  /* A8.1.1 按钮 */
+  --btn-primary-bg: linear-gradient(135deg, #FF2A6D 0%, #FF6B6B 100%);
+  --btn-primary-border: 2px solid rgba(255, 255, 255, 0.3);
+  --btn-primary-radius: 8px;
+  --btn-primary-shadow: 0 4px 15px rgba(255, 42, 109, 0.4);
+
+  /* 间距系统 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 动画时间 */
+  --anim-quick: 0.15s;
+  --anim-standard: 0.3s;
+  --anim-complex: 0.8s;
+  --anim-emphasis: 1.5s;
+}
+
+/* ============================================
+   基础样式
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Exo 2', 'Microsoft YaHei', sans-serif;
+  background: var(--gradient-background);
+  color: #E0E0E0;
+  min-height: 100vh;
+}
+
+/* ============================================
+   阵营色彩类
+   ============================================ */
+
+.bg-attacker {
+  background: var(--faction-attacker);
+}
+
+.bg-defender {
+  background: var(--faction-defender);
+}
+
+.bg-neutral {
+  background: var(--faction-neutral);
+}
+
+.text-attacker {
+  color: var(--faction-attacker);
+}
+
+.text-defender {
+  color: var(--faction-defender);
+}
+
+.text-neutral {
+  color: var(--faction-neutral);
+}
+
+.border-attacker {
+  border-color: var(--faction-attacker);
+}
+
+.border-defender {
+  border-color: var(--faction-defender);
+}
+
+.border-neutral {
+  border-color: var(--faction-neutral);
+}
+
+/* ============================================
+   霓虹光效类
+   ============================================ */
+
+.neon-red {
+  box-shadow: var(--neon-red);
+}
+
+.neon-blue {
+  box-shadow: var(--neon-blue);
+}
+
+.neon-gold {
+  box-shadow: var(--neon-gold);
+}
+
+.text-neon-red {
+  text-shadow: 0 0 5px var(--faction-attacker), 0 0 10px var(--faction-attacker);
+}
+
+.text-neon-blue {
+  text-shadow: 0 0 5px var(--faction-defender), 0 0 10px var(--faction-defender);
+}
+
+.text-neon-gold {
+  text-shadow: 0 0 5px var(--rarity-legendary), 0 0 10px var(--rarity-legendary);
+}
+
+/* ============================================
+   稀有度样式类
+   ============================================ */
+
+.rarity-common {
+  border-color: var(--rarity-common);
+}
+
+.rarity-rare {
+  border-color: var(--rarity-rare);
+  box-shadow: 0 0 15px rgba(79, 195, 247, 0.5);
+}
+
+.rarity-epic {
+  border-color: var(--rarity-epic);
+  box-shadow: 0 0 20px rgba(186, 104, 200, 0.6);
+  animation: pulse-epic 2s ease-in-out infinite;
+}
+
+.rarity-legendary {
+  border-color: var(--rarity-legendary);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  animation: pulse-legendary 1s ease-in-out infinite;
+}
+
+@keyframes pulse-epic {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(186, 104, 200, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(186, 104, 200, 0.8);
+  }
+}
+
+@keyframes pulse-legendary {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(255, 215, 0, 1);
+  }
+}
+
+/* ============================================
+   玻璃态面板
+   ============================================ */
+
+.glass-panel {
+  background: var(--bg-frosted);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   按钮样式
+   ============================================ */
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  border: var(--btn-primary-border);
+  border-radius: var(--btn-primary-radius);
+  padding: 12px 24px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--anim-standard) ease;
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 42, 109, 0.6);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 42, 109, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--faction-defender);
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: var(--faction-defender);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--anim-standard) ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(5, 217, 232, 0.1);
+  box-shadow: 0 0 15px rgba(5, 217, 232, 0.3);
+}
+
+/* ============================================
+   卡牌基础样式
+   ============================================ */
+
+.card-base {
+  width: var(--card-width);
+  height: var(--card-height);
+  border-radius: var(--card-radius);
+  background: var(--bg-darknet);
+  border: 2px solid;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--anim-standard) ease;
+}
+
+.card-base:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-illustration {
+  width: 180px;
+  height: 140px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-illustration::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%);
+}
+
+.card-illustration::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%);
+}
+
+/* ============================================
+   资源图标样式
+   ============================================ */
+
+.resource-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.resource-computing {
+  background: var(--info);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.resource-funds {
+  background: var(--warning);
+  border-radius: 50%;
+}
+
+.resource-information {
+  background: #4169E1;
+  border-radius: 4px;
+}
+
+.resource-permission {
+  background: #9932CC;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* ============================================
+   区域样式
+   ============================================ */
+
+.zone-perimeter {
+  background: linear-gradient(135deg, rgba(255, 42, 109, 0.2) 0%, rgba(255, 107, 107, 0.1) 100%);
+  border: 2px solid rgba(255, 42, 109, 0.5);
+}
+
+.zone-dmz {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(192, 132, 252, 0.1) 100%);
+  border: 2px solid rgba(168, 85, 247, 0.5);
+}
+
+.zone-internal {
+  background: linear-gradient(135deg, rgba(5, 217, 232, 0.2) 0%, rgba(79, 195, 247, 0.1) 100%);
+  border: 2px solid rgba(5, 217, 232, 0.5);
+}
+
+.zone-ics {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.5);
+}
+
+/* ============================================
+   动画效果
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--anim-standard) ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn var(--anim-standard) ease-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ============================================
+   工具类
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+.p-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-md {
+  padding: var(--spacing-md);
+}
+
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}
+
+.shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+}

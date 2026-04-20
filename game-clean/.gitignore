@@ -1,0 +1,32 @@
+﻿# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules
+dist
+
+# Editor
+.vscode
+.idea
+.trae
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+build
+.cache
+
+# Test
+coverage
+.vercel
+
+# Local Netlify folder
+.netlify

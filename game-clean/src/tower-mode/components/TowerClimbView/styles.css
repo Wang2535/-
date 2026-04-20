@@ -1,0 +1,40 @@
+.tower-climb-view {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.tower-map-area {
+  min-height: 500px;
+}
+
+/* Layer stacking for map area */
+.tower-map-area > *:first-child {
+  z-index: 1;
+}
+
+.tower-map-area > .mechanic-visualizer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.tower-map-area > .layer-transition-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+}
+
+.tower-bottom-panel {
+  z-index: 20;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .tower-climb-view {
+    flex-direction: column;
+  }
+  
+  .tower-map-area {
+    min-height: 400px;
+  }
+}

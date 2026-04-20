@@ -1,0 +1,92 @@
+{
+  "roundStates": {
+    "轻微": {
+      "minRound": 1,
+      "maxRound": 3,
+      "description": "游戏初期，双方试探阶段，局势相对平稳。",
+      "variants": [
+        { "id": "STATE_001", "name": "网络波动", "effect": "所有卡牌算力消耗-1（最低为1）", "weight": 10 },
+        { "id": "STATE_002", "name": "预算审批中", "effect": "防御方资金+2", "weight": 8 },
+        { "id": "STATE_003", "name": "漏洞扫描", "effect": "攻击方本回合信息+1", "weight": 10 },
+        { "id": "STATE_004", "name": "系统维护", "effect": "所有区域防御+1", "weight": 9 },
+        { "id": "STATE_005", "name": "员工培训", "effect": "钓鱼攻击成功率-10%", "weight": 8 },
+        { "id": "STATE_006", "name": "备份完成", "effect": "防御方恢复1点算力", "weight": 10 },
+        { "id": "STATE_007", "name": "流量低谷", "effect": "DDoS攻击效果-1", "weight": 9 },
+        { "id": "STATE_008", "name": "安全审计", "effect": "攻击方使用卡牌需额外支付1信息", "weight": 7 },
+        { "id": "STATE_009", "name": "补丁日", "effect": "漏洞利用类卡牌难度+1", "weight": 8 },
+        { "id": "STATE_010", "name": " Coffee Break", "effect": "所有玩家抽1张牌", "weight": 10 },
+        { "id": "STATE_011", "name": "防火墙升级", "effect": "Perimeter区域防御+2", "weight": 8 },
+        { "id": "STATE_012", "name": "蜜罐部署", "effect": "攻击方首次进入DMZ需弃1张牌", "weight": 7 },
+        { "id": "STATE_013", "name": "日志审查", "effect": "防御方本回合可查看攻击方1张手牌", "weight": 8 },
+        { "id": "STATE_014", "name": "网络隔离", "effect": "本回合无法进行横向移动", "weight": 9 },
+        { "id": "STATE_015", "name": "正常运营", "effect": "无特殊效果", "weight": 15 }
+      ]
+    },
+    "低": {
+      "minRound": 4,
+      "maxRound": 6,
+      "description": "局势升温，资源积累期，小规模冲突开始。",
+      "variants": [
+        { "id": "STATE_016", "name": "攻防演练", "effect": "本回合所有伤害+1", "weight": 10 },
+        { "id": "STATE_017", "name": "资金注入", "effect": "所有玩家资金+2", "weight": 9 },
+        { "id": "STATE_018", "name": "0day预警", "effect": "攻击方0day漏洞卡牌消耗-1", "weight": 8 },
+        { "id": "STATE_019", "name": "双因素认证", "effect": "钓鱼攻击需额外判定", "weight": 9 },
+        { "id": "STATE_020", "name": "带宽扩容", "effect": "DDoS攻击效果减半", "weight": 10 },
+        { "id": "STATE_021", "name": "内部威胁", "effect": "防御方随机失去1点信息", "weight": 8 },
+        { "id": "STATE_022", "name": "供应链检查", "effect": "本回合无法使用高级威胁类卡牌", "weight": 7 },
+        { "id": "STATE_023", "name": "加密升级", "effect": "数据窃取效果-1", "weight": 9 },
+        { "id": "STATE_024", "name": "社工库更新", "effect": "钓鱼攻击成功率+10%", "weight": 8 },
+        { "id": "STATE_025", "name": "应急响应", "effect": "防御方可立即打出1张响应卡牌", "weight": 9 },
+        { "id": "STATE_026", "name": "僵尸网络活跃", "effect": "DDoS类卡牌消耗-1", "weight": 8 },
+        { "id": "STATE_027", "name": "WAF调优", "effect": "DMZ区域免疫首次攻击", "weight": 9 },
+        { "id": "STATE_028", "name": "暗网情报", "effect": "攻击方信息+2", "weight": 8 },
+        { "id": "STATE_029", "name": "系统加固", "effect": "所有区域基础防御+1", "weight": 10 },
+        { "id": "STATE_030", "name": "平静期", "effect": "本回合抽牌数+1", "weight": 12 }
+      ]
+    },
+    "中": {
+      "minRound": 7,
+      "maxRound": 9,
+      "description": "攻防胶着，关键节点争夺，战况激烈。",
+      "variants": [
+        { "id": "STATE_031", "name": "数据泄露危机", "effect": "Internal区域防御力-2", "weight": 10 },
+        { "id": "STATE_032", "name": "勒索软件蔓延", "effect": "防御方每回合失去1资金直到清除", "weight": 9 },
+        { "id": "STATE_033", "name": "APT潜入", "effect": "攻击方可在任意区域放置潜伏标记", "weight": 8 },
+        { "id": "STATE_034", "name": "全网扫描", "effect": "所有隐藏标记暴露", "weight": 9 },
+        { "id": "STATE_035", "name": "核心系统告警", "effect": "ICS区域受到的伤害+2", "weight": 10 },
+        { "id": "STATE_036", "name": "安全事件响应", "effect": "防御方本回合可执行2次行动", "weight": 8 },
+        { "id": "STATE_037", "name": "内鬼协助", "effect": "攻击方获得1点权限", "weight": 8 },
+        { "id": "STATE_038", "name": "紧急断网", "effect": "本回合所有网络攻击无效", "weight": 9 },
+        { "id": "STATE_039", "name": "漏洞爆发", "effect": "漏洞利用类卡牌效果翻倍", "weight": 10 },
+        { "id": "STATE_040", "name": "全面监控", "effect": "防御方每回合获得1信息", "weight": 9 },
+        { "id": "STATE_041", "name": "权限提升", "effect": "攻击方已有权限效果+1", "weight": 8 },
+        { "id": "STATE_042", "name": "蜜罐诱捕", "effect": "攻击方首次攻击失败时弃2张牌", "weight": 9 },
+        { "id": "STATE_043", "name": "数据备份", "effect": "防御方恢复3点算力", "weight": 8 },
+        { "id": "STATE_044", "name": "攻击链形成", "effect": "攻击方连续使用同类型卡牌时效果+1", "weight": 9 },
+        { "id": "STATE_045", "name": "临界点", "effect": "双方所有资源上限临时+2", "weight": 10 }
+      ]
+    },
+    "高": {
+      "minRound": 10,
+      "maxRound": 12,
+      "description": "决战时刻，局势极度紧张，胜负在此一举！",
+      "variants": [
+        { "id": "STATE_046", "name": "全线崩溃", "effect": "所有区域每回合失去1点防御", "weight": 10 },
+        { "id": "STATE_047", "name": "最终防线", "effect": "防御方最后区域防御+5", "weight": 9 },
+        { "id": "STATE_048", "name": "总攻发起", "effect": "攻击方所有卡牌消耗-1", "weight": 10 },
+        { "id": "STATE_049", "name": "系统瘫痪", "effect": "防御方算力恢复停止", "weight": 9 },
+        { "id": "STATE_050", "name": "孤注一掷", "effect": "双方可将生命值转化为资源使用", "weight": 8 },
+        { "id": "STATE_051", "name": "权限争夺", "effect": "每点权限现在价值翻倍", "weight": 10 },
+        { "id": "STATE_052", "name": "数据焚毁", "effect": "防御方弃置所有手牌，抽3张", "weight": 8 },
+        { "id": "STATE_053", "name": "终极漏洞", "effect": "攻击方获得一张免费的0day卡牌", "weight": 9 },
+        { "id": "STATE_054", "name": "同归于尽", "effect": "本回合所有伤害翻倍", "weight": 10 },
+        { "id": "STATE_055", "name": "最后机会", "effect": "双方抽牌直到手牌满", "weight": 9 },
+        { "id": "STATE_056", "name": "核心失守", "effect": "ICS区域防御归零", "weight": 10 },
+        { "id": "STATE_057", "name": "绝地反击", "effect": "防御方濒死时自动恢复5点算力", "weight": 8 },
+        { "id": "STATE_058", "name": "时间耗尽", "effect": "本回合后游戏强制结束，按资源判定胜负", "weight": 9 },
+        { "id": "STATE_059", "name": "王对王", "effect": "双方玩家可直接对决，无视区域", "weight": 8 },
+        { "id": "STATE_060", "name": "终局之战", "effect": "所有胜利条件需求减半", "weight": 12 }
+      ]
+    }
+  }
+}

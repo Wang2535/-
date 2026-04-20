@@ -1,0 +1,381 @@
+@keyframes gm-glow-current {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(68, 255, 136, 0.6)); }
+  50% { filter: drop-shadow(0 0 8px rgba(68, 255, 136, 0.9)) drop-shadow(0 0 15px rgba(68, 255, 136, 0.4)); }
+}
+
+@keyframes gm-piece-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes gm-trail-fade {
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+@keyframes gm-arrival-ripple {
+  0% { r: 0%; opacity: 0.8; }
+  100% { r: 25%; opacity: 0; }
+}
+
+@keyframes gm-boss-emerge {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes gm-boss-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 68, 68, 0.5)); opacity: 0.7; }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 68, 68, 0.9)) drop-shadow(0 0 20px rgba(255, 68, 68, 0.4)); opacity: 1; }
+}
+
+@keyframes gm-elite-jagged {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.02) rotate(0.5deg); }
+  75% { transform: scale(0.98) rotate(-0.5deg); }
+}
+
+@keyframes gm-pulse-orange {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 136, 0, 0.5)); opacity: 0.8; }
+  50% { filter: drop-shadow(0 0 10px rgba(255, 136, 0, 0.8)) drop-shadow(0 0 18px rgba(255, 136, 0, 0.4)); opacity: 1; }
+}
+
+@keyframes gm-zone-w-enter {
+  0% { r: 0%; opacity: 0.6; }
+  100% { r: 35%; opacity: 0; }
+}
+
+@keyframes gm-zone-n-enter {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes gm-zone-i-enter {
+  0%, 100% { opacity: 0.3; }
+  10%, 30%, 50%, 70%, 90% { opacity: 1; }
+  20%, 40%, 60%, 80% { opacity: 0.2; }
+}
+
+@keyframes gm-zone-p-enter {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes gm-decor-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes gm-border-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 170, 0, 0.3)); }
+  50% { filter: drop-shadow(0 0 6px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 12px rgba(255, 170, 0, 0.3)); }
+}
+
+.gm-glow-current {
+  animation: gm-glow-current 1.5s ease-in-out infinite;
+}
+
+.gm-piece-breathe {
+  animation: gm-piece-breathe 2.5s ease-in-out infinite;
+}
+
+.gm-trail-fade {
+  animation: gm-trail-fade 1s ease-out forwards;
+}
+
+.gm-arrival-ripple {
+  animation: gm-arrival-ripple 0.6s ease-out forwards;
+}
+
+.gm-boss-emerge {
+  animation: gm-boss-emerge 0.5s ease-out forwards;
+}
+
+.gm-boss-pulse {
+  animation: gm-boss-pulse 2s ease-in-out infinite;
+}
+
+.gm-elite-jagged {
+  animation: gm-elite-jagged 0.3s ease-in-out infinite;
+}
+
+.gm-pulse-orange {
+  animation: gm-pulse-orange 1.5s ease-in-out infinite;
+}
+
+.gm-zone-w-enter {
+  animation: gm-zone-w-enter 0.8s ease-out forwards;
+}
+
+.gm-zone-n-enter {
+  animation: gm-zone-n-enter 0.8s ease-out forwards;
+}
+
+.gm-zone-i-enter {
+  animation: gm-zone-i-enter 0.8s ease-out forwards;
+}
+
+.gm-zone-p-enter {
+  animation: gm-zone-p-enter 0.8s ease-out forwards;
+}
+
+.gm-decor-float {
+  animation: gm-decor-float 4s ease-in-out infinite;
+}
+
+.gm-border-glow {
+  animation: gm-border-glow 3s ease-in-out infinite;
+}
+
+@keyframes gm-zone-s-enter {
+  0% { r: 0; opacity: 0.7; }
+  50% { r: 25; opacity: 0.4; }
+  100% { r: 0; opacity: 0.7; }
+}
+
+@keyframes gm-zone-d-enter {
+  0% { stroke-dashoffset: 10; opacity: 0.4; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.gm-zone-s-enter {
+  animation: gm-zone-s-enter 0.6s ease-out forwards;
+}
+
+.gm-zone-d-enter {
+  animation: gm-zone-d-enter 0.8s ease-out forwards;
+}
+
+.cell-node.hovered {
+  filter: brightness(1.25) drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+  transition: filter 0.2s ease;
+}
+
+.gourd-map-wrapper {
+  will-change: transform, opacity;
+}
+
+.gourd-map-wrapper.exiting {
+  pointer-events: none;
+  animation: gm-layer-exit 0.35s ease-in forwards;
+}
+
+.gourd-map-wrapper.entering {
+  animation: gm-layer-enter 0.35s ease-out forwards;
+}
+
+@keyframes gm-layer-exit {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.97); opacity: 0; }
+}
+
+@keyframes gm-layer-enter {
+  0% { transform: scale(0.97); opacity: 0; }
+  60% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.gm-lt-overlay {
+  position: fixed; inset: 0; display: flex;
+  align-items: center; justify-content: center;
+  z-index: 300; pointer-events: none;
+}
+.gm-lt-active .gm-lt-svg {
+  width: 100%; height: 100%;
+  animation: gm-lt-fade-in 0.2s ease-out forwards;
+}
+@keyframes gm-lt-fade-in {
+  from { opacity: 0; } to { opacity: 1; }
+}
+
+@keyframes gm-boss-pulse-ultimate {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(255,215,0,0.7)) drop-shadow(0 0 15px rgba(255,136,0,0.5)) drop-shadow(0 0 25px rgba(255,51,51,0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255,215,0,1)) drop-shadow(0 0 22px rgba(255,136,0,0.8)) drop-shadow(0 0 35px rgba(255,51,51,0.5)); }
+}
+.gm-boss-pulse-ultimate {
+  animation: gm-boss-pulse-ultimate 2s ease-in-out infinite;
+}
+
+@keyframes gm-boss-aura {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.gm-boss-aura-ring {
+  animation: gm-boss-aura 1.5s ease-in-out infinite;
+}
+
+@keyframes gm-boss-danger-flash {
+  0%, 100% { opacity: 1; stroke-width: 1.5; }
+  50% { opacity: 0.1; stroke-width: 3; }
+}
+.gm-boss-danger-border {
+  animation: gm-boss-danger-flash 0.5s ease-in-out infinite;
+}
+
+@keyframes gm-boss-active-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+  50% { filter: drop-shadow(0 0 20px rgba(255,215,0,1)) drop-shadow(0 0 40px rgba(255,140,0,0.5)); }
+}
+.gm-boss-active {
+  animation: gm-boss-active-glow 0.8s ease-in-out infinite;
+}
+
+@keyframes gm-cell-hover-ring {
+  0%, 100% { opacity: 0.4; stroke-width: 1.5; }
+  50% { opacity: 0.7; stroke-width: 2.5; }
+}
+
+@keyframes gm-cell-selected-pulse {
+  0%, 100% { stroke-width: 2; opacity: 0.8; }
+  50% { stroke-width: 3.5; opacity: 1; }
+}
+
+@keyframes gm-cell-selected-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gm-cell-arrived-spread {
+  0% { r: var(--cell-size, 10); opacity: 0.9; stroke-width: 2.5; }
+  100% { r: calc(var(--cell-size, 10) + 8); opacity: 0; stroke-width: 0.5; }
+}
+
+.particle-system circle {
+  will-change: cx, cy, opacity;
+}
+.particle-system-circuit circle { mix-blend-mode: screen; }
+.particle-system-conveyor circle { mix-blend-mode: normal; }
+.particle-system-lightning circle { mix-blend-mode: color-dodge; }
+.particle-system-dataflow circle { mix-blend-mode: screen; }
+.particle-system-boss circle { mix-blend-mode: screen; filter: drop-shadow(0 0 2px currentColor); }
+
+/* ========== Zone Background Animations ========== */
+
+/* W区 - 红色波纹扩散 (scale pulse) */
+@keyframes zone-pulse-w {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.05);
+  }
+}
+
+.zone-pulse-w {
+  animation: zone-pulse-w 2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* N区 - 蓝色星光闪烁 (opacity pulse) */
+@keyframes zone-glow-n {
+  0%, 100% {
+    opacity: 0.12;
+    filter: drop-shadow(0 0 2px rgba(68, 136, 255, 0.3));
+  }
+  50% {
+    opacity: 0.22;
+    filter: drop-shadow(0 0 8px rgba(68, 136, 255, 0.6)) drop-shadow(0 0 15px rgba(68, 136, 255, 0.3));
+  }
+}
+
+.zone-glow-n {
+  animation: zone-glow-n 2.5s ease-in-out infinite;
+}
+
+/* I区 - 整体旋转180度 (transform rotate) - 使用opacity模拟旋转感 */
+@keyframes zone-invert {
+  0%, 100% {
+    opacity: 0.15;
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    opacity: 0.20;
+    filter: hue-rotate(45deg);
+  }
+  50% {
+    opacity: 0.18;
+    filter: hue-rotate(90deg);
+  }
+  75% {
+    opacity: 0.22;
+    filter: hue-rotate(135deg);
+  }
+}
+
+.zone-invert {
+  animation: zone-invert 4s ease-in-out infinite;
+}
+
+/* P区 - 黄色时钟图标 + 倒计时感 (stepwise opacity) */
+@keyframes zone-clock {
+  0%, 100% {
+    opacity: 0.10;
+  }
+  16.66% {
+    opacity: 0.14;
+  }
+  33.33% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.16;
+  }
+  66.66% {
+    opacity: 0.11;
+  }
+  83.33% {
+    opacity: 0.15;
+  }
+}
+
+.zone-clock {
+  animation: zone-clock 3s steps(6) infinite;
+}
+
+/* S区 - 绿色闪电划过 (stroke-dashoffset动画效果用opacity模拟) */
+@keyframes zone-flash-s {
+  0%, 85%, 100% {
+    opacity: 0.10;
+    filter: brightness(1);
+  }
+  88% {
+    opacity: 0.25;
+    filter: brightness(1.5) drop-shadow(0 0 5px rgba(68, 255, 136, 0.8));
+  }
+  91% {
+    opacity: 0.15;
+    filter: brightness(1.2);
+  }
+  94% {
+    opacity: 0.20;
+    filter: brightness(1.4) drop-shadow(0 0 3px rgba(68, 255, 136, 0.6));
+  }
+}
+
+.zone-flash-s {
+  animation: zone-flash-s 2.5s ease-in-out infinite;
+}
+
+/* D区 - 深红色警告闪烁 (opacity快速pulse) */
+@keyframes zone-warning-d {
+  0%, 100% {
+    opacity: 0.18;
+  }
+  25% {
+    opacity: 0.30;
+  }
+  50% {
+    opacity: 0.15;
+  }
+  75% {
+    opacity: 0.28;
+  }
+}
+
+.zone-warning-d {
+  animation: zone-warning-d 0.8s ease-in-out infinite;
+}

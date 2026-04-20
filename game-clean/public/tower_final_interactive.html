@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网络安全塔 - 交互式探索</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0a0a1a;
+      --glass-bg: rgba(15, 15, 35, 0.85);
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0c8;
+      --accent-gold: #FFD700;
+      --success: #00ff88;
+      --locked: #4a4a6a;
+
+      /* 可调参数 - CSS变量 */
+      --star-count: 150;
+      --star-max-opacity: 0.8;
+      --aurora-intensity: 0.7;
+      --cloud-density: 2;
+      --cloud-speed-multiplier: 1;
+      --glow-intensity: 1;
+      --brightness-value: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      filter: brightness(var(--brightness-value));
+      transition: filter 0.3s ease;
+    }
+
+    /* 背景动态效果层 */
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(ellipse at center bottom, #1a0a2e 0%, #0a0a1a 70%);
+    }
+
+    /* 极光效果 - 横向移动的不规则曲线 */
+    .aurora {
+      position: absolute;
+      width: 300%;
+      height: 20%;
+      top: 8%;
+      left: -100%;
+      filter: blur(30px);
+      opacity: var(--aurora-intensity);
+      transition: opacity 0.5s ease;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    }
+
+    .aurora.default {
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 50%, rgba(0, 255, 136, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 40%, rgba(138, 43, 226, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 45% at 80% 55%, rgba(0, 206, 209, 0.1) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 35% at 35% 60%, rgba(0, 255, 136, 0.08) 0%, transparent 55%);
+      animation: auroraDrift 40s linear infinite, auroraWave 20s ease-in-out infinite, auroraBreathe 15s ease-in-out infinite;
+    }
+
+    .aurora.blue-pink {
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 50%, rgba(65, 105, 225, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 40%, rgba(255, 105, 180, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 45% at 80% 55%, rgba(138, 43, 226, 0.1) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 35% at 35% 60%, rgba(65, 105, 225, 0.08) 0%, transparent 55%);
+      animation: auroraDrift 45s linear infinite, auroraWave 22s ease-in-out infinite, auroraBreathe 16s ease-in-out infinite;
+    }
+
+    .aurora.rainbow {
+      background: 
+        radial-gradient(ellipse 80% 50% at 15% 50%, rgba(255, 0, 0, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 35% 45%, rgba(255, 165, 0, 0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 45% at 55% 55%, rgba(0, 255, 0, 0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 65% 42% at 75% 48%, rgba(0, 0, 255, 0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 75% 48% at 90% 52%, rgba(138, 43, 226, 0.08) 0%, transparent 70%);
+      animation: auroraDrift 50s linear infinite, auroraWave 25s ease-in-out infinite, auroraBreathe 18s ease-in-out infinite;
+    }
+
+    .aurora.off {
+      display: none;
+    }
+
+    @keyframes auroraDrift {
+      0% { transform: translateX(-33%); }
+      100% { transform: translateX(33%); }
+    }
+
+    @keyframes auroraWave {
+      0%, 100% { 
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        transform: translateX(-33%) scaleY(1);
+      }
+      25% { 
+        border-radius: 45% 55% 55% 45% / 55% 65% 35% 45%;
+        transform: translateX(-20%) scaleY(1.15);
+      }
+      50% { 
+        border-radius: 55% 45% 45% 55% / 65% 55% 45% 35%;
+        transform: translateX(0%) scaleY(0.9);
+      }
+      75% { 
+        border-radius: 48% 52% 52% 48% / 58% 62% 38% 42%;
+        transform: translateX(20%) scaleY(1.1);
+      }
+    }
+
+    @keyframes auroraBreathe {
+      0%, 100% { opacity: var(--aurora-intensity); }
+      50% { opacity: calc(var(--aurora-intensity) * 1.25); }
+    }
+
+    /* 云朵层 */
+    .clouds-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cloud {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255, 255, 255, var(--cloud-opacity, 0.08)), transparent 70%);
+      animation: cloudDrift var(--cloud-duration, 40s) ease-in-out infinite,
+                 cloudPulse var(--cloud-pulse-duration, 8s) ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(-20%) translateY(0); }
+      50% { transform: translateX(10%) translateY(-8px); }
+      100% { transform: translateX(-20%) translateY(0); }
+    }
+
+    @keyframes cloudPulse {
+      0%, 100% { opacity: var(--cloud-opacity, 0.08); }
+      50% { opacity: calc(var(--cloud-opacity, 0.08) * 1.35); }
+    }
+
+    /* 星星 */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--duration) ease-in-out infinite;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    .star.colored-blue {
+      background: radial-gradient(circle, rgba(135, 206, 250, 0.9), rgba(173, 216, 230, 0.3));
+    }
+
+    .star.colored-yellow {
+      background: radial-gradient(circle, rgba(255, 255, 200, 0.9), rgba(255, 215, 0, 0.3));
+    }
+
+    /* 流星 */
+    .meteor {
+      position: absolute;
+      width: 2px;
+      height: 80px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+      animation: meteorFall 1.5s linear forwards;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes meteorFall {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(300px) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: var(--max-opacity); transform: scale(1); }
+    }
+
+    /* 主容器 */
+    .page-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* 左侧面板 */
+    .side-panel {
+      width: 280px;
+      min-width: 280px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px 16px;
+      height: fit-content;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0.7;
+    }
+
+    .side-panel.dimmed {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-align: center;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    .tier-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .tier-list-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+
+    .tier-list-item.locked {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tier-list-item.locked:hover {
+      transform: none;
+      background: transparent;
+    }
+
+    .tier-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .tier-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tier-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tier-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .tier-lock-icon {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+
+    /* 主图区域 */
+    .main-area {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .map-container {
+      position: relative;
+      max-width: 900px;
+      width: 100%;
+      transform-origin: center center;
+      transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+      opacity: 0.7;
+    }
+
+    .map-container.zooming {
+      z-index: 100;
+    }
+
+    #towerMap {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 0 60px rgba(138, 43, 226, 0.2);
+      transition: box-shadow 0.5s ease;
+    }
+
+    /* 热区样式 */
+    .tier-hotspot {
+      position: absolute;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 8px;
+      z-index: 10;
+      overflow: visible;
+    }
+
+    .tier-hotspot::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .tier-hotspot.unlocked:hover::before {
+      border-color: var(--tier-color);
+      box-shadow: 0 0 calc(25px * var(--glow-intensity)) var(--tier-color),
+                  inset 0 0 calc(20px * var(--glow-intensity)) rgba(255, 255, 255, 0.05);
+    }
+
+    .tier-hotspot.unlocked:hover {
+      transform: scale(1.05);
+      z-index: 20;
+    }
+
+    .tier-hotspot.locked {
+      background: rgba(74, 74, 106, 0.4);
+      cursor: not-allowed;
+    }
+
+    .tier-hotspot.locked::after {
+      content: '🔒';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      opacity: 0.6;
+      animation: pulse-lock 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-lock {
+      0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    /* Tooltip */
+    .hotspot-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(5px);
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .tier-hotspot:hover .hotspot-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 能量流粒子容器 */
+    .energy-flow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .energy-particle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      box-shadow: 0 0 12px var(--accent-gold), 0 0 24px var(--accent-gold);
+      animation: energyRise var(--rise-duration) linear infinite;
+      animation-delay: var(--delay);
+      opacity: 0;
+    }
+
+    @keyframes energyRise {
+      0% { bottom: var(--start-pos); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { bottom: var(--end-pos); opacity: 0; }
+    }
+
+    .energy-line {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: repeating-linear-gradient(
+        to top,
+        rgba(255, 215, 0, 0.4) 0px,
+        rgba(255, 215, 0, 0.4) 8px,
+        transparent 8px,
+        transparent 16px
+      );
+    }
+
+    .energy-line.locked-segment {
+      background: repeating-linear-gradient(
+        to top,
+        rgba(74, 74, 106, 0.3) 0px,
+        rgba(74, 74, 106, 0.3) 8px,
+        transparent 8px,
+        transparent 16px
+      );
+    }
+
+    /* 解锁光波动画 */
+    .unlock-wave {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      border-radius: 2px;
+      box-shadow: 0 0 30px var(--accent-gold), 0 0 60px var(--accent-gold);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .unlock-wave.active {
+      animation: waveUp 1.2s ease-out forwards;
+    }
+
+    @keyframes waveUp {
+      0% { bottom: var(--wave-start); opacity: 1; }
+      80% { opacity: 1; }
+      100% { bottom: var(--wave-end); opacity: 0; }
+    }
+
+    /* 进入过渡闪光 */
+    .enter-flash {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .enter-flash.active {
+      opacity: 1;
+    }
+
+    /* 聚焦覆盖层 - 新增功能① */
+    .focus-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .focus-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .focus-overlay.fade-out {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+
+    .focus-content {
+      text-align: center;
+      padding: 48px 60px;
+      background: linear-gradient(145deg, rgba(21, 21, 48, 0.95), rgba(13, 13, 34, 0.95));
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 480px;
+    }
+
+    .focus-overlay.active .focus-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .focus-tier-label {
+      font-size: 56px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      text-shadow: 0 0 30px currentColor, 0 2px 10px rgba(0, 0, 0, 0.5);
+      letter-spacing: 2px;
+    }
+
+    .focus-tier-name {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .focus-tier-theme {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .focus-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn-focus-enter {
+      padding: 16px 32px;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, #00cc6a, #00ff88);
+      color: #001a0d;
+      box-shadow: 0 4px 24px rgba(0, 255, 136, 0.35);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-focus-enter:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0, 255, 136, 0.5);
+    }
+
+    .btn-focus-return {
+      padding: 16px 32px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-focus-return:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-3px);
+    }
+
+    /* 全屏进入状态下的文字提示 */
+    .fullscreen-hint {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .fullscreen-placeholder {
+      font-size: 16px;
+      color: var(--accent-gold);
+      margin-bottom: 28px;
+      padding: 16px 24px;
+      background: rgba(255, 215, 0, 0.06);
+      border-radius: 12px;
+      border: 1px dashed rgba(255, 215, 0, 0.3);
+    }
+
+    /* 模态框 - 保留用于锁定层显示 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.35s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: linear-gradient(145deg, #151530, #0d0d22);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 36px;
+      max-width: 520px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px var(--modal-accent, rgba(255, 215, 0, 0.15));
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .modal-tier-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 20px var(--modal-accent, rgba(0,0,0,0.3));
+    }
+
+    .modal-title-group h2 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .modal-title-group p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .modal-body {
+      margin-bottom: 24px;
+    }
+
+    .progress-section {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: var(--text-secondary);
+    }
+
+    .progress-bar-bg {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--progress-color, var(--accent-gold)), #fff);
+      border-radius: 5px;
+      transition: width 0.6s ease;
+      box-shadow: 0 0 10px var(--progress-color, var(--accent-gold));
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .feature-item {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .feature-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00cc6a, #00ff88);
+      color: #001a0d;
+      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(0, 255, 136, 0.45);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #DAA520, #FFD700);
+      color: #1a1200;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-gold:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(255, 215, 0, 0.45);
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    /* 锁定模态框特殊样式 */
+    .locked-modal .modal-tier-badge {
+      background: linear-gradient(135deg, #4a4a6a, #333355) !important;
+      box-shadow: none;
+    }
+
+    .locked-modal h2 {
+      color: var(--text-secondary) !important;
+    }
+
+    .lock-message {
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .lock-icon-big {
+      font-size: 64px;
+      margin-bottom: 16px;
+      animation: pulse-lock 2s ease-in-out infinite;
+    }
+
+    .lock-text {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Toast通知 */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: linear-gradient(135deg, #1a1a3e, #12122a);
+      border: 1px solid var(--accent-gold);
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent-gold);
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.25);
+      animation: toastIn 0.4s ease forwards, toastOut 0.4s ease 2.6s forwards;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    }
+
+    /* 层级名称闪烁动画 */
+    @keyframes tierNameFlash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .flash-animation {
+      animation: tierNameFlash 0.3s ease 3;
+    }
+
+    /* 锁图标碎裂动画 */
+    @keyframes lockShatter {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+      50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    }
+
+    .shattering::after {
+      animation: lockShatter 0.5s ease forwards !important;
+    }
+
+    /* ========== 设置面板 - 功能④ ========== */
+    .settings-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(15, 15, 35, 0.85);
+      backdrop-filter: blur(20px);
+      color: var(--text-primary);
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .settings-btn:hover {
+      transform: scale(1.1);
+      background: rgba(25, 25, 55, 0.95);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .settings-panel {
+      position: fixed;
+      right: 0;
+      bottom: 84px;
+      width: 300px;
+      max-height: calc(100vh - 120px);
+      background: rgba(15, 15, 35, 0.92);
+      backdrop-filter: blur(20px);
+      border-radius: 16px 0 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-right: none;
+      z-index: 2001;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .settings-panel.open {
+      transform: translateX(0);
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .settings-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .settings-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .settings-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .settings-body {
+      padding: 16px 20px;
+    }
+
+    .setting-item {
+      margin-bottom: 18px;
+    }
+
+    .setting-item label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .setting-item input[type="range"] {
+      width: calc(100% - 48px);
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      outline: none;
+      vertical-align: middle;
+    }
+
+    .setting-item input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00cc6a, #00ff88);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 255, 136, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .setting-item input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .setting-item input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00cc6a, #00ff88);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 255, 136, 0.4);
+    }
+
+    .setting-value {
+      display: inline-block;
+      width: 44px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    .setting-item select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .setting-item select:focus {
+      border-color: rgba(0, 204, 106, 0.5);
+    }
+
+    .setting-item select option {
+      background: #151530;
+      color: var(--text-primary);
+    }
+
+    .btn-reset-settings {
+      width: calc(100% - 40px);
+      margin: 16px 20px 20px;
+      padding: 12px;
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      border-radius: 10px;
+      background: rgba(255, 107, 107, 0.08);
+      color: #ff6b6b;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-reset-settings:hover {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: rgba(255, 107, 107, 0.6);
+    }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .page-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .side-panel {
+        width: 100%;
+        max-width: 500px;
+        position: relative;
+        top: auto;
+        max-height: none;
+      }
+      .tier-list-item {
+        padding: 10px 12px;
+      }
+      .settings-panel {
+        width: 280px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-actions {
+        flex-direction: column;
+      }
+      .modal-content {
+        padding: 24px 20px;
+      }
+      .focus-content {
+        padding: 32px 28px;
+        margin: 16px;
+      }
+      .focus-buttons {
+        flex-direction: column;
+      }
+      .focus-tier-label {
+        font-size: 42px;
+      }
+      .focus-tier-name {
+        font-size: 22px;
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .map-container {
+        transition: none !important;
+      }
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景层 -->
+  <div class="bg-layer">
+    <div class="aurora default" id="aurora1"></div>
+    <div class="aurora default" id="aurora2" style="animation-delay: -10s; opacity: 0.6;"></div>
+    <div class="aurora default" id="aurora3" style="animation-delay: -5s; opacity: 0.45;"></div>
+    <div class="stars" id="starsContainer"></div>
+    <div class="clouds-layer" id="cloudsLayer"></div>
+  </div>
+
+  <!-- 进入闪光 -->
+  <div class="enter-flash" id="enterFlash"></div>
+
+  <!-- Toast容器 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 聚焦覆盖层 - 功能① -->
+  <div class="focus-overlay" id="focusOverlay">
+    <div class="focus-content" id="focusContent">
+      <div class="focus-tier-label" id="focusTierLabel">L1</div>
+      <div class="focus-tier-name" id="focusTierName">病毒实验室</div>
+      <div class="focus-tier-theme" id="focusTierTheme">恶意软件与病毒防御</div>
+
+      <!-- 默认按钮：进入/返回 -->
+      <div class="focus-buttons" id="focusButtonsDefault">
+        <button class="btn-focus-enter" id="btnFocusEnter">
+          🚀 进入本层
+        </button>
+        <button class="btn-focus-return" id="btnFocusReturn">
+          ↩ 返回
+        </button>
+      </div>
+
+      <!-- 全屏进入后的内容 -->
+      <div class="focus-buttons" id="focusButtonsFullscreen" style="display:none;">
+        <div class="fullscreen-hint" id="fullscreenHint"></div>
+        <div class="fullscreen-placeholder" id="fullscreenPlaceholder"></div>
+        <button class="btn-focus-return" id="btnFullscreenReturn">
+          🗺️ 返回主界面
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="page-container">
+    <!-- 左侧面板 -->
+    <aside class="side-panel" id="sidePanel">
+      <h2 class="panel-title">塔楼层级导航</h2>
+      <nav id="tierNav"></nav>
+    </aside>
+
+    <!-- 主图区域 -->
+    <main class="main-area">
+      <div class="map-container" id="mapContainer">
+        <img src="请使用这个作为总地图！！！.png" id="towerMap" alt="9层网络安全塔" />
+
+        <!-- 能量流 -->
+        <div class="energy-flow" id="energyFlow"></div>
+
+        <!-- 解锁光波 -->
+        <div class="unlock-wave" id="unlockWave"></div>
+
+        <!-- 热区将通过JS生成 -->
+        <div id="hotspotsContainer"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 模态框 - 用于锁定层显示 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content" id="modalContent">
+      <button class="btn-close" id="modalClose">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- 设置面板 - 功能④ -->
+  <button class="settings-btn" id="settingsBtn">⚙️</button>
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <h3>✨ 视效设置</h3>
+      <button class="settings-close" id="settingsClose">×</button>
+    </div>
+
+    <div class="settings-body">
+      <div class="setting-item">
+        <label>🌟 星空密度</label>
+        <input type="range" min="50" max="300" value="150" id="setStarCount">
+        <span class="setting-value" id="valStarCount">150</span>
+      </div>
+      <div class="setting-item">
+        <label>✨ 星光强度</label>
+        <input type="range" min="0" max="100" value="80" id="setStarBright">
+        <span class="setting-value" id="valStarBright">80%</span>
+      </div>
+      <div class="setting-item">
+        <label>🌌 极光强度</label>
+        <input type="range" min="0" max="100" value="70" id="setAuroraInt">
+        <span class="setting-value" id="valAuroraInt">70%</span>
+      </div>
+      <div class="setting-item">
+        <label>🎨 极光色彩</label>
+        <select id="setAuroraColor">
+          <option value="default">绿紫渐变</option>
+          <option value="blue-pink">蓝粉渐变</option>
+          <option value="rainbow">彩虹色</option>
+          <option value="off">关闭</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>☁️ 云朵密度</label>
+        <input type="range" min="1" max="3" value="2" step="1" id="setCloudDensity">
+        <span class="setting-value" id="valCloudDensity">中</span>
+      </div>
+      <div class="setting-item">
+        <label>💨 云朵速度</label>
+        <input type="range" min="20" max="200" value="100" id="setCloudSpeed">
+        <span class="setting-value" id="valCloudSpeed">100%</span>
+      </div>
+      <div class="setting-item">
+        <label>🔆 层级发光</label>
+        <input type="range" min="0" max="200" value="100" id="setGlowInt">
+        <span class="setting-value" id="valGlowInt">100%</span>
+      </div>
+      <div class="setting-item">
+        <label>💡 整体亮度</label>
+        <input type="range" min="50" max="150" value="100" id="setBrightness">
+        <span class="setting-value" id="valBrightness">100%</span>
+      </div>
+    </div>
+
+    <button class="btn-reset-settings" id="btnResetSettings">重置为默认</button>
+  </div>
+
+  <script>
+    // ========== 数据定义 ==========
+    const tierData = {
+      1: {
+        name: '病毒实验室',
+        shortName: '病毒实验室',
+        color: '#228B22',
+        theme: '恶意软件与病毒防御',
+        features: [
+          { icon: '🦠', text: '计算机病毒基础认知' },
+          { icon: '🛡️', text: '勒索软件防御策略' },
+          { icon: '🔬', text: '恶意软件分析技术' },
+          { icon: '⚔️', text: '病毒防护实战演练' },
+          { icon: '☣️', text: '生物危害隔离系统' }
+        ],
+        progress: 0
+      },
+      2: {
+        name: '网络空间',
+        shortName: '网络空间',
+        color: '#00CED1',
+        theme: '网络攻击与防御',
+        features: [
+          { icon: '🌐', text: 'DDoS攻击识别与防御' },
+          { icon: '🔥', text: '防火墙与边界防护' },
+          { icon: '👁️', text: '入侵检测系统(IDS)' },
+          { icon: '📊', text: '网络流量分析技术' },
+          { icon: '🔗', text: '中间人攻击防护' }
+        ],
+        progress: 0
+      },
+      3: {
+        name: '数据保险库',
+        shortName: '数据保险库',
+        color: '#4169E1',
+        theme: '数据安全与隐私保护',
+        features: [
+          { icon: '🔐', text: '数据加密技术应用' },
+          { icon: '💧', text: '数据泄露防护(DLP)' },
+          { icon: '⚖️', text: '隐私保护法规遵循' },
+          { icon: '🗄️', text: '数据库安全防护' },
+          { icon: '🔒', text: '金色加密锁系统' }
+        ],
+        progress: 0
+      },
+      4: {
+        name: '城市街区',
+        shortName: '城市街区',
+        color: '#FF8C00',
+        theme: '社会工程学防御',
+        features: [
+          { icon: '🎣', text: '钓鱼攻击识别技巧' },
+          { icon: '🧠', text: '心理操纵技术防范' },
+          { icon: '🏢', text: '物理安全与社会工程' },
+          { icon: '📚', text: '安全意识培训体系' },
+          { icon: '🏙️', text: '都市社交网络防护' }
+        ],
+        progress: 0
+      },
+      5: {
+        name: '智能工厂',
+        shortName: '智能工厂',
+        color: '#DAA520',
+        theme: '工控与物联网安全',
+        features: [
+          { icon: '⚙️', text: '工业控制系统(ICS)安全' },
+          { icon: '📡', text: 'IoT设备安全防护' },
+          { icon: '⚡', text: '智能电网安全架构' },
+          { icon: '🔌', text: '工控协议安全分析' },
+          { icon: '🖥️', text: 'SCADA系统防护' }
+        ],
+        progress: 0
+      },
+      6: {
+        name: '移动设备实验室',
+        shortName: '移动设备',
+        color: '#9370DB',
+        theme: '移动与终端安全',
+        features: [
+          { icon: '📱', text: '移动设备安全管理' },
+          { icon: '📲', text: 'APP安全分析技术' },
+          { icon: '💼', text: 'BYOD策略实施' },
+          { icon: '🛡️', text: '终端防护技术部署' },
+          { icon: '📲', text: '移动应用图标可视化' }
+        ],
+        progress: 0
+      },
+      7: {
+        name: '云端平台',
+        shortName: '云端平台',
+        color: '#87CEEB',
+        theme: '云安全与虚拟化',
+        features: [
+          { icon: '☁️', text: '云计算安全架构设计' },
+          { icon: '📦', text: '容器与微服务安全' },
+          { icon: '🖥️', text: '虚拟化安全防护' },
+          { icon: '🚀', text: '云原生安全技术' },
+          { icon: '🗄️', text: '悬浮服务器舱系统' }
+        ],
+        progress: 0
+      },
+      8: {
+        name: '未来实验室',
+        shortName: '未来实验室',
+        color: '#FF69B4',
+        theme: 'AI与新兴技术安全',
+        features: [
+          { icon: '🤖', text: 'AI安全与伦理规范' },
+          { icon: '⛓️', text: '区块链安全技术' },
+          { icon: '⚛️', text: '量子计算与密码学' },
+          { icon: '🧠', text: '神经网络可视化' },
+          { icon: '🔮', text: '全息投影研究设备' }
+        ],
+        progress: 0
+      },
+      9: {
+        name: '指挥中心',
+        shortName: '指挥中心',
+        color: '#FFD700',
+        theme: '安全管理与合规',
+        features: [
+          { icon: '🏛️', text: '等级保护制度实施' },
+          { icon: '📋', text: '安全法规与标准遵循' },
+          { icon: '📊', text: '安全管理体系建设' },
+          { icon: '👑', text: '皇家级安全监控' },
+          { icon: '💎', text: '水晶尖塔权威象征' }
+        ],
+        progress: 0
+      }
+    };
+
+    // 热区位置配置 (bottom百分比, 高度百分比, 宽度百分比)
+    const hotspotConfig = {
+      1: { bottom: 8, height: 10, width: 82 },
+      2: { bottom: 19, height: 10, width: 76 },
+      3: { bottom: 30, height: 10, width: 70 },
+      4: { bottom: 41, height: 10, width: 63 },
+      5: { bottom: 52, height: 10, width: 55 },
+      6: { bottom: 63, height: 9, width: 47 },
+      7: { bottom: 73, height: 9, width: 39 },
+      8: { bottom: 83, height: 7, width: 31 },
+      9: { bottom: 90, height: 9, width: 23 }
+    };
+
+    // 状态管理
+    let tierState = {};
+    let currentModalTier = null;
+    let isZooming = false;
+    let currentFocusedTier = null;
+    let isFullscreenMode = false;
+
+    // 初始化状态：仅L1解锁
+    function initState() {
+      for (let i = 1; i <= 9; i++) {
+        tierState[i] = {
+          unlocked: i === 1,
+          completed: false,
+          progress: 0
+        };
+      }
+    }
+
+    // ========== 初始化星星背景 - 增强③ ==========
+    function initStars() {
+      const container = document.getElementById('starsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const count = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--star-count')) || 150;
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // 随机颜色：部分星带淡蓝或淡黄色调
+        const colorRand = Math.random();
+        if (colorRand > 0.92) {
+          star.classList.add('colored-blue');
+        } else if (colorRand > 0.85) {
+          star.classList.add('colored-yellow');
+        }
+
+        const size = Math.random() * 2.5 + 0.5;
+        const maxOpacityBase = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--star-max-opacity')) || 0.8;
+        star.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          --duration: ${Math.random() * 3 + 2}s;
+          --max-opacity: ${(Math.random() * 0.7 + 0.3) * maxOpacityBase};
+          animation-delay: ${Math.random() * 5}s;
+        `;
+        container.appendChild(star);
+      }
+
+      // 启动流星定时器
+      scheduleMeteor();
+    }
+
+    // 流星效果
+    function scheduleMeteor() {
+      const delay = 8000 + Math.random() * 7000; // 8-15秒
+      setTimeout(() => {
+        createMeteor();
+        scheduleMeteor();
+      }, delay);
+    }
+
+    function createMeteor() {
+      const container = document.getElementById('starsContainer');
+      if (!container) return;
+      const meteor = document.createElement('div');
+      meteor.className = 'meteor';
+      meteor.style.left = `${Math.random() * 80}%`;
+      meteor.style.top = `${Math.random() * 40}%`;
+      container.appendChild(meteor);
+
+      setTimeout(() => {
+        if (meteor.parentNode) meteor.remove();
+      }, 1600);
+    }
+
+    // ========== 初始化云朵 - CSS模拟模式 ==========
+    function initClouds() {
+      const layer = document.getElementById('cloudsLayer');
+      if (!layer) return;
+      layer.innerHTML = '';
+
+      const density = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cloud-density')) || 2;
+      const counts = { 1: 2, 2: 5, 3: 8 };
+      const cloudCount = counts[density] || 5;
+
+      for (let i = 0; i < cloudCount; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+
+        let size, baseOpacity, baseDuration;
+        size = 120 + Math.random() * 130; // 120-250px
+        baseOpacity = 0.04 + Math.random() * 0.04; // 0.04-0.08
+        baseDuration = 40 + Math.random() * 25; // 40-65s
+
+        const speedMultiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cloud-speed-multiplier')) || 1;
+        const duration = baseDuration / speedMultiplier;
+
+        cloud.style.cssText = `
+          width: ${size}px;
+          height: ${size * 0.5}px;
+          left: ${Math.random() * 90}%;
+          bottom: ${Math.random() * 15}%;
+          --cloud-opacity: ${baseOpacity};
+          --cloud-duration: ${duration}s;
+          --cloud-pulse-duration: ${8 + Math.random() * 4}s;
+          z-index: 1;
+          animation-delay: ${-(Math.random() * duration)}s;
+        `;
+        layer.appendChild(cloud);
+      }
+
+      console.log(`☁️ 已创建 ${cloudCount} 个CSS模拟云朵`);
+    }
+
+    // ========== 渲染左侧导航 ==========
+    function renderSidePanel() {
+      const nav = document.getElementById('tierNav');
+      if (!nav) return;
+      nav.innerHTML = '';
+
+      for (let i = 1; i <= 9; i++) {
+        const data = tierData[i];
+        const state = tierState[i];
+        const item = document.createElement('div');
+        item.className = `tier-list-item ${state.unlocked ? '' : 'locked'}`;
+        item.dataset.tier = i;
+
+        item.innerHTML = `
+          <div class="tier-dot" style="background: ${data.color}; color: ${data.color};"></div>
+          <div class="tier-info">
+            <div class="tier-name">L${i}. ${data.shortName}</div>
+            <div class="tier-desc">${data.theme}</div>
+          </div>
+          ${!state.unlocked ? '<span class="tier-lock-icon">🔒</span>' : ''}
+        `;
+
+        if (state.unlocked) {
+          item.addEventListener('click', () => zoomToTier(i));
+        }
+
+        nav.appendChild(item);
+      }
+    }
+
+    // ========== 渲染热区 ==========
+    function renderHotspots() {
+      const container = document.getElementById('hotspotsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 9; i++) {
+        const data = tierData[i];
+        const state = tierState[i];
+        const config = hotspotConfig[i];
+
+        const hotspot = document.createElement('div');
+        hotspot.className = `tier-hotspot ${state.unlocked ? 'unlocked' : 'locked'}`;
+        hotspot.dataset.tier = i;
+        hotspot.style.setProperty('--tier-color', data.color);
+
+        // 计算位置：水平居中，垂直根据config
+        const leftPercent = (100 - config.width) / 2;
+        hotspot.style.cssText += `
+          bottom: ${config.bottom}%;
+          left: ${leftPercent}%;
+          width: ${config.width}%;
+          height: ${config.height}%;
+          --tier-color: ${data.color};
+        `;
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'hotspot-tooltip';
+        tooltip.innerHTML = `<span style="color:${data.color}">●</span> L${i}. ${data.name}`;
+        hotspot.appendChild(tooltip);
+
+        if (state.unlocked) {
+          hotspot.addEventListener('click', () => zoomToTier(i));
+        } else {
+          hotspot.addEventListener('click', () => showLockedMessage(i));
+        }
+
+        container.appendChild(hotspot);
+      }
+
+      renderEnergyFlow();
+    }
+
+    // ========== 能量流渲染 ==========
+    function renderEnergyFlow() {
+      const flowContainer = document.getElementById('energyFlow');
+      if (!flowContainer) return;
+      flowContainer.innerHTML = '';
+
+      // 找到最高已解锁层级
+      let maxUnlocked = 1;
+      for (let i = 9; i >= 1; i--) {
+        if (tierState[i].unlocked) {
+          maxUnlocked = i;
+          break;
+        }
+      }
+
+      // 绘制能量线段
+      for (let i = 1; i < 9; i++) {
+        const configCurrent = hotspotConfig[i];
+        const configNext = hotspotConfig[i + 1];
+        const lineTop = configNext.bottom + configNext.height;
+        const lineBottom = configCurrent.bottom;
+
+        const line = document.createElement('div');
+        line.className = `energy-line ${i >= maxUnlocked ? 'locked-segment' : ''}`;
+        line.style.cssText = `
+          bottom: ${lineBottom}%;
+          height: ${(lineBottom - lineTop)}%;
+        `;
+        flowContainer.appendChild(line);
+      }
+
+      // 添加能量粒子
+      if (maxUnlocked > 1) {
+        const startConfig = hotspotConfig[1];
+        const endConfig = hotspotConfig[maxUnlocked];
+        const startPos = startConfig.bottom + startConfig.height / 2;
+        const endPos = endConfig.bottom + endConfig.height / 2;
+
+        for (let j = 0; j < 6; j++) {
+          const particle = document.createElement('div');
+          particle.className = 'energy-particle';
+          particle.style.setProperty('--start-pos', `${startPos}%`);
+          particle.style.setProperty('--end-pos', `${endPos}%`);
+          particle.style.setProperty('--rise-duration', `${2.5 + Math.random() * 2}s`);
+          particle.style.setProperty('--delay', `${j * 0.6}s`);
+          flowContainer.appendChild(particle);
+        }
+      }
+    }
+
+    // ========== 功能①：层级聚焦放大视图 ==========
+    function zoomToTier(tierNum) {
+      if (isZooming || isFullscreenMode) return;
+      isZooming = true;
+      currentFocusedTier = tierNum;
+
+      const mapContainer = document.getElementById('mapContainer');
+      const focusOverlay = document.getElementById('focusOverlay');
+      const config = hotspotConfig[tierNum];
+      const data = tierData[tierNum];
+
+      // 计算让热区居中于画面中心所需的transform
+      // 目标：该层级占据画面中心约 60-70% 区域
+      const targetScale = 1.6; // 放大到约1.6倍
+
+      // 计算热区中心点位置（相对于容器）
+      const centerX = 50; // 水平居中
+      const centerY = 100 - (config.bottom + config.height / 2); // 从顶部算起的百分比
+
+      // 计算translate使热区中心对齐到画面中心
+      // 画面中心在容器的 50%, 50%
+      // 缩放后，需要将热区从 (centerX, centerY) 移动到 (50, 50)
+      // translate = (画面中心 - 热区中心) * scale 的某种组合
+      const tx = (50 - centerX) * targetScale;
+      const ty = (50 - centerY) * targetScale;
+
+      // 应用变换
+      mapContainer.style.transform = `scale(${targetScale}) translate(${tx / targetScale}px, ${ty / targetScale}px)`;
+      mapContainer.classList.add('zooming');
+
+      // 显示聚焦覆盖层
+      updateFocusOverlay(tierNum, data);
+      focusOverlay.classList.remove('fade-out');
+      focusOverlay.classList.add('active');
+
+      // 淡化侧边栏
+      document.getElementById('sidePanel').classList.add('dimmed');
+
+      // 动画完成后恢复交互标志
+      setTimeout(() => {
+        isZooming = false;
+      }, 1000);
+    }
+
+    function updateFocusOverlay(tierNum, data) {
+      document.getElementById('focusTierLabel').textContent = `L${tierNum}`;
+      document.getElementById('focusTierLabel').style.color = data.color;
+      document.getElementById('focusTierName').textContent = data.name;
+      document.getElementById('focusTierName').style.color = data.color;
+      document.getElementById('focusTierTheme').textContent = data.theme;
+
+      // 重置为默认按钮视图
+      document.getElementById('focusButtonsDefault').style.display = '';
+      document.getElementById('focusButtonsFullscreen').style.display = 'none';
+
+      // 绑定事件
+      document.getElementById('btnFocusEnter').onclick = () => fullScreenEnter(tierNum);
+      document.getElementById('btnFocusReturn').onclick = returnToMainView;
+    }
+
+    function returnToMainView() {
+      if (isFullscreenMode) {
+        exitFullscreenMode();
+        return;
+      }
+
+      const mapContainer = document.getElementById('mapContainer');
+      const focusOverlay = document.getElementById('focusOverlay');
+
+      // 覆盖层淡出
+      focusOverlay.classList.add('fade-out');
+      setTimeout(() => {
+        focusOverlay.classList.remove('active', 'fade-out');
+      }, 350);
+
+      // 地图缩回原位
+      mapContainer.style.transform = 'scale(1) translate(0, 0)';
+      mapContainer.classList.remove('zooming');
+
+      // 恢复侧边栏
+      document.getElementById('sidePanel').classList.remove('dimmed');
+
+      currentFocusedTier = null;
+      isZooming = false;
+    }
+
+    // ========== 功能②：全屏进入动画 ==========
+    function fullScreenEnter(tierNum) {
+      isFullscreenMode = true;
+      const mapContainer = document.getElementById('mapContainer');
+      const flash = document.getElementById('enterFlash');
+      const config = hotspotConfig[tierNum];
+      const data = tierData[tierNum];
+
+      // 步骤1：白色闪光
+      flash.classList.add('active');
+
+      setTimeout(() => {
+        flash.classList.remove('active');
+
+        // 步骤2：进一步放大地图，弹性缓动
+        const fullScale = 2.8; // 进一步放大到 ~2.8x
+        const centerX = 50;
+        const centerY = 100 - (config.bottom + config.height / 2);
+        const tx = (50 - centerX) * fullScale;
+        const ty = (50 - centerY) * fullScale;
+
+        mapContainer.style.transition = 'transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        mapContainer.style.transform = `scale(${fullScale}) translate(${tx / fullScale}px, ${ty / fullScale}px)`;
+
+        // 步骤3：主题色光晕扩散
+        mapContainer.style.boxShadow = `0 0 80px ${data.color}, 0 0 120px ${data.color}44`;
+        mapContainer.style.animation = 'glowPulse 2s ease-in-out infinite';
+
+        // 更新覆盖层内容为加载提示
+        document.getElementById('focusButtonsDefault').style.display = 'none';
+        document.getElementById('focusButtonsFullscreen').style.display = '';
+        document.getElementById('fullscreenHint').innerHTML = `
+          <span style="font-size: 20px;">正在加载第${tierNum}层...</span><br>
+          <span style="font-size: 14px; opacity: 0.7;">${data.name}</span>
+        `;
+        document.getElementById('fullscreenPlaceholder').innerHTML = '⏳ 正在初始化关卡资源...';
+
+        // 步骤5：2秒后显示占位文字
+        setTimeout(() => {
+          document.getElementById('fullscreenHint').innerHTML = `
+            <span style="font-size: 20px; color: ${data.color};">${data.name}</span><br>
+            <span style="font-size: 14px; opacity: 0.7;">${data.theme}</span>
+          `;
+          document.getElementById('fullscreenPlaceholder').innerHTML = '🗺️ 分地图加载中... 敬请期待';
+        }, 2000);
+
+      }, 400);
+    }
+
+    function exitFullscreenMode() {
+      isFullscreenMode = false;
+      const mapContainer = document.getElementById('mapContainer');
+
+      // 清除光晕和动画
+      mapContainer.style.boxShadow = '0 0 60px rgba(138, 43, 226, 0.2)';
+      mapContainer.style.animation = '';
+      mapContainer.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+      // 返回主视图
+      returnToMainView();
+    }
+
+    // 光晕脉冲动画（动态注入）
+    const glowPulseKeyframes = `
+      @keyframes glowPulse {
+        0%, 100% { box-shadow: 0 0 80px var(--glow-color, #FFD700), 0 0 120px var(--glow-color, #FFD700)44; }
+        50% { box-shadow: 0 0 100px var(--glow-color, #FFD700), 0 0 160px var(--glow-color, #FFD700)66; }
+      }
+    `;
+
+    // 注入光晕动画
+    const glowStyle = document.createElement('style');
+    glowStyle.textContent = glowPulseKeyframes;
+    document.head.appendChild(glowStyle);
+
+    // ========== 打开模态框（保留用于锁定层） ==========
+    function openModal(tierNum) {
+      currentModalTier = tierNum;
+      const data = tierData[tierNum];
+      const state = tierState[tierNum];
+
+      const overlay = document.getElementById('modalOverlay');
+      const body = document.getElementById('modalBody');
+      const content = document.getElementById('modalContent');
+
+      overlay.classList.remove('locked-modal');
+
+      body.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-tier-badge" style="background: linear-gradient(135deg, ${data.color}, ${adjustColor(data.color, -30)})">
+            L${tierNum}
+          </div>
+          <div class="modal-title-group">
+            <h2 style="color: ${data.color}">${data.name}</h2>
+            <p>${data.theme}</p>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>通关进度</span>
+              <span>${state.progress}/9 关卡</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${(state.progress / 9) * 100}%; --progress-color: ${data.color};"></div>
+            </div>
+          </div>
+
+          <div class="features-grid">
+            ${data.features.map(f => `
+              <div class="feature-item">
+                <span class="feature-icon">${f.icon}</span>
+                <span>${f.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="enterTier(${tierNum})">
+            🚀 进入本层
+          </button>
+          <button class="btn btn-gold" onclick="completeTier(${tierNum})" ${state.completed ? 'disabled' : ''}>
+            ⭐ 模拟通关
+          </button>
+        </div>
+      `;
+
+      content.style.setProperty('--modal-accent', `${data.color}33`);
+      overlay.classList.add('active');
+    }
+
+    // 显示锁定提示模态框
+    function showLockedMessage(tierNum) {
+      const prevTier = tierNum - 1;
+      const data = tierData[tierNum];
+      const prevState = tierState[prevTier];
+
+      const overlay = document.getElementById('modalOverlay');
+      const body = document.getElementById('modalBody');
+      const content = document.getElementById('modalContent');
+
+      overlay.classList.add('locked-modal');
+
+      body.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-tier-badge" style="background: linear-gradient(135deg, #4a4a6a, #333355);">
+            L${tierNum}
+          </div>
+          <div class="modal-title-group">
+            <h2>${data.name}</h2>
+            <p>${data.theme}</p>
+          </div>
+        </div>
+
+        <div class="lock-message">
+          <div class="lock-icon-big">🔒</div>
+          <p class="lock-text">
+            该层级尚未解锁<br><br>
+            需要先通过<br>
+            <strong style="color: ${tierData[prevTier].color}">L${prevTier}. ${tierData[prevTier].name}</strong><br><br>
+            ${prevState.completed ? '点击"进入本层"开始挑战！' : '请先完成前一层的挑战'}
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="closeModal()" style="flex: 1;">
+            知道了
+          </button>
+        </div>
+      `;
+
+      content.style.setProperty('--modal-accent', 'rgba(74,74,106,0.15)');
+      overlay.classList.add('active');
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      currentModalTier = null;
+    }
+
+    // ========== 进入层级动画（兼容旧接口） ==========
+    function enterTier(tierNum) {
+      const flash = document.getElementById('enterFlash');
+      flash.classList.add('active');
+
+      setTimeout(() => {
+        flash.classList.remove('active');
+        showToast(`🚀 正在进入 L${tierNum}. ${tierData[tierNum].name}...`, 'info');
+        closeModal();
+      }, 500);
+    }
+
+    // ========== 模拟通关 & 解锁下一层 ==========
+    function completeTier(tierNum) {
+      const state = tierState[tierNum];
+      state.completed = true;
+      state.progress = 9;
+
+      showToast(`🎉 恭喜！L${tierNum}. ${tierData[tierNum].name} 已通关！`, 'success');
+
+      // 如果有下一层且未解锁
+      if (tierNum < 9 && !tierState[tierNum + 1].unlocked) {
+        setTimeout(() => {
+          unlockNextTier(tierNum + 1);
+        }, 800);
+      } else {
+        closeModal();
+        renderSidePanel();
+        renderHotspots();
+      }
+    }
+
+    // ========== 解锁动画序列 ==========
+    function unlockNextTier(nextTierNum) {
+      const wave = document.getElementById('unlockWave');
+      const startConfig = hotspotConfig[1];
+      const endConfig = hotspotConfig[nextTierNum];
+
+      wave.style.setProperty('--wave-start', `${startConfig.bottom}%`);
+      wave.style.setProperty('--wave-end', `${endConfig.bottom + endConfig.height / 2}%`);
+      wave.classList.add('active');
+
+      // 光波到达后执行解锁
+      const duration = 1200;
+      setTimeout(() => {
+        wave.classList.remove('active');
+
+        // 更新状态
+        tierState[nextTierNum].unlocked = true;
+
+        // 获取对应热区DOM并执行动画
+        const hotspots = document.querySelectorAll('.tier-hotspot');
+        hotspots.forEach(hs => {
+          if (parseInt(hs.dataset.tier) === nextTierNum) {
+            hs.classList.add('shattering');
+            hs.classList.remove('locked');
+            hs.classList.add('unlocked');
+
+            // 移除锁定伪元素后的清理
+            setTimeout(() => {
+              hs.classList.remove('shattering');
+              // 重新绑定点击事件
+              hs.onclick = () => zoomToTier(nextTierNum);
+            }, 500);
+          }
+        });
+
+        // 名称闪烁
+        const navItems = document.querySelectorAll('.tier-list-item');
+        navItems.forEach(item => {
+          if (parseInt(item.dataset.tier) === nextTierNum) {
+            item.querySelector('.tier-name').classList.add('flash-animation');
+            setTimeout(() => {
+              item.querySelector('.tier-name').classList.remove('flash-animation');
+            }, 900);
+          }
+        });
+
+        // Toast通知
+        showToast(`✨ 第${nextTierNum}层 [${tierData[nextTierNum].name}] 已解锁！`, 'unlock');
+
+        // 更新UI
+        renderSidePanel();
+        renderHotspots();
+
+        // 关闭当前模态框
+        closeModal();
+
+      }, duration);
+    }
+
+    // ========== Toast通知 ==========
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+
+      const icons = {
+        success: '✅',
+        unlock: '🔓',
+        info: 'ℹ️'
+      };
+
+      toast.textContent = `${icons[type] || ''} ${message}`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, 3000);
+    }
+
+    // ========== 工具函数：调整颜色亮度 ==========
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.slice(1), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    }
+
+    // ========== 功能④：视效调节控制面板 ==========
+    function initSettingsPanel() {
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const settingsClose = document.getElementById('settingsClose');
+      const resetBtn = document.getElementById('btnResetSettings');
+
+      // 打开/关闭面板
+      settingsBtn.addEventListener('click', () => {
+        settingsPanel.classList.toggle('open');
+      });
+
+      settingsClose.addEventListener('click', () => {
+        settingsPanel.classList.remove('open');
+      });
+
+      // 重置按钮
+      resetBtn.addEventListener('click', resetAllSettings);
+
+      // 绑定各滑块事件
+      bindSettingControl('setStarCount', 'valStarCount', (value) => {
+        document.documentElement.style.setProperty('--star-count', value);
+        initStars();
+      });
+
+      bindSettingControl('setStarBright', 'valStarBright', (value) => {
+        document.documentElement.style.setProperty('--star-max-opacity', (value / 100).toFixed(2));
+        initStars();
+      }, '%');
+
+      bindSettingControl('setAuroraInt', 'valAuroraInt', (value) => {
+        const intensity = value / 100;
+        document.documentElement.style.setProperty('--aurora-intensity', intensity.toFixed(2));
+        document.querySelectorAll('.aurora').forEach(a => {
+          a.style.opacity = intensity;
+        });
+      }, '%');
+
+      // 极光色彩选择器 - 控制CSS极光显示/隐藏
+      document.getElementById('setAuroraColor').addEventListener('change', (e) => {
+        const mode = e.target.value;
+        document.querySelectorAll('.aurora').forEach(a => {
+          if (mode === 'off') {
+            a.style.display = 'none';
+          } else {
+            a.style.display = 'block';
+            a.className = `aurora ${mode}`;
+          }
+        });
+      });
+
+      bindSettingControl('setCloudDensity', 'valCloudDensity', (value) => {
+        document.documentElement.style.setProperty('--cloud-density', value);
+        const labels = { 1: '低', 2: '中', 3: '高' };
+        initClouds();
+        return labels[value] || value;
+      });
+
+      bindSettingControl('setCloudSpeed', 'valCloudSpeed', (value) => {
+        document.documentElement.style.setProperty('--cloud-speed-multiplier', (value / 100).toFixed(2));
+        initClouds();
+      }, '%');
+
+      bindSettingControl('setGlowInt', 'valGlowInt', (value) => {
+        document.documentElement.style.setProperty('--glow-intensity', (value / 100).toFixed(2));
+      }, '%');
+
+      bindSettingControl('setBrightness', 'valBrightness', (value) => {
+        document.documentElement.style.setProperty('--brightness-value', `${value}%`);
+        document.body.style.filter = `brightness(${value}%)`;
+      }, '%');
+    }
+
+    function bindSettingControl(inputId, labelId, callback, suffix = '') {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(labelId);
+
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        let displayValue = callback(value);
+        if (displayValue === undefined) displayValue = value;
+        label.textContent = displayValue + suffix;
+      });
+    }
+
+    function resetAllSettings() {
+      // 重置所有值
+      const defaults = {
+        setStarCount: 150,
+        setStarBright: 80,
+        setAuroraInt: 70,
+        setAuroraColor: 'default',
+        setCloudDensity: 2,
+        setCloudSpeed: 100,
+        setGlowInt: 100,
+        setBrightness: 100
+      };
+
+      Object.entries(defaults).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = value;
+          el.dispatchEvent(new Event('input'));
+          if (el.tagName === 'SELECT') {
+            el.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+
+      showToast('🔄 视效设置已重置为默认值', 'info');
+    }
+
+    // ========== 事件绑定 ==========
+    function bindEvents() {
+      // 关闭模态框
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modalOverlay') closeModal();
+      });
+
+      // ESC关闭
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (document.getElementById('settingsPanel').classList.contains('open')) {
+            document.getElementById('settingsPanel').classList.remove('open');
+          } else if (currentFocusedTier !== null) {
+            returnToMainView();
+          } else {
+            closeModal();
+          }
+        }
+      });
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+      initState();
+      initStars();
+      initClouds();
+      renderSidePanel();
+      renderHotspots();
+      bindEvents();
+      initSettingsPanel();
+
+      console.log('🏰 网络安全塔交互系统已初始化 (增强版)');
+      console.log('📋 当前状态：仅第1层(病毒实验室)已解锁');
+      console.log('✨ 新增功能：层级聚焦放大、全屏进入、增强背景、视效控制面板');
+      console.log('✨ 背景模式：CSS氛围效果 (云朵 + 极光 + 星星)');
+    }
+
+    // 启动
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
