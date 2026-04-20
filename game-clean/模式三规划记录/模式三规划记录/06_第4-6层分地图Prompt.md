@@ -79,20 +79,20 @@
 | 元素 | 描述 |
 |------|------|
 | 地板 | 铺装沥青道路带黄线，人行道混凝土纹理 |
-| 建筑 | 立面剪影：办公楼/咖啡馆/商店/公寓 |
-| 背景 | 城市天际线，温暖日落照明长阴影 |
+| 建筑 | 立面剪影：办公楼/咖啡馆/商店/公寓，海幸风格的艺术装饰 |
+| 背景 | 城市天际线，温暖日落照明长阴影，艺术藤蔓装饰 |
 | N区 | 图书馆建筑群，蓝色玻璃幕墙 |
 | P区 | 公园绿地，休闲氛围 |
 | W区 | 工业旧区，昏暗路灯 |
 | I区 | 迷宫式老城区，复杂巷道 |
 | D区 | 黑暗巷子，可疑人物出没 |
-| 装饰 | 路灯、交通标志、井盖、绿植盆栽 |
+| 装饰 | 路灯、交通标志、井盖、绿植盆栽，艺术藤蔓装饰 |
 
 ### AI绘图Prompt
 
 ```markdown
 【英文Prompt】
-Top-down game map, urban city district grid layout,
+Top-down game map, urban city district grid layout inspired by Hayami style,
 3x3 block grid with streets as pathways between blocks,
 
 GRID STRUCTURE:
@@ -115,6 +115,8 @@ STREET PATHWAYS:
 - Sidewalk concrete texture along edges
 - Street lamps at regular intervals
 - Manhole covers and traffic signs
+- Colorful alternating yellow and white paths with artistic flourishes
+- Artistic vine-like decorations along street edges
 
 ZONE OVERLAYS:
 - N zone (NW): blue-tinted library district glow
@@ -136,17 +138,19 @@ ATMOSPHERE:
 - Long shadows across eastward streets
 - Cozy urban feel mixed with hidden dangers
 - City skyline silhouette in background
+- Artistic Hayami-style elements throughout
 
 STYLE:
-- Isometric view, warm illustration style
+- Isometric view, warm illustration style with Hayami-inspired artistic elements
 - Detailed building facades with windows
 - Cozy yet mysterious urban atmosphere
-- Game asset quality, clean art style
+- Game asset quality, clean art style with artistic flourishes
 - 16:9 aspect ratio
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 250 --no text, labels
 
 【中文描述】
-俯视游戏地图，城市街区网格布局，
+俯视游戏地图，海幸风格的城市街区网格布局，
 3×3街区块网格，街道作为区块间路径，
 
 网格结构：3行×3列城市块，街道形成网格图案，
@@ -157,7 +161,9 @@ STYLE:
 西南书店建筑暖光/中南技能获取中心/东Boss企业总部塔楼
 
 街道路径：沥青材质黄线标，人行道混凝土纹理，
-路灯规律间隔，井盖交通标志
+路灯规律间隔，井盖交通标志，
+彩色交替的黄色和白色路径，带有艺术装饰，
+街道边缘有艺术藤蔓装饰
 
 区域覆盖：N区蓝调图书馆/P区绿色公园/W区红色工业衰退/
 I区紫色迷宫图案/D区深红危险阴影
@@ -166,7 +172,11 @@ I区紫色迷宫图案/D区深红危险阴影
 Boss大红企业塔/机会金色欢迎广场/End地铁站入口
 
 氛围：温暖日落西照长阴影东投，舒适都市感混合隐藏危险，
-城市天际线背景剪影，等距视角温暖插画风格16:9游戏素材
+城市天际线背景剪影，贯穿整个场景的海幸风格艺术元素
+
+风格：等距视角温暖插画风格，带有海幸风格的艺术元素，
+详细建筑立面带窗户，舒适神秘都市氛围，
+游戏素材质量干净艺术风格带艺术装饰，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---
@@ -255,20 +265,20 @@ Boss大红企业塔/机会金色欢迎广场/End地铁站入口
 |------|------|
 | 地板 | 工业混凝土油渍，黄色安全警示条纹 |
 | 机械 | 传送带、机械臂、管道、控制面板 |
-| 背景 | 工厂天花板管道灯具 |
+| 背景 | 工厂天花板管道灯具，海幸风格的艺术元素 |
 | S区 | 明亮整洁的新设备区 |
 | W区 | 陈旧生锈的老旧设备区 |
 | N区 | 标准化操作示范区 |
 | D区 | 高危作业区红色警示 |
 | I区 | 中央控制核心区紫光 |
 | P区 | 维修停机区 |
-| 装饰 | 蒸汽阀门、火花效果、警示灯 |
+| 装饰 | 蒸汽阀门、火花效果、警示灯，艺术藤蔓装饰 |
 
 ### AI绘图Prompt
 
 ```markdown
 【英文Prompt】
-Top-down game map, automated smart factory floor plan,
+Top-down game map, automated smart factory floor plan inspired by Hayami style,
 tree-shaped production line layout with main trunk and branches,
 
 LAYOUT STRUCTURE:
@@ -294,6 +304,7 @@ FACTORY VISUAL ELEMENTS:
 - Control panels and monitoring screens
 - Yellow safety stripes on walkways
 - Warning lights at danger zones
+- Artistic vine-like decorations on machinery and walls
 
 ZONE TINTING:
 - S zone (top): bright clean new equipment area
@@ -309,17 +320,19 @@ INDUSTRIAL DETAILS:
 - Oil stains on concrete floor
 - Overhead crane silhouettes
 - Emergency stop buttons at key points
+- Artistic Hayami-style elements throughout
 
 STYLE:
-- Isometric view, industrial blueprint aesthetic
+- Isometric view, industrial blueprint aesthetic with Hayami-inspired artistic elements
 - Technical illustration with mechanical details
 - Busy active factory atmosphere
-- Clean vector lines with industrial texture overlays
+- Clean vector lines with industrial texture overlays and artistic flourishes
 - 16:9, game asset, no text
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 300 --no text, labels
 
 【中文描述】
-俯视游戏地图，自动化智能工厂平面图，
+俯视游戏地图，海幸风格的自动化智能工厂平面图，
 树形生产线布局主干加分支，
 
 布局结构：主干路径自上而下（原料→装配→发货）
@@ -333,17 +346,19 @@ STYLE:
 
 工厂视觉元素：传送带沿主路径/装配节点机械臂/
 区域间管道网络/控制面板监控屏/走道黄色安全条纹/
-危险区警示灯光
+危险区警示灯光，机器和墙壁上有艺术藤蔓装饰
 
 区域着色：S区明亮洁净新设备/W区左侧上方锈迹老旧机械/
 N区右侧上方标准化操作/D区左下方高危红色警告/
 I区中心紫色光芒核心控制/P区右端维修停机
 
 工业细节：蒸汽通风口白汽/焊接站偶发火花/
-地面混凝土油污/ overhead起重机剪影/关键点紧急停止按钮
+地面混凝土油污/ overhead起重机剪影/关键点紧急停止按钮，
+贯穿整个场景的海幸风格艺术元素
 
-风格：等距视角工业蓝图美学，技术插画机械细节，
-繁忙活跃工厂氛围，干净矢量线条工业纹理叠加16:9游戏素材
+风格：等距视角工业蓝图美学，带有海幸风格的艺术元素，
+技术插画机械细节，繁忙活跃工厂氛围，
+干净矢量线条工业纹理叠加带艺术装饰，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---
@@ -431,20 +446,20 @@ I区中心紫色光芒核心控制/P区右端维修停机
 |------|------|
 | 地板 | 白色瓷砖配紫色强调线，充电接口图案 |
 | 设备 | 智能手机测试台、平板支架、APP界面投影 |
-| 背景 | 现代科技实验室玻璃墙 |
+| 背景 | 现代科技实验室玻璃墙，海幸风格的艺术元素 |
 | S区 | 高速充电区明亮发光 |
 | N区 | 学习研究区蓝光屏幕 |
 | W区 | 信号弱区暗淡 |
 | I区 | 不稳定实验区紫光闪烁 |
 | P区 | 待机休眠区暖黄光 |
 | D区 | 感染隔离区红光警报 |
-| 装饰 | WiFi信号图标、蓝牙符号、充电线缆、通知气泡 |
+| 装饰 | WiFi信号图标、蓝牙符号、充电线缆、通知气泡，艺术藤蔓装饰 |
 
 ### AI绘图Prompt
 
 ```markdown
 【英文Prompt】
-Top-down game map, mobile device testing laboratory,
+Top-down game map, mobile device testing laboratory inspired by Hayami style,
 hexagonal honeycomb cell layout with 17 nodes,
 
 HONEYCOMB STRUCTURE:
@@ -453,6 +468,7 @@ HONEYCOMB STRUCTURE:
 - Cells arranged in expanding rings from center
 - 4 concentric hexagonal rings total
 - Organic flow suggesting mobile signal propagation
+- Artistic vine-like decorations between cells
 
 RING LAYOUT (outside to inside):
 - Outer ring (ring 4): 4 nodes at periphery (battle nodes)
@@ -474,6 +490,7 @@ PATHWAYS:
 - Internal fill: purple-lit corridors with app icons floating
 - Connection bridges between non-adjacent cells
 - Circuit board trace patterns on path surfaces
+- Colorful alternating yellow and white paths with artistic flourishes
 
 ZONE COLOR CODING:
 - S zone (top + mid-right): bright cyan acceleration glow
@@ -490,24 +507,27 @@ MOBILE TECH DETAILS:
 - Notification bubbles popping up
 - Battery charge indicators
 - Fingerprint scanner patterns
+- Artistic Hayami-style elements throughout
 
 STYLE:
-- Isometric view, modern tech minimalist aesthetic
+- Isometric view, modern tech minimalist aesthetic with Hayami-inspired artistic elements
 - Clean geometric hexagonal precision
 - High-tech gadget atmosphere
 - Purple/blue/cyan color scheme dominant
-- Game asset, vector clean style
+- Game asset, vector clean style with artistic flourishes
 - 16:9 aspect ratio
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 300 --no text, labels
 
 【中文描述】
-俯视游戏地图，移动设备测试实验室，
+俯视游戏地图，海幸风格的移动设备测试实验室，
 六边形蜂窝格子布局17个节点，
 
 蜂窝结构：六边形网格模拟蜂窝网络拓扑，
 每个六边形格子含一个游戏节点，
 格子按扩展环从中心排列，共4层同心六边形环，
-有机流动暗示移动信号传播
+有机流动暗示移动信号传播，
+单元格之间有艺术藤蔓装饰
 
 环布局（外到内）：外环4节点外围战斗/
 第3环4关战斗+书店/第2环4关战斗簇/
@@ -519,7 +539,8 @@ STYLE:
 
 路径：六边形边缘作为路径，粗黑边框定义每条边，
 内部填充紫色照明走廊浮动APP图标，
-非相邻格子间连接桥梁，路径表面电路板痕迹图案
+非相邻格子间连接桥梁，路径表面电路板痕迹图案，
+彩色交替的黄色和白色路径，带有艺术装饰
 
 区域色彩编码：S区顶+中右明亮青色加速光晕/
 N区上环+中左蓝色知识光环/W区左侧暗红虚弱色调/
@@ -528,10 +549,12 @@ D区外侧左方深红危险标记
 
 移动技术细节：各种尺寸智能手机剪影/
 S区WiFi信号波散发/N区蓝牙图标连接邻近单元格/
-通知气泡弹出/电池充电指示器/指纹扫描图案
+通知气泡弹出/电池充电指示器/指纹扫描图案，
+贯穿整个场景的海幸风格艺术元素
 
-风格：等距视角现代科技极简美学，干净几何六边形精度，
-高科技gadget氛围，紫/蓝/青配色主导16:9游戏素材
+风格：等距视角现代科技极简美学，带有海幸风格的艺术元素，
+干净几何六边形精度，高科技gadget氛围，
+紫/蓝/青配色主导，游戏素材质量，矢量干净风格带艺术装饰，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---

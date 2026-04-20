@@ -145,12 +145,12 @@ N区绕路：(0,2) → (1,3) → (2,4) → (3,3) → (4,4) → (5,2)
 
 ```markdown
 【英文Prompt】
-Top-down game map, gourd-shaped virus laboratory floor plan,
+Top-down game map, gourd-shaped virus laboratory floor plan inspired by Hayami style,
 upper narrow section (entrance) transitioning to wide lower section,
-circular layout with 13 visible nodes connected by glowing green paths,
+circular layout with 13 visible nodes connected by colorful paths,
 
 NODE POSITIONS:
-- Top center (0,2): pulsing green portal entrance
+- Top center (0,2): pulsing green portal entrance with vine-like decorations
 - Upper ring (row1): 3 battle nodes in small circle formation
 - Lower body divided into 4 quadrants:
   * West quadrant (W zone): red-tinted area with 2 battle nodes
@@ -162,8 +162,8 @@ NODE POSITIONS:
 
 PATHWAYS:
 - Thick black borders (4px width)
-- Internal fill: biohazard green corridors with pulse animation
-- Path segments alternate between dark green and neon green
+- Internal fill: alternating yellow and white paths with pulsing animation
+- Path segments with colorful accents matching zone themes
 - Warning hazard stripes at zone boundaries
 
 ZONE OVERLAYS:
@@ -174,26 +174,27 @@ ZONE OVERLAYS:
 
 TERRAIN:
 - Floor: metallic grating with green bio-luminescent patterns
-- Background: dark laboratory silhouette with equipment shadows
+- Background: dark laboratory silhouette with equipment shadows, artistic Hayami-style elements
 - Walls: white tiles with biohazard warning symbols ⚠️
 - Atmosphere: red emergency lights pulsing rhythmically
-- Details: exposed pipes, steam vents, containment glass cracks
+- Details: exposed pipes, steam vents, containment glass cracks, artistic藤蔓装饰
 
 STYLE:
 - Isometric view, 30-degree tilt angle
-- Detailed vector illustration style
+- Detailed vector illustration style with Hayami-inspired artistic elements
 - Dark atmospheric lighting with selective green/cyan glows
-- Game asset quality, clean lines
+- Game asset quality, clean lines with artistic flourishes
 - 16:9 aspect ratio
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 250 --no text, labels, words
 
 【中文描述】
-俯视游戏地图，葫芦形病毒实验室平面图，
+俯视游戏地图，海幸风格的葫芦形病毒实验室平面图，
 上部窄小入口过渡到宽大下部，
-圆形布局13个可见节点由发光绿路径连接，
+圆形布局13个可见节点由彩色路径连接，
 
 节点位置：
-- 顶部中心(0,2)：脉动绿色传送门入口
+- 顶部中心(0,2)：脉动绿色传送门入口，带有藤蔓状装饰
 - 上环(row1)：3个战斗节点小圆排列
 - 下部主体分四象限：
   * 西侧W区：红色调区域2个战斗节点
@@ -203,16 +204,16 @@ STYLE:
 - 中心(2,2)：技能获取站全息显示
 - 底部中心(5,2)：大型Boss竞技场破损隔离舱
 
-路径：粗黑边线4px，内部填充生物危害绿走廊，
-路段交替深绿/霓虹绿，区域边界有警示条纹
+路径：粗黑边线4px，内部填充交替的黄色和白色路径，带有脉动动画，
+路段带有与区域主题匹配的彩色点缀，区域边界有警示条纹
 
 区域覆盖：W区红色半透明/N区蓝色/I区紫色旋涡/P区黄色条纹
 
-地形：金属格栅绿色生物荧光纹路，黑暗实验室剪影，
+地形：金属格栅绿色生物荧光纹路，黑暗实验室剪影，海幸风格的艺术元素，
 白瓷砖生物危害标志⚠️，红色应急灯规律脉动
 
-风格：等距视角30度倾斜，详细矢量插画，
-暗色氛围选择性照明，16:9游戏素材
+风格：等距视角30度倾斜，详细矢量插画风格，带有海幸风格的艺术元素，
+暗色氛围选择性照明，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---
@@ -293,28 +294,28 @@ STYLE:
 | 元素 | 描述 |
 |------|------|
 | 地板 | 深色网格配发光电路线 |
-| 背景 | 数字虚空矩阵代码流 |
+| 背景 | 数字虚空矩阵代码流，海幸风格的艺术元素 |
 | 结构 | 漂浮几何平台 |
 | S区 | 光纤密集的高亮区域 |
 | D区 | 暗红色警报区域 |
-| 装饰 | 全息数据流、扫描线、粒子效果 |
+| 装饰 | 全息数据流、扫描线、粒子效果，艺术藤蔓装饰 |
 
 ### AI绘图Prompt
 
 ```markdown
 【英文Prompt】
-Top-down game map, cyberspace dual-ring network topology,
+Top-down game map, cyberspace dual-ring network topology inspired by Hayami style,
 outer large ring with 12 nodes, inner small ring with 3 core nodes,
 
 OUTER RING (perimeter network):
 - 12 nodes arranged in oval shape
-- Connected by thick black-bordered cyan data highways
+- Connected by thick black-bordered cyan data highways with yellow and white accents
 - Nodes at cardinal and intercardinal positions
 - Outer ring represents perimeter defense layer
 
 INNER RING (core network):
 - 3 nodes in tight triangular formation at center
-- Connected by bright cyan fiber optic links
+- Connected by bright cyan fiber optic links with artistic flourishes
 - Represents critical infrastructure core
 - Boss node at inner ring center (4,3)
 
@@ -322,6 +323,7 @@ RADIATING CONNECTIONS:
 - 4 bridge paths connecting outer to inner ring
 - Data packet particles flowing along bridges
 - Glowing connection points at intersections
+- Artistic vine-like connections between nodes
 
 ZONE OVERLAYS:
 - S zone (center): green lightning bolt pattern, speed boost area
@@ -331,7 +333,7 @@ ZONE OVERLAYS:
 
 TERRAIN:
 - Floor: dark grid with glowing circuit traces
-- Background: infinite digital void with falling matrix code
+- Background: infinite digital void with falling matrix code, artistic Hayami-style elements
 - Structures: floating geometric platforms at varying heights
 - Effects: holographic overlays, scan line animations, particle streams
 
@@ -345,29 +347,30 @@ NODE TYPES VISUAL:
 
 STYLE:
 - Isometric view with depth perspective
-- Cyberpunk neon aesthetic
+- Cyberpunk neon aesthetic with Hayami-inspired artistic elements
 - Glowing edges, particle effects, data flow animations
-- Clean vector art, game asset quality
+- Clean vector art with artistic flourishes, game asset quality
 - 16:9 aspect ratio
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 300 --no text, labels
 
 【中文描述】
-俯视游戏地图，网络空间双环嵌套拓扑结构，
+俯视游戏地图，海幸风格的网络空间双环嵌套拓扑结构，
 外环12个节点椭圆形排列，内环3个核心节点紧密三角布局，
 
-外环（外围网络）：12节点椭圆排列，粗黑边框青色数据高速公路连接
-内环（核心网络）：3节点紧密三角形，明亮青色光纤链接，Boss位于中心
-辐射连接：4条桥路连接内外环，数据包粒子沿桥流动
+外环（外围网络）：12节点椭圆排列，粗黑边框青色数据高速公路连接，带有黄色和白色点缀
+内环（核心网络）：3节点紧密三角形，明亮青色光纤链接，带有艺术装饰，Boss位于中心
+辐射连接：4条桥路连接内外环，数据包粒子沿桥流动，节点间有艺术藤蔓状连接
 
 区域覆盖：S区中心绿色闪电/W区西侧红色暗淡/N区东侧蓝色书本/D区底部角落深红危险
 
-地形：深色网格发光电路线，无限数字虚空矩阵代码流，
+地形：深色网格发光电路线，无限数字虚空矩阵代码流，海幸风格的艺术元素，
 漂浮几何平台不同高度，全息叠加层扫描线动画粒子流
 
 节点视觉：战斗青六边形/技能洋红菱形/书店绿方块/机会黄问号/Boss大红八角/终点金传送门
 
-风格：等距视角深度透视，赛博朋克霓虹美学，
-发光边缘粒子效果数据流动画，干净矢量艺术16:9游戏素材
+风格：等距视角深度透视，赛博朋克霓虹美学，带有海幸风格的艺术元素，
+发光边缘粒子效果数据流动画，干净矢量艺术带有艺术装饰，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---
@@ -451,17 +454,17 @@ STYLE:
 |------|------|
 | 地板 | 抛光大理石金纹，越往中心越豪华 |
 | 墙壁 | 加固钢保险库门，视网膜扫描仪 |
-| 背景 | 深蓝环境光，水晶数据核心微光 |
+| 背景 | 深蓝环境光，水晶数据核心微光，海幸风格的艺术元素 |
 | 外圈 | 工业金属质感 |
 | 中圈 | 大理石+金色装饰 |
 | 内圈 | 纯白+水晶+能量护盾 |
-| 装饰 | 皇家徽章、激光束、监控屏 |
+| 装饰 | 皇家徽章、激光束、监控屏，艺术藤蔓装饰 |
 
 ### AI绘图Prompt
 
 ```markdown
 【英文Prompt】
-Top-down game map, concentric circular data vault fortress,
+Top-down game map, concentric circular data vault fortress inspired by Hayami style,
 3 defensive rings expanding from center boss,
 
 RING 1 (Outer Defense - industrial):
@@ -470,6 +473,7 @@ RING 1 (Outer Defense - industrial):
 - Heavy vault doors between sections
 - Red/gold security laser beams crossing paths
 - Nodes: 2 battles, 1 skill, 1 bookstore, 1 chance, 1 entry
+- Artistic vine-like decorations on walls
 
 RING 2 (Middle Security - elegant):
 - 4 nodes in medium circle
@@ -491,6 +495,7 @@ PATHWAYS:
 - Ring 2: marble tiles with gold crest patterns
 - Ring 3: luminous white pathways
 - Bridge connections: shimmering light beams between rings
+- Colorful alternating yellow and white paths with artistic flourishes
 
 TERRAIN GRADIENT:
 - Outer ring: dark metallic gray, industrial pipes
@@ -510,37 +515,41 @@ DETAILS:
 - Vault mechanism gears visible
 - Security camera sweeps (animated suggestion)
 - Chandelier lighting from above
+- Artistic Hayami-style elements throughout
 
 STYLE:
 - Isometric view, elegant majestic perspective
-- Luxury art deco meets cyberpunk security
+- Luxury art deco meets cyberpunk security with Hayami-inspired artistic elements
 - Metallic reflections, crystal refractions
-- Grand imposing atmosphere
+- Grand imposing atmosphere with artistic flourishes
 - 16:9, game asset, no text
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 400 --no text, labels
 
 【中文描述】
-俯视游戏地图，同心圆数据保险库堡垒，
+俯视游戏地图，海幸风格的同心圆数据保险库堡垒，
 3道防御圈从中心Boss向外扩展，
 
 第1圈（外防-工业）：6节点宽外圆，金属钢质地板，
-重型保险库门分隔，红金安全激光束交叉
+重型保险库门分隔，红金安全激光束交叉，墙壁上有艺术藤蔓装饰
 第2圈（中安-优雅）：4节点中圆，抛光大理石金纹地板，
 加密站美学，墙壁水晶数据显示
 第3圈（内核-纯净）：3节点+Boss紧密中心簇，
 纯白地板能量护盾光芒，漂浮水晶数据核心
 
 路径：粗黑边线4px，外圈金地毯红绳围栏，
-中圈大理石瓷砖金徽章图案，内圈发光白色路径，环间桥梁闪光光束
+中圈大理石瓷砖金徽章图案，内圈发光白色路径，环间桥梁闪光光束，
+彩色交替的黄色和白色路径，带有艺术装饰
 
 地形梯度：外圈深灰金属工业/中圈温暖金黄大理石/
 内圈纯白青色能量光晕/中心辐射晶体光辉
 
 细节：区域转换处视网膜扫描仪，全息钥匙卡显示，
-保险库机制齿轮可见，安全摄像头扫视，顶部吊灯照明
+保险库机制齿轮可见，安全摄像头扫视，顶部吊灯照明，
+贯穿整个场景的海幸风格艺术元素
 
-风格：等距视角优雅庄严透视，奢华装饰艺术遇赛博朋克安全，
-金属反射水晶折射宏伟威严氛围16:9游戏素材
+风格：等距视角优雅庄严透视，奢华装饰艺术遇赛博朋克安全，带有海幸风格的艺术元素，
+金属反射水晶折射宏伟威严氛围，16:9游戏素材，丰富的背景细节和奇幻元素
 ```
 
 ---

@@ -59,16 +59,19 @@
 - 不规则曲线连接（云朵边缘）
 - 光桥跨越远距离节点
 - 部分路径为单向（云朵飘动方向）
+- 彩色交替的黄色和白色路径，带有艺术装饰
+- 艺术藤蔓装饰连接各个云朵平台
 
 ### 地形纹理
 - 地板：蓬松白云银边
-- 背景：蓝天远处云朵
+- 背景：蓝天远处云朵，海幸风格的艺术元素
 - 结构：漂浮平台玻璃栏杆
 - 效果：阳光射线、云朵飘动、彩虹弧
+- 装饰：艺术藤蔓装饰，奇幻元素
 
 ### AI Prompt摘要
 ```
-Top-down game map, sky cloud computing platform,
+Top-down game map, sky cloud computing platform inspired by Hayami style,
 irregular cloud-shaped floating layout with 14 nodes,
 cloud-shaped platforms connected by transparent light bridges,
 rainbow arcs between zones, fluffy white clouds silver-edged floors,
@@ -76,7 +79,10 @@ blue sky background with distant clouds below,
 floating server pods with glass railings,
 sunlight rays, cloud drift animation suggestion,
 isometric airy floating perspective, dreamy cloud aesthetic,
-bright optimistic atmosphere, 16:9, no text
+bright optimistic atmosphere, 16:9, no text,
+artistic vine-like decorations between platforms,
+colorful alternating yellow and white paths with artistic flourishes,
+rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 300
 ```
 
@@ -137,16 +143,19 @@ bright optimistic atmosphere, 16:9, no text
 - 概率连线（虚线表示低概率路径）
 - 量子隧穿捷径（跨区域跳跃）
 - 节点位置有微小随机偏移暗示
+- 彩色交替的黄色和白色路径，带有艺术装饰
+- 艺术藤蔓装饰连接各个量子节点
 
 ### 地形纹理
 - 地板：光滑白色表面发光电路
-- 背景：无限空间星云
+- 背景：无限空间星云，海幸风格的艺术元素
 - 结构：漂浮几何形状
 - 效果：全息图、时间扭曲、能量场、概率云粒子
+- 装饰：艺术藤蔓装饰，奇幻元素
 
 ### AI Prompt摘要
 ```
-Top-down game map, futuristic quantum research lab,
+Top-down game map, futuristic quantum research lab inspired by Hayami style,
 scattered probability cloud distribution with 15 nodes,
 nodes positioned with slight random offset suggesting uncertainty,
 quantum tunneling shortcut paths crossing zones,
@@ -155,8 +164,11 @@ holographic displays, time distortion visual effects,
 energy field glows, particle systems,
 sleek white surface with glowing circuits background infinite space nebula,
 floating geometric structures,
-isometric sci-fi perspective, cutting-edge technology aesthetic,
-mysterious advanced atmosphere, 16:9, no text
+isometric sci-fi perspective, cutting-edge technology aesthetic with Hayami-inspired artistic elements,
+mysterious advanced atmosphere, 16:9, no text,
+artistic vine-like decorations between nodes,
+colorful alternating yellow and white paths with artistic flourishes,
+rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 400
 ```
 
@@ -226,16 +238,18 @@ mysterious advanced atmosphere, 16:9, no text
 - 两侧路径镜像
 - 必须通过中轴才能到达Boss
 - 策略：选择左右路线影响遇到的特殊区域
+- 彩色交替的黄色和白色路径，带有艺术装饰
+- 艺术藤蔓装饰连接各个殿堂区域
 
 ### 地形纹理
 - 地板：抛光黑色大理石金纹
-- 墙壁：深色木板旗帜横幅
+- 墙壁：深色木板旗帜横幅，海幸风格的艺术元素
 - 背景：宏伟大厅吊灯
-- 装饰：皇家徽章、勋章、监视屏、红地毯
+- 装饰：皇家徽章、勋章、监视屏、红地毯，艺术藤蔓装饰
 
 ### AI Prompt摘要
 ```
-Top-down game map, supreme command center throne hall,
+Top-down game map, supreme command center throne hall inspired by Hayami style,
 strictly symmetrical regal layout with 13 nodes,
 
 CENTRAL AXIS DESIGN:
@@ -260,6 +274,7 @@ VISUAL ELEMENTS:
 - Royal seals and medals on walls
 - Security monitoring screens flanking throne
 - Crystal spire crown above throne
+- Artistic vine-like decorations throughout
 
 ZONE SYMMETRY:
 - S zone: central axis (acceleration corridor)
@@ -268,11 +283,13 @@ ZONE SYMMETRY:
 - I zone: honor hall area (inversion trials)
 
 STYLE:
-- Isometric majestic authoritative perspective
+- Isometric majestic authoritative perspective with Hayami-inspired artistic elements
 - Royal imperial aesthetic with cybersecurity elements
 - Grand imposing ceremonial atmosphere
 - Gold, red, and deep blue color scheme
 - 16:9, game asset, no text
+- Colorful alternating yellow and white paths with artistic flourishes
+- Rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 500
 ```
 
@@ -284,7 +301,7 @@ STYLE:
 
 ```markdown
 【英文Prompt - Complete】
-A majestic 9-tier cybersecurity tower rising to the sky,
+A majestic 9-tier cybersecurity tower rising to the sky inspired by Hayami style,
 isometric view from a slight low angle looking upward,
 
 TIER 1 (Base - Virus Laboratory / Green):
@@ -294,6 +311,7 @@ red emergency warning lights pulsing rhythmically,
 exposed pipes and ventilation vents emitting steam,
 heavy blast door entrance at front center,
 metal grating floors with green mold patches,
+artistic vine-like decorations on exterior walls,
 
 TIER 2 (Cyberspace Network / Cyan):
 Flowing data streams connecting to tier 1,
@@ -302,6 +320,7 @@ fiber optic cables glowing neon blue,
 digital grid patterns etched into exterior,
 holographic data packet particles floating outward,
 network hub architecture with radiating connections,
+artistic vine-like decorations between sections,
 
 TIER 3 (Data Vault / Blue):
 Concentric fortress ring structure,
@@ -310,6 +329,7 @@ floating crystal data cores visible through blue windows,
 golden encryption lock patterns on walls,
 marble textures with metallic reinforcements,
 deep blue ambient security lighting,
+artistic vine-like decorations on columns,
 
 TIER 4 (Urban District / Orange):
 City block silhouette layer,
@@ -318,6 +338,7 @@ cafe awnings and street-level details,
 tree canopies and park greenery visible,
 asphalt road textures wrapping around,
 cozy metropolitan atmosphere with long shadows,
+artistic vine-like decorations on buildings,
 
 TIER 5 (Smart Factory / Yellow):
 Industrial manufacturing level,
@@ -326,6 +347,7 @@ yellow safety stripe accents on exterior,
 machinery silhouettes through large windows,
 steam vent stacks and warning lights,
 technical blueprint aesthetic with functional details,
+artistic vine-like decorations on machinery,
 
 TIER 6 (Mobile Terminal / Purple):
 Modern smartphone testing facility,
@@ -334,6 +356,7 @@ purple accent lighting and circuit patterns,
 charging cable decorations on surface,
 app icon holograms floating around perimeter,
 clean minimalist tech aesthetic,
+artistic vine-like decorations on walls,
 
 TIER 7 (Cloud Platform / Sky Blue):
 Floating cloud-supported structure,
@@ -342,6 +365,7 @@ transparent glass bridge connections between sections,
 white cloud formations at base of this tier,
 rainbow light refraction effects,
 airy buoyant appearance defying gravity,
+artistic vine-like decorations between cloud platforms,
 
 TIER 8 (Future Lab / Pink):
 Cutting-edge research facility,
@@ -350,6 +374,7 @@ holographic display panels on all faces,
 AI neural network visualization patterns,
 time distortion visual warping effects,
 advanced geometric crystalline design,
+artistic vine-like decorations on geometric structures,
 
 TIER 9 (Peak - Command Center / Gold):
 Crowning royal throne room level,
@@ -358,6 +383,7 @@ red carpet cascading down from entrance,
 regional banners and honorific insignias,
 command throne visible through grand windows,
 ultimate authority glowing golden aura,
+artistic vine-like decorations on throne and walls,
 
 STRUCTURAL ELEMENTS:
 - Tower tapers elegantly from wide base to narrow peak
@@ -366,84 +392,89 @@ STRUCTURAL ELEMENTS:
 - Spiral light ribbon winding around entire tower
 - Defensive stone wall base with arched gateway
 - Crystal spire at absolute top emitting radiant light
+- Colorful alternating yellow and white paths with artistic flourishes
 
 BACKGROUND:
 Deep starry night sky with aurora borealis,
 distant galaxy hints and cosmic dust,
 ethereal energy particles drifting upward,
-sense of ascending toward cosmic knowledge
+sense of ascending toward cosmic knowledge,
+artistic Hayami-style elements throughout
 
 STYLE:
 Isometric projection with dramatic upward angle,
-clean detailed vector illustration style,
+clean detailed vector illustration style with Hayami-inspired artistic elements,
 each tier's unique color clearly distinguishable,
 selective lighting highlighting architectural features,
 epic scale conveying journey of ascent,
 game asset quality suitable for UI integration,
 16:9 widescreen cinematic composition,
-ultra-high detail, no text or labels
+ultra-high detail, no text or labels,
+rich background details with fantasy elements
 --ar 16:9 --v 6 --style raw --q 2 --s 500 --no text, labels, words, watermark
 
 【中文描述 - 完整版】
-一座宏伟的9层网络安全通天塔，从基座直插云霄，
+一座宏伟的9层网络安全通天塔，从基座直插云霄，海幸风格设计，
 等距视角微仰角向上眺望，
 
 第1层（底部-病毒实验室-绿色）：厚重工业地基生物危害标志，
 圆形隔离舱透出绿色窗户，红色应急灯规律脉动，
 外露管道通风口喷蒸汽，正面中心重型防爆门入口，
-金属格栅地板绿色霉斑
+金属格栅地板绿色霉斑，外墙艺术藤蔓装饰
 
 第2层（网络空间-青色）：流动数据流连接下层，
 服务器机架剪影青色玻璃后，光纤电缆霓虹青光，
 外墙蚀刻数字网格图案，全息数据包粒子向外飘浮，
-网络枢纽架构辐射状连接
+网络枢纽架构辐射状连接，区间艺术藤蔓装饰
 
 第3层（数据保险库-蓝色）：同心圆堡垒环形结构，
 巨大保险库门视网膜扫描仪，漂浮水晶数据核心蓝窗可见，
 墙面金色加密锁图案，大理石纹理金属加固，
-深蓝色环境安全照明
+深蓝色环境安全照明，柱子艺术藤蔓装饰
 
 第4层（城市街区-橙色）：城市街区剪影层，
 办公楼温暖日落窗户，咖啡馆遮阳篷街道细节，
 树冠和公园绿植可见，沥青道路纹理环绕，
-舒适大都会氛围长阴影
+舒适大都会氛围长阴影，建筑艺术藤蔓装饰
 
 第5层（智能工厂-黄色）：工业制造层级，
 传送带机械臂机制可见，黄色安全条纹外墙装饰，
 机械剪影透过大窗，蒸汽通风堆栈警示灯，
-技术蓝图美学功能细节
+技术蓝图美学功能细节，机器艺术藤蔓装饰
 
 第6层（移动终端-紫色）：现代智能手机测试设施，
 设备嵌入墙壁对接站，紫色强调光照电路图案，
 充电线缆装饰表面，APP图标全息图环绕漂浮，
-干净极简科技美学
+干净极简科技美学，墙壁艺术藤蔓装饰
 
 第7层（云端平台-天蓝色）：云朵支撑的悬浮结构，
 服务器舱悬空开放，透明玻璃桥连接区间，
 该层底部白云形成，彩虹光线折射效果，
-轻盈飘逸外观反重力
+轻盈飘逸外观反重力，云朵平台间艺术藤蔓装饰
 
 第8层（未来实验室-粉色）：前沿研究设施，
 量子概率云效果环绕，全息显示面板四面，
 AI神经网络可视化图案，时间扭曲视觉变形效果，
-先进几何晶体设计
+先进几何晶体设计，几何结构艺术藤蔓装饰
 
 第9层（顶层-指挥中心-金色）：皇冠皇家王座厅层，
 金色穹顶屋顶水晶尖顶巅峰，红地毯从入口倾泻而下，
 区域横幅荣誉徽章，指挥王座透过宏伟窗户可见，
-终极权威金色光晕
+终极权威金色光晕，王座和墙壁艺术藤蔓装饰
 
 结构元素：塔身优雅锥形宽底窄尖，每层比下层略小，
 发光能量桥连接相邻层级，螺旋光带缠绕整塔，
-防御石墙基座拱门入口，绝对顶端水晶尖塔发射辐射光
+防御石墙基座拱门入口，绝对顶端水晶尖塔发射辐射光，
+彩色交替的黄色和白色路径，带有艺术装饰
 
 背景：深邃星空夜空极光，遥远星系暗示宇宙尘埃，
-空灵能量粒子向上飘动，通往宇宙知识的上升感
+空灵能量粒子向上飘动，通往宇宙知识的上升感，
+贯穿整个场景的海幸风格艺术元素
 
-风格：等距投影戏剧性仰角，干净详细矢量插画风格，
+风格：等距投影戏剧性仰角，干净详细矢量插画风格，带有海幸风格的艺术元素，
 每层独特颜色清晰可辨，选择性照明突出建筑特征，
 史诗尺度传达攀登之旅，游戏素材质量适合UI集成，
-16:9宽屏电影构图，超高细节无文字标签
+16:9宽屏电影构图，超高细节无文字标签，丰富的背景细节和奇幻元素
 ```
 
 ---
