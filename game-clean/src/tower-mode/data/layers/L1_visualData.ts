@@ -220,13 +220,13 @@ export const L1_VISUAL_DATA: Record<string, any> = {
   },
 
   pathVisualStyles: {
-    main:     { strokeColor: '#44ff88', strokeWidth: 2.5, curveTension: 0.45, dashArray: 'none',     animated: true  },
-    branch:   { strokeColor: '#777777', strokeWidth: 1.5, curveTension: 0.35, dashArray: '6,3',     animated: false },
-    shortcut: { strokeColor: '#00FF88', strokeWidth: 2.0, curveTension: 0.50, dashArray: '4,4',     animated: true  },
-    return:   { strokeColor: '#FF6B6B', strokeWidth: 1.2, curveTension: 0.25, dashArray: '10,5',    animated: false },
-    crossRing:{ strokeColor: '#888888', strokeWidth: 1.0, curveTension: 0.30, dashArray: '3,3',     animated: false },
-    safeDoor: { strokeColor: '#44ff88', strokeWidth: 1.5, curveTension: 0.30, dashArray: 'none',    animated: true  },
-    backflow: { strokeColor: '#FF4444', strokeWidth: 1.0, curveTension: 0.20, dashArray: '8,4',     animated: false },
+    main:     { strokeColor: '#FFAA00', strokeWidth: 2.5, curveTension: 0.45, dashArray: 'none',     animated: true, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    branch:   { strokeColor: '#777777', strokeWidth: 1.5, curveTension: 0.35, dashArray: '6,3',     animated: false, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    shortcut: { strokeColor: '#FFAA00', strokeWidth: 2.0, curveTension: 0.50, dashArray: '4,4',     animated: true, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    return:   { strokeColor: '#FF6B6B', strokeWidth: 1.2, curveTension: 0.25, dashArray: '10,5',    animated: false, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    crossRing:{ strokeColor: '#888888', strokeWidth: 1.0, curveTension: 0.30, dashArray: '3,3',     animated: false, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    safeDoor: { strokeColor: '#FFAA00', strokeWidth: 1.5, curveTension: 0.30, dashArray: 'none',    animated: true, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
+    backflow: { strokeColor: '#FF4444', strokeWidth: 1.0, curveTension: 0.20, dashArray: '8,4',     animated: false, pattern: 'alternating', patternColors: ['#FFAA00', '#FFFFFF']  },
   },
 
   zoneBackgrounds: {
@@ -283,6 +283,10 @@ export const L1_VISUAL_DATA: Record<string, any> = {
       { type: 'crystal', position: { x: 0.48, y: 0.32 }, size: 0.015, opacity: 0.2, color: '#ffaa44' },
       { type: 'crystal', position: { x: 0.52, y: 0.34 }, size: 0.015, opacity: 0.2, color: '#ffaa44' },
       { type: 'planet', position: { x: 0.50, y: 0.80 }, size: 0.04, rotation: 0, opacity: 0.15, color: '#ff4444', animClass: 'gm-decor-float' },
+      { type: 'vine', position: { x: 0.1, y: 0.1 }, size: 0.3, opacity: 0.6, color: '#4ECDC4', animClass: 'gm-vine-grow' },
+      { type: 'vine', position: { x: 0.9, y: 0.1 }, size: 0.3, opacity: 0.6, color: '#4ECDC4', animClass: 'gm-vine-grow' },
+      { type: 'vine', position: { x: 0.1, y: 0.9 }, size: 0.3, opacity: 0.6, color: '#4ECDC4', animClass: 'gm-vine-grow' },
+      { type: 'vine', position: { x: 0.9, y: 0.9 }, size: 0.3, opacity: 0.6, color: '#4ECDC4', animClass: 'gm-vine-grow' },
     ],
   },
 
