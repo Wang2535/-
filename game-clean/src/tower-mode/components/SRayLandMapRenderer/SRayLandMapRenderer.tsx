@@ -105,34 +105,37 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick }: SRayL
   const defaultCells = useMemo(() => generateGridCells(), []);
   const displayCells = cells || defaultCells;
   
-  // 构建连接路径
+  // 构建连接路径 - 确保连续的线条
   const connections = useMemo(() => {
     const paths: { from: string; to: string }[] = [];
     
-    // 上半环连接
-    for (let i = 1; i <= 9; i++) {
-      paths.push({ from: `u${i}`, to: `u${i + 1}` });
+    // 上半环连接 - 圆角菱形轨道
+    const upperRing = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10'];
+    for (let i = 0; i < upperRing.length - 1; i++) {
+      paths.push({ from: upperRing[i], to: upperRing[i + 1] });
     }
-    paths.push({ from: 'u10', to: 'c1' });
+    paths.push({ from: upperRing[upperRing.length - 1], to: 'c1' });
     
     // 中间连接
-    for (let i = 1; i <= 6; i++) {
-      paths.push({ from: `c${i}`, to: `c${i + 1}` });
+    const middleConnector = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7'];
+    for (let i = 0; i < middleConnector.length - 1; i++) {
+      paths.push({ from: middleConnector[i], to: middleConnector[i + 1] });
     }
-    paths.push({ from: 'c7', to: 'l1' });
+    paths.push({ from: middleConnector[middleConnector.length - 1], to: 'l1' });
     
-    // 左下连接
-    for (let i = 1; i <= 8; i++) {
-      paths.push({ from: `l${i}`, to: `l${i + 1}` });
+    // 左上连接 - 回到起点
+    const leftConnector = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'];
+    for (let i = 0; i < leftConnector.length - 1; i++) {
+      paths.push({ from: leftConnector[i], to: leftConnector[i + 1] });
     }
-    paths.push({ from: 'l9', to: 'u1' });
+    paths.push({ from: leftConnector[leftConnector.length - 1], to: 'u1' });
     
-    // 下半环连接
-    paths.push({ from: 'c4', to: 'll1' });
-    for (let i = 1; i <= 12; i++) {
-      paths.push({ from: `ll${i}`, to: `ll${i + 1}` });
+    // 下半环连接 - 圆角矩形轨道
+    const lowerRing = ['c4', 'll1', 'll2', 'll3', 'll4', 'll5', 'll6', 'll7', 'll8', 'll9', 'll10', 'll11', 'll12', 'll13'];
+    for (let i = 0; i < lowerRing.length - 1; i++) {
+      paths.push({ from: lowerRing[i], to: lowerRing[i + 1] });
     }
-    paths.push({ from: 'll13', to: 'c4' });
+    paths.push({ from: lowerRing[lowerRing.length - 1], to: 'c4' });
     
     return paths;
   }, []);

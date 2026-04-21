@@ -14,7 +14,9 @@ import { TowerStartScreen } from './components/TowerStartScreen';
 import { PauseOverlay } from './components/PauseOverlay';
 import { TowerMainMap } from './components/TowerMainMap';
 import { GourdMapRenderer } from './components/GourdMapRenderer';
+import { SRayLandMapRenderer } from './components/SRayLandMapRenderer';
 import { getGourdTopology } from './data/gourdTopologies';
+import { getSRayLandTopology } from './geometry/SRayLandTopologyGenerator';
 import { LAYER_THEMES } from './data/layerThemes';
 import type { LayerState } from './types/layerMetadata.types';
 import { getDefaultLayerStates } from './data/layerRegistry';
@@ -129,7 +131,8 @@ export function TowerModeApp({ onSaveExit, initialSeed }: TowerModeAppProps) {
 
   const topology = useMemo(() => {
     if (!renderState?.playerStats?.layer) return null;
-    return getGourdTopology(renderState.playerStats.layer);
+    // 使用SRayLand地图拓扑
+    return getSRayLandTopology(renderState.playerStats.layer);
   }, [renderState?.playerStats?.layer]);
 
   const convertedCells = useMemo((): GridCell[] => {
@@ -228,14 +231,9 @@ export function TowerModeApp({ onSaveExit, initialSeed }: TowerModeAppProps) {
 
       <div style={{ flex: 1, position: 'relative', padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         {renderState?.layerData && topology && (
-          <GourdMapRenderer
-            topology={{ ...topology, id: `layer-${renderState.playerStats.layer}` }}
-            cells={convertedCells}
-            currentPosition={currentPlayerCellId}
-            highlightedCells={highlightedCellIds}
+          <SRayLandMapRenderer
+            currentCellId={currentPlayerCellId}
             onCellClick={handleMoveTo}
-            layerNumber={renderState.playerStats.layer}
-            layerTheme={LAYER_THEMES[renderState.playerStats.layer]}
           />
         )}
       </div>
