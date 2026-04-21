@@ -25,7 +25,7 @@ function generateGridCells(): SRayLandCell[] {
     { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },     // 顶部
     { id: 'u2', position: { x: 60, y: 15 }, type: 'default', state: 'pending' },     // 右上弧
     { id: 'u3', position: { x: 70, y: 22 }, type: 'chance', state: 'pending' },     // 右上弧
-    { id: 'u4', position: { x: 78, y: 30 }, type: 'special', state: 'pending' },     // 右上弧
+    { id: 'u4', position: { x: 78, y: 30 }, type: 'skill', state: 'pending' },      // 右上弧（技能格）
     { id: 'u5', position: { x: 82, y: 40 }, type: 'default', state: 'pending' },    // 右下方弧
     { id: 'u6', position: { x: 78, y: 50 }, type: 'chance', state: 'pending' },    // 右下方弧
     { id: 'u7', position: { x: 70, y: 58 }, type: 'default', state: 'pending' },     // 右下方弧
@@ -33,7 +33,7 @@ function generateGridCells(): SRayLandCell[] {
   
   // 连接路径
   const connectorPath = [
-    { id: 'c1', position: { x: 60, y: 64 }, type: 'special', state: 'pending' },     // 连接
+    { id: 'c1', position: { x: 60, y: 64 }, type: 'bookstore', state: 'pending' },   // 连接（书店格）
     { id: 'c2', position: { x: 50, y: 68 }, type: 'default', state: 'pending' },     // 连接
   ];
   
@@ -42,12 +42,12 @@ function generateGridCells(): SRayLandCell[] {
     { id: 'l1', position: { x: 40, y: 72 }, type: 'default', state: 'pending' },     // 左下
     { id: 'l2', position: { x: 32, y: 80 }, type: 'chance', state: 'pending' },     // 左下
     { id: 'l3', position: { x: 30, y: 90 }, type: 'default', state: 'pending' },     // 左下
-    { id: 'l4', position: { x: 35, y: 100 }, type: 'special', state: 'pending' },    // 底部
-    { id: 'l5', position: { x: 45, y: 105 }, type: 'battle', state: 'pending' },    // 底部
+    { id: 'l4', position: { x: 35, y: 100 }, type: 'special', state: 'pending' },    // 底部（交流会格）
+    { id: 'l5', position: { x: 45, y: 105 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
     { id: 'l6', position: { x: 55, y: 105 }, type: 'default', state: 'pending' },    // 底部
     { id: 'l7', position: { x: 65, y: 100 }, type: 'chance', state: 'pending' },    // 底部
     { id: 'l8', position: { x: 70, y: 90 }, type: 'default', state: 'pending' },     // 右下
-    { id: 'l9', position: { x: 68, y: 80 }, type: 'end', state: 'pending' },       // 右下（终点）
+    { id: 'l9', position: { x: 68, y: 80 }, type: 'boss', state: 'locked' },       // 右下（Boss格）
     { id: 'l10', position: { x: 60, y: 72 }, type: 'default', state: 'pending' },   // 右下
   ];
   
@@ -168,6 +168,16 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick }: SRayL
           {/* 十字线 */}
           <line x1="50" y1="70" x2="50" y2="105" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.8" />
           <line x1="30" y1="87" x2="70" y2="87" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.8" />
+          
+          {/* 区域效果视觉指示器 */}
+          {/* W区域（虚弱区）- 淡红色半透明覆盖 */}
+          <rect x="30" y="70" width="20" height="17" fill="#FF6B6B" fillOpacity="0.2" />
+          {/* N区域（知识区）- 淡蓝色半透明覆盖 */}
+          <rect x="50" y="70" width="20" height="17" fill="#4ECDC4" fillOpacity="0.2" />
+          {/* I区域（反转区）- 淡紫色半透明覆盖 */}
+          <rect x="30" y="87" width="20" height="18" fill="#9B59B6" fillOpacity="0.2" />
+          {/* P区域（跳过区）- 淡黄色半透明覆盖 */}
+          <rect x="50" y="87" width="20" height="18" fill="#FFE66D" fillOpacity="0.2" />
           
           {/* 四个象限标注 */}
           <text x="40" y="80" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
