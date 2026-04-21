@@ -1,8 +1,18 @@
 import { useState, useMemo } from 'react';
 import type { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
 
+// 扩展SRayLandCell类型以支持关卡信息
+interface ExtendedSRayLandCell extends SRayLandCellType {
+  metadata?: {
+    levelId?: string;
+    levelName?: string;
+    difficulty?: number;
+    isElite?: boolean;
+  };
+}
+
 interface SRayLandCellProps {
-  cell: SRayLandCellType;
+  cell: ExtendedSRayLandCell;
   isCurrent: boolean;
   isAlternate: boolean;
   onClick: () => void;
@@ -136,6 +146,36 @@ export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLand
         {icon}
       </text>
 
+      {/* 难度星级 */}
+      {cell.type === 'battle' && cell.metadata?.difficulty && (
+        <text
+          x={displaySize / 2 - 1}
+          y={displaySize / 2 - 1}
+          textAnchor="end"
+          dominantBaseline="auto"
+          fontSize="2"
+          fill={getDifficultyColor(cell.metadata.difficulty)}
+          fontWeight="bold"
+        >
+          {'★'.repeat(cell.metadata.difficulty)}
+        </text>
+      )}
+
+      {/* 精英标记 */}
+      {cell.type === 'battle' && cell.metadata?.isElite && (
+        <text
+          x={-displaySize / 2 + 1}
+          y={displaySize / 2 - 1}
+          textAnchor="start"
+          dominantBaseline="auto"
+          fontSize="2"
+          fill="#FFD700"
+          fontWeight="bold"
+        >
+          精英
+        </text>
+      )}
+
       {/* 终点特殊标记 */}
       {cell.type === 'end' && (
         <text
@@ -157,16 +197,16 @@ export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLand
           <rect
             x="0"
             y="-12"
-            width="70"
-            height="24"
+            width={cell.type === 'battle' && cell.metadata ? "120" : "70"}
+            height={cell.type === 'battle' && cell.metadata ? "40" : "24"}
             rx="3"
             fill="rgba(0,0,0,0.9)"
             stroke="rgba(255,255,255,0.3)"
             strokeWidth="0.5"
           />
           <text
-            x="35"
-            y="0"
+            x={cell.type === 'battle' && cell.metadata ? "60" : "35"}
+            y="-5"
             textAnchor="middle"
             fontSize="6"
             fill="#ffffff"
@@ -174,6 +214,28 @@ export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLand
           >
             {getCellTypeName(cell.type)}
           </text>
+          {cell.type === 'battle' && cell.metadata && (
+            <>
+              <text
+                x="60"
+                y="3"
+                textAnchor="middle"
+                fontSize="5"
+                fill="#ffffff"
+              >
+                {cell.metadata.levelName || '未知关卡'}
+              </text>
+              <text
+                x="60"
+                y="12"
+                textAnchor="middle"
+                fontSize="4"
+                fill={getDifficultyColor(cell.metadata.difficulty || 1)}
+              >
+                难度: {'★'.repeat(cell.metadata.difficulty || 1)}
+              </text>
+            </>
+          )}
         </g>
       )}
     </g>
@@ -195,4 +257,22 @@ function getCellTypeName(type: string): string {
     default: '格子',
   };
   return names[type] || '格子';
+}
+
+// 辅助函数：根据难度获取颜色
+function getDifficultyColor(difficulty: number): string {
+  switch (difficulty) {
+    case 1:
+      return '#4CAF50'; // 绿色 - 简单
+    case 2:
+      return '#2196F3'; // 蓝色 - 普通
+    case 3:
+      return '#FFC107'; // 黄色 - 困难
+    case 4:
+      return '#FF9800'; // 橙色 - 极难
+    case 5:
+      return '#F44336'; // 红色 - 地狱
+    default:
+      return '#9E9E9E'; // 灰色 - 未知
+  }
 }

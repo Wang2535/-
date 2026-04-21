@@ -26,12 +26,12 @@ function generateGridCells(): SRayLandCell[] {
   // 上半部分 - 不规则弧形路径（苹果上半部分）
   const upperPath = [
     { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },     // 顶部
-    { id: 'u2', position: { x: 60, y: 15 }, type: 'default', state: 'pending' },     // 右上弧
-    { id: 'u3', position: { x: 70, y: 22 }, type: 'chance', state: 'pending' },     // 右上弧
+    { id: 'u2', position: { x: 60, y: 15 }, type: 'battle', state: 'pending' },     // 右上弧（战斗格）
+    { id: 'u3', position: { x: 70, y: 22 }, type: 'chance', state: 'pending' },     // 右上弧（机会格）
     { id: 'u4', position: { x: 78, y: 30 }, type: 'skill', state: 'pending' },      // 右上弧（技能格）
-    { id: 'u5', position: { x: 82, y: 40 }, type: 'default', state: 'pending' },    // 右下方弧
-    { id: 'u6', position: { x: 78, y: 50 }, type: 'chance', state: 'pending' },    // 右下方弧
-    { id: 'u7', position: { x: 70, y: 58 }, type: 'default', state: 'pending' },     // 右下方弧
+    { id: 'u5', position: { x: 82, y: 40 }, type: 'battle', state: 'pending' },    // 右下方弧（战斗格）
+    { id: 'u6', position: { x: 78, y: 50 }, type: 'chance', state: 'pending' },    // 右下方弧（机会格）
+    { id: 'u7', position: { x: 70, y: 58 }, type: 'battle', state: 'pending' },     // 右下方弧（战斗格）
   ];
   
   // 连接路径
@@ -42,14 +42,14 @@ function generateGridCells(): SRayLandCell[] {
   
   // 下半部分 - 标准圆形路径（苹果下半部分）
   const lowerPath = [
-    { id: 'l1', position: { x: 40, y: 72 }, type: 'default', state: 'pending' },     // 左下
-    { id: 'l2', position: { x: 32, y: 80 }, type: 'chance', state: 'pending' },     // 左下
+    { id: 'l1', position: { x: 40, y: 72 }, type: 'battle', state: 'pending' },     // 左下（战斗格）
+    { id: 'l2', position: { x: 32, y: 80 }, type: 'chance', state: 'pending' },     // 左下（机会格）
     { id: 'l3', position: { x: 30, y: 90 }, type: 'default', state: 'pending' },     // 左下
     { id: 'l4', position: { x: 35, y: 100 }, type: 'special', state: 'pending' },    // 底部（交流会格）
     { id: 'l5', position: { x: 45, y: 105 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
     { id: 'l6', position: { x: 55, y: 105 }, type: 'default', state: 'pending' },    // 底部
-    { id: 'l7', position: { x: 65, y: 100 }, type: 'chance', state: 'pending' },    // 底部
-    { id: 'l8', position: { x: 70, y: 90 }, type: 'default', state: 'pending' },     // 右下
+    { id: 'l7', position: { x: 65, y: 100 }, type: 'chance', state: 'pending' },    // 底部（机会格）
+    { id: 'l8', position: { x: 70, y: 90 }, type: 'battle', state: 'pending' },     // 右下（战斗格）
     { id: 'l9', position: { x: 68, y: 80 }, type: 'boss', state: 'locked' },       // 右下（Boss格）
     { id: 'l10', position: { x: 60, y: 72 }, type: 'default', state: 'pending' },   // 右下
   ];
