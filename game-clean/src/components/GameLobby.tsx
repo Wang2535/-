@@ -20,6 +20,7 @@ interface GameLobbyProps {
   onEnterRoom?: (hostPlayer: { name: string; faction: Faction; characterId: CharacterId }) => void;
   onEnterLevelMode?: () => void;
   onEnterTowerMode?: () => void;
+  onEnterSRayLandTest?: () => void;
 }
 
 export interface GameConfig {
@@ -38,7 +39,7 @@ function getCharactersByFaction(faction: Faction): CharacterDefinition[] {
   return Object.values(CHARACTER_DATABASE).filter(char => char.faction === faction);
 }
 
-export function GameLobby({ onStartGame: _onStartGame, onEnterRoom, onEnterLevelMode, onEnterTowerMode }: GameLobbyProps) {
+export function GameLobby({ onStartGame: _onStartGame, onEnterRoom, onEnterLevelMode, onEnterTowerMode, onEnterSRayLandTest }: GameLobbyProps) {
   const [playerName, setPlayerName] = useState('玩家' + Math.floor(Math.random() * 1000));
   const [nameError, setNameError] = useState<string>('');
   const [selectedFaction, setSelectedFaction] = useState<Faction>('attacker');
@@ -459,6 +460,19 @@ export function GameLobby({ onStartGame: _onStartGame, onEnterRoom, onEnterLevel
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* 测试区域 */}
+      {onEnterSRayLandTest && (
+        <div className="max-w-5xl mx-auto mt-6">
+          <Button
+            variant="outline"
+            onClick={onEnterSRayLandTest}
+            className="w-full bg-amber-900/20 border-amber-700 text-amber-200 hover:bg-amber-900/40 hover:text-amber-100"
+          >
+            🏝️ 查看SRayLand复古大航海地图
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

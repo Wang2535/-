@@ -21,9 +21,10 @@ import { getHandLimitByRound } from '@/types/gameConstants';
 import type { VictoryResult } from '@/engine/VictoryConditionSystem';
 import { TowerModeApp } from './tower-mode/TowerModeApp';
 import { TowerClimbView } from './tower-mode/components/TowerClimbView/TowerClimbView';
+import { SRayLandMapTest } from './components/SRayLandMapTest';
 import './styles/theme.css';
 
-type AppScreen = 'lobby' | 'room' | 'game' | 'levelSelection' | 'levelGame' | 'levelDeckBuilder' | 'towerMode' | 'towerMap';
+type AppScreen = 'lobby' | 'room' | 'game' | 'levelSelection' | 'levelGame' | 'levelDeckBuilder' | 'towerMode' | 'towerMap' | 'sraylandTest';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('lobby');
@@ -477,6 +478,16 @@ function App() {
     setCurrentScreen('towerMap');
   }, []);
 
+  // 进入SRayLand地图测试页面
+  const handleEnterSRayLandTest = useCallback(() => {
+    setCurrentScreen('sraylandTest');
+  }, []);
+
+  // 返回大厅
+  const handleBackToLobby = useCallback(() => {
+    setCurrentScreen('lobby');
+  }, []);
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-deep-space)' }}>
       {currentScreen === 'lobby' && (
@@ -485,6 +496,7 @@ function App() {
           onEnterRoom={handleEnterRoom}
           onEnterLevelMode={() => setCurrentScreen('levelSelection')}
           onEnterTowerMode={handleEnterTowerMode}
+          onEnterSRayLandTest={handleEnterSRayLandTest}
         />
       )}
       
@@ -623,6 +635,33 @@ function App() {
             return levelGameStateManager.selectRogueOption(optionId);
           }}
         />
+      )}
+
+      {currentScreen === 'sraylandTest' && (
+        <div style={{ position: 'relative' }}>
+          <SRayLandMapTest />
+          <button 
+            onClick={handleBackToLobby}
+            style={{
+              position: 'fixed',
+              top: '20px',
+              left: '20px',
+              zIndex: 100,
+              padding: '10px 20px',
+              background: 'rgba(0,0,0,0.7)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            ← 返回大厅
+          </button>
+        </div>
       )}
       
       <VictoryModal

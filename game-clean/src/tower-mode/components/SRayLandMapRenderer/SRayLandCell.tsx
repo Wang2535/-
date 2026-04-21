@@ -1,0 +1,196 @@
+import { useState, useMemo } from 'react';
+import { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
+
+interface SRayLandCellProps {
+  cell: SRayLandCellType;
+  isCurrent: boolean;
+  isAlternate: boolean;
+  onClick: () => void;
+}
+
+// 格子类型对应的emoji图标
+const CELL_TYPE_ICONS: Record<string, string> = {
+  start: '🚩',
+  battle: '⚔️',
+  chance: '❓',
+  bookstore: '📚',
+  skill: '✨',
+  special: '⭐',
+  elite: '💀',
+  boss: '👹',
+  end: '🏁',
+  default: '•',
+};
+
+// 格子类型对应的额外样式
+const CELL_TYPE_STYLES: Record<string, { glow: string; extra: string }> = {
+  start: { glow: '#4CAF50', extra: 'rgba(76, 175, 80, 0.3)' },
+  battle: { glow: '#f44336', extra: 'rgba(244, 67, 54, 0.3)' },
+  chance: { glow: '#9C27B0', extra: 'rgba(156, 39, 176, 0.3)' },
+  bookstore: { glow: '#ffc107', extra: 'rgba(255, 193, 7, 0.3)' },
+  skill: { glow: '#2196F3', extra: 'rgba(33, 150, 243, 0.3)' },
+  special: { glow: '#FFD700', extra: 'rgba(255, 215, 0, 0.3)' },
+  elite: { glow: '#ff4444', extra: 'rgba(255, 68, 68, 0.3)' },
+  boss: { glow: '#ff2222', extra: 'rgba(255, 34, 34, 0.3)' },
+  end: { glow: '#00BCD4', extra: 'rgba(0, 188, 212, 0.3)' },
+  default: { glow: '#8B4513', extra: 'rgba(139, 69, 19, 0.1)' },
+};
+
+export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLandCellProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const cellSize = 6;
+  const scale = isCurrent ? 1.15 : (isHovered ? 1.1 : 1);
+  const displaySize = cellSize * scale;
+
+  // 格子填充色 - 橙色和白色交替
+  const fillColor = isAlternate ? '#FFA500' : '#FFFFFF';
+
+  const typeStyle = CELL_TYPE_STYLES[cell.type] || CELL_TYPE_STYLES.default;
+  const icon = CELL_TYPE_ICONS[cell.type] || CELL_TYPE_ICONS.default;
+
+  // 状态透明度
+  const opacity = cell.state === 'locked' ? 0.5 : 1;
+
+  return (
+    <g
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+      cursor="pointer"
+      transform={`translate(${cell.position.x}, ${cell.position.y})`}
+    >
+      {/* 主格子 - 正方形 */}
+      <rect
+        x={-displaySize / 2}
+        y={-displaySize / 2}
+        width={displaySize}
+        height={displaySize}
+        fill={fillColor}
+        stroke={isCurrent ? typeStyle.glow : '#000000'}
+        strokeWidth={isCurrent ? 2 : 1.5}
+        opacity={opacity}
+      />
+
+      {/* 当前位置的动态光圈 */}
+      {isCurrent && (
+        <rect
+          x={-displaySize / 2 - 1}
+          y={-displaySize / 2 - 1}
+          width={displaySize + 2}
+          height={displaySize + 2}
+          fill="none"
+          stroke={typeStyle.glow}
+          strokeWidth="1"
+          opacity="0.8"
+        >
+          <animate
+            attributeName="stroke-opacity"
+            values="0.8;0.3;0.8"
+            dur="1.5s"
+            repeatCount="indefinite"
+          />
+        </rect>
+      )}
+
+      {/* 已通关的对勾标记 */}
+      {cell.state === 'cleared' && (
+        <g>
+          <circle r={displaySize / 3} fill="rgba(76, 175, 80, 0.3)" />
+          <path
+            d={`M ${-displaySize / 6} 0 L 0 ${displaySize / 6} L ${displaySize / 5} ${-displaySize / 8}`}
+            stroke="#4CAF50"
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+      )}
+
+      {/* 失败的叉号标记 */}
+      {cell.state === 'failed' && (
+        <g>
+          <circle r={displaySize / 3} fill="rgba(244, 67, 54, 0.3)" />
+          <path
+            d={`M ${-displaySize / 6} ${-displaySize / 6} L ${displaySize / 6} ${displaySize / 6} M ${displaySize / 6} ${-displaySize / 6} L ${-displaySize / 6} ${displaySize / 6}`}
+            stroke="#f44336"
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </g>
+      )}
+
+      {/* 格子图标 */}
+      <text
+        x="0"
+        y="0.5"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={displaySize * 0.5}
+        opacity={opacity}
+      >
+        {icon}
+      </text>
+
+      {/* 终点特殊标记 */}
+      {cell.type === 'end' && (
+        <text
+          x="0"
+          y={-displaySize / 2 - 2}
+          textAnchor="middle"
+          dominantBaseline="auto"
+          fontSize="3"
+          fill="#00BCD4"
+          fontWeight="bold"
+        >
+          end
+        </text>
+      )}
+
+      {/* 悬停提示框 */}
+      {isHovered && (
+        <g transform={`translate(${displaySize / 2 + 2}, ${-displaySize / 2})`}>
+          <rect
+            x="0"
+            y="-12"
+            width="70"
+            height="24"
+            rx="3"
+            fill="rgba(0,0,0,0.9)"
+            stroke="rgba(255,255,255,0.3)"
+            strokeWidth="0.5"
+          />
+          <text
+            x="35"
+            y="0"
+            textAnchor="middle"
+            fontSize="6"
+            fill="#ffffff"
+            fontWeight="bold"
+          >
+            {getCellTypeName(cell.type)}
+          </text>
+        </g>
+      )}
+    </g>
+  );
+}
+
+// 辅助函数：获取格子类型名称
+function getCellTypeName(type: string): string {
+  const names: Record<string, string> = {
+    start: '起点',
+    battle: '战斗',
+    chance: '机会',
+    bookstore: '书店',
+    skill: '技能',
+    special: '特殊',
+    elite: '精英',
+    boss: 'Boss',
+    end: '终点',
+    default: '格子',
+  };
+  return names[type] || '格子';
+}
