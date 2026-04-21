@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SRayLandCell as SRayLandCellComponent } from './SRayLandCell';
 import { SRayLandPath } from './SRayLandPath';
+import { LEVEL_POOL_BY_LAYER } from '../../data/levelPool';
+import { LevelAssignmentAlgorithm } from '../../algorithms/levelAssignment';
 
 export interface SRayLandCell {
   id: string;
@@ -14,6 +16,7 @@ export interface SRayLandMapRendererProps {
   cells?: SRayLandCell[];
   currentCellId?: string;
   onCellClick?: (cellId: string) => void;
+  layerNumber?: number;
 }
 
 // 苹果轮廓的双路径结构的格子位置
@@ -65,9 +68,10 @@ function generateGridCells(): SRayLandCell[] {
   return cells;
 }
 
-export function SRayLandMapRenderer({ cells, currentCellId, onCellClick }: SRayLandMapRendererProps) {
+export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNumber = 1 }: SRayLandMapRendererProps) {
   const defaultCells = useMemo(() => generateGridCells(), []);
-  const displayCells = cells || defaultCells;
+  const [displayCells, setDisplayCells] = useState<SRayLandCell[]>(cells || defaultCells);
+  const [levelAssignments, setLevelAssignments] = useState<Map<string, any>>(new Map());
   
   // 构建连接路径 - 苹果轮廓的双路径结构
   const connections = useMemo(() => {
@@ -97,6 +101,71 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick }: SRayL
     
     return paths;
   }, []);
+  
+  // 导入关卡并分配到战斗格
+  useMemo(() => {
+    const battleCells = displayCells.filter(cell => cell.type === 'battle');
+    if (battleCells.length > 0) {
+      const levelPool = LEVEL_POOL_BY_LAYER[layerNumber] || [];
+      const assignmentAlgorithm = new LevelAssignmentAlgorithm();
+      
+      // 模拟拓扑数据
+      const topology = {
+        layerNumber,
+        cells: displayCells.map(cell => ({
+          id: cell.id,
+          type: cell.type,
+          coordinate: [cell.position.x, cell.position.y],
+          state: cell.state,
+          difficulty: 1
+        })),
+        cellIndex: displayCells.reduce((acc, cell) => {
+          acc[cell.id] = {
+            id: cell.id,
+            type: cell.type,
+            coordinate: [cell.position.x, cell.position.y],
+            state: cell.state,
+            difficulty: 1
+          };
+          return acc;
+        }, {} as Record<string, any>),
+        startCellId: 'u1',
+        bossCellId: 'l9',
+        adjacencyList: connections.reduce((acc, conn) => {
+          if (!acc[conn.from]) acc[conn.from] = [];
+          acc[conn.from].push(conn.to);
+          return acc;
+        }, {} as Record<string, string[]>)
+      };
+      
+      try {
+        const result = assignmentAlgorithm.assignLevelsToLayer(topology, levelPool);
+        setLevelAssignments(result.assignedLevels);
+        
+        // 更新战斗格的难度和状态
+        const updatedCells = displayCells.map(cell => {
+          if (cell.type === 'battle') {
+            const assignment = result.assignedLevels.get(cell.id);
+            if (assignment) {
+              return {
+                ...cell,
+                metadata: {
+                  levelId: assignment.id,
+                  levelName: assignment.name,
+                  difficulty: assignment.difficulty,
+                  isElite: assignment.difficulty >= 4
+                }
+              };
+            }
+          }
+          return cell;
+        });
+        setDisplayCells(updatedCells);
+      } catch (error) {
+        console.error('Level assignment error:', error);
+      }
+    }
+  }, [layerNumber, displayCells, connections]);
   
   return (
     <div style={{
