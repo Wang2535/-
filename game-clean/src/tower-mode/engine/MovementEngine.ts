@@ -85,11 +85,11 @@ export class MovementEngine {
     if (!this.currentPositionCellId) return [];
 
     const options: MoveOption[] = [];
-    const visited = new Set<string>();
+    const visited = new Map<string, number>(); // 使用 Map 记录访问距离
     const queue: Array<{ cellId: string; path: GameCell[]; distance: number }> = [
       { cellId: this.currentPositionCellId, path: [], distance: 0 }
     ];
-    visited.add(this.currentPositionCellId);
+    visited.set(this.currentPositionCellId, 0);
 
     while (queue.length > 0) {
       const { cellId, path, distance } = queue.shift()!;
@@ -116,10 +116,12 @@ export class MovementEngine {
       if (distance < diceValue) {
         const neighbors = this.layerData.adjacencyList[cellId] ?? [];
         for (const neighborId of neighbors) {
-          if (!visited.has(neighborId)) {
-            visited.add(neighborId);
-            const neighborCell = this.layerData.cellIndex[neighborId];
-            if (neighborCell) {
+          const neighborCell = this.layerData.cellIndex[neighborId];
+          if (neighborCell) {
+            const currentDistance = visited.get(neighborId);
+            // 只有当这个邻居还没有被访问过，或者通过当前路径可以到达的距离更短时，才继续处理
+            if (currentDistance === undefined || distance + 1 < currentDistance) {
+              visited.set(neighborId, distance + 1);
               queue.push({
                 cellId: neighborId,
                 path: [...path, cell],
