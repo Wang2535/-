@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { SRayLandCell as SRayLandCellComponent } from './SRayLandCell';
 import { SRayLandPath } from './SRayLandPath';
-import { LEVEL_POOL_BY_LAYER } from '../../data/levelPool';
-import { LevelAssignmentAlgorithm } from '../../algorithms/levelAssignment';
+import { LevelAssignmentEngine } from '../../engine/LevelAssignmentEngine';
+import { THEME_LEVELS, BOSS_LEVELS, TIER_THEME_MAP } from '../../data/themeLevelMapping';
 
 export interface SRayLandCell {
   id: string;
@@ -27,37 +27,37 @@ function generateGridCells(): SRayLandCell[] {
   const upperPath = [
     { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },     // 顶部
     { id: 'u2', position: { x: 60, y: 15 }, type: 'battle', state: 'pending' },     // 右上弧（战斗格）
-    { id: 'u3', position: { x: 70, y: 22 }, type: 'chance', state: 'pending' },     // 右上弧（机会格）
-    { id: 'u4', position: { x: 78, y: 30 }, type: 'skill', state: 'pending' },      // 右上弧（技能格）
+    { id: 'u3', position: { x: 70, y: 22 }, type: 'battle', state: 'pending' },     // 右上弧（战斗格）
+    { id: 'u4', position: { x: 78, y: 30 }, type: 'battle', state: 'pending' },      // 右上弧（战斗格）
     { id: 'u5', position: { x: 82, y: 40 }, type: 'battle', state: 'pending' },    // 右下方弧（战斗格）
-    { id: 'u6', position: { x: 78, y: 50 }, type: 'chance', state: 'pending' },    // 右下方弧（机会格）
+    { id: 'u6', position: { x: 78, y: 50 }, type: 'battle', state: 'pending' },    // 右下方弧（战斗格）
     { id: 'u7', position: { x: 70, y: 58 }, type: 'battle', state: 'pending' },     // 右下方弧（战斗格）
   ];
   
   // 连接路径
   const connectorPath = [
-    { id: 'c1', position: { x: 60, y: 64 }, type: 'bookstore', state: 'pending' },   // 连接（书店格）
-    { id: 'c2', position: { x: 50, y: 68 }, type: 'default', state: 'pending' },     // 连接
+    { id: 'c1', position: { x: 60, y: 64 }, type: 'battle', state: 'pending' },   // 连接（战斗格）
+    { id: 'c2', position: { x: 50, y: 68 }, type: 'battle', state: 'pending' },     // 连接（战斗格）
   ];
   
   // 下半部分 - 标准圆形路径（苹果下半部分）
   const lowerPath = [
     { id: 'l1', position: { x: 40, y: 72 }, type: 'battle', state: 'pending' },     // 左下（战斗格）
-    { id: 'l2', position: { x: 32, y: 80 }, type: 'chance', state: 'pending' },     // 左下（机会格）
-    { id: 'l3', position: { x: 30, y: 90 }, type: 'default', state: 'pending' },     // 左下
-    { id: 'l4', position: { x: 35, y: 100 }, type: 'special', state: 'pending' },    // 底部（交流会格）
+    { id: 'l2', position: { x: 32, y: 80 }, type: 'battle', state: 'pending' },     // 左下（战斗格）
+    { id: 'l3', position: { x: 30, y: 90 }, type: 'battle', state: 'pending' },     // 左下（战斗格）
+    { id: 'l4', position: { x: 35, y: 100 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
     { id: 'l5', position: { x: 45, y: 105 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
-    { id: 'l6', position: { x: 55, y: 105 }, type: 'default', state: 'pending' },    // 底部
-    { id: 'l7', position: { x: 65, y: 100 }, type: 'chance', state: 'pending' },    // 底部（机会格）
+    { id: 'l6', position: { x: 55, y: 105 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
+    { id: 'l7', position: { x: 65, y: 100 }, type: 'battle', state: 'pending' },    // 底部（战斗格）
     { id: 'l8', position: { x: 70, y: 90 }, type: 'battle', state: 'pending' },     // 右下（战斗格）
     { id: 'l9', position: { x: 68, y: 80 }, type: 'boss', state: 'locked' },       // 右下（Boss格）
-    { id: 'l10', position: { x: 60, y: 72 }, type: 'default', state: 'pending' },   // 右下
+    { id: 'l10', position: { x: 60, y: 72 }, type: 'battle', state: 'pending' },   // 右下（战斗格）
   ];
   
   // 短柄延伸
   const stemPath = [
-    { id: 's1', position: { x: 45, y: 5 }, type: 'default', state: 'pending' },      // 短柄
-    { id: 's2', position: { x: 40, y: 8 }, type: 'default', state: 'pending' },      // 短柄
+    { id: 's1', position: { x: 45, y: 5 }, type: 'battle', state: 'pending' },      // 短柄
+    { id: 's2', position: { x: 40, y: 8 }, type: 'battle', state: 'pending' },      // 短柄
   ];
   
   // 添加所有格子
@@ -105,49 +105,63 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
   // 导入关卡并分配到战斗格
   useEffect(() => {
     const battleCells = displayCells.filter(cell => cell.type === 'battle');
-    if (battleCells.length > 0) {
-      const levelPool = LEVEL_POOL_BY_LAYER[layerNumber] || [];
-      const assignmentAlgorithm = new LevelAssignmentAlgorithm();
+    const bossCell = displayCells.find(cell => cell.type === 'boss');
+    if (battleCells.length > 0 && bossCell) {
+      const levelEngine = new LevelAssignmentEngine();
       
-      // 模拟拓扑数据
-      const topology = {
-        layerNumber,
-        cells: displayCells.map(cell => ({
-          id: cell.id,
-          type: cell.type,
-          coordinate: [cell.position.x, cell.position.y],
-          position: cell.position, // 保留position属性以确保兼容性
-          state: cell.state,
-          difficulty: 1
-        })),
-        cellIndex: displayCells.reduce((acc, cell) => {
-          acc[cell.id] = {
-            id: cell.id,
-            type: cell.type,
-            coordinate: [cell.position.x, cell.position.y],
-            position: cell.position, // 保留position属性以确保兼容性
-            state: cell.state,
-            difficulty: 1
-          };
-          return acc;
-        }, {} as Record<string, any>),
-        startCellId: 'u1',
-        bossCellId: 'l9',
-        adjacencyList: connections.reduce((acc, conn) => {
-          if (!acc[conn.from]) acc[conn.from] = [];
-          acc[conn.from].push(conn.to);
-          return acc;
-        }, {} as Record<string, string[]>)
-      };
+      // 创建关卡数据库
+      const levelDatabase = [];
+      const theme = TIER_THEME_MAP[layerNumber];
+      const levels = THEME_LEVELS[theme] || [];
+      
+      for (const levelId of levels) {
+        levelDatabase.push({
+          id: levelId,
+          theme,
+          difficulty: Math.ceil(layerNumber / 3),
+          title: `关卡 ${levelId}`,
+          description: `第 ${layerNumber} 层 ${theme} 主题关卡`,
+        });
+      }
+      
+      // 添加BOSS关卡
+      const bossId = BOSS_LEVELS[theme];
+      if (bossId) {
+        levelDatabase.push({
+          id: bossId,
+          theme,
+          difficulty: Math.ceil(layerNumber / 3) + 1,
+          title: `BOSS 关卡 ${bossId}`,
+          description: `第 ${layerNumber} 层 BOSS 战`,
+          isBoss: true,
+        });
+      }
       
       try {
-        const result = assignmentAlgorithm.assignLevelsToLayer(topology, levelPool);
-        setLevelAssignments(result.assignedLevels);
+        levelEngine.initializePools(levelDatabase);
+        const battleCellIds = battleCells.map(cell => cell.id);
+        const assignment = levelEngine.assignLayer(layerNumber, battleCellIds, bossCell.id);
+        
+        // 创建关卡分配映射
+        const assignmentsMap = new Map();
+        Object.entries(assignment.battleCellAssignments).forEach(([cellId, levelId]) => {
+          const levelInfo = levelDatabase.find(l => l.id === levelId);
+          if (levelInfo) {
+            assignmentsMap.set(cellId, {
+              id: levelId,
+              name: levelInfo.title,
+              difficulty: levelInfo.difficulty,
+              isElite: levelInfo.difficulty >= 4
+            });
+          }
+        });
+        
+        setLevelAssignments(assignmentsMap);
         
         // 更新战斗格的难度和状态
         const updatedCells = displayCells.map(cell => {
           if (cell.type === 'battle') {
-            const assignment = result.assignedLevels.get(cell.id);
+            const assignment = assignmentsMap.get(cell.id);
             if (assignment) {
               return {
                 ...cell,
@@ -155,7 +169,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
                   levelId: assignment.id,
                   levelName: assignment.name,
                   difficulty: assignment.difficulty,
-                  isElite: assignment.difficulty >= 4
+                  isElite: assignment.isElite
                 }
               };
             }

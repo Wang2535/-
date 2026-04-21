@@ -1,12 +1,4 @@
-import { LAYER_01_DATA } from './layers/layer1-virus-lab';
-import { LAYER_02_DATA } from './layers/layer2-cyberspace';
-import { LAYER_03_DATA } from './layers/layer3-data-vault';
-import { LAYER_04_DATA } from './layers/layer4-grid-city';
-import { LAYER_05_DATA } from './layers/layer5-smart-factory';
-import { LAYER_06_DATA } from './layers/layer6-mobile-terminal';
-import { LAYER_07_DATA } from './layers/layer7-cloud-platform';
-import { LAYER_08_DATA } from './layers/layer8-future-lab';
-import { LAYER_09_DATA } from './layers/layer9-command-center';
+import { SRAYLAND_LAYER_DATA } from './layers/srayland-layer';
 
 import type {
   ZoneType,
@@ -52,15 +44,15 @@ export interface ValidationResult {
 }
 
 export const LAYER_REGISTRY: Record<number, TowerLayerData> = {
-  1: LAYER_01_DATA,
-  2: LAYER_02_DATA,
-  3: LAYER_03_DATA,
-  4: LAYER_04_DATA,
-  5: LAYER_05_DATA,
-  6: LAYER_06_DATA,
-  7: LAYER_07_DATA,
-  8: LAYER_08_DATA,
-  9: LAYER_09_DATA,
+  1: SRAYLAND_LAYER_DATA,
+  2: SRAYLAND_LAYER_DATA,
+  3: SRAYLAND_LAYER_DATA,
+  4: SRAYLAND_LAYER_DATA,
+  5: SRAYLAND_LAYER_DATA,
+  6: SRAYLAND_LAYER_DATA,
+  7: SRAYLAND_LAYER_DATA,
+  8: SRAYLAND_LAYER_DATA,
+  9: SRAYLAND_LAYER_DATA,
 };
 
 export function getLayerData(layerNumber: number): TowerLayerData {
@@ -97,11 +89,12 @@ export function validateLayerData(data: TowerLayerData): ValidationResult {
   }
 
   const cellIds = new Set(data.cells.map(c => c.id));
-  const cellIdPattern = /^R\d+C\d+$/;
+  // 支持 SRayLand 地图的 cell ID 格式
+  const cellIdPattern = /^(R\d+C\d+|u\d+|l\d+|c\d+|s\d+)$/;
 
   for (const cell of data.cells) {
     if (!cellIdPattern.test(cell.id)) {
-      errors.push({ field: 'cells', message: `Cell ID "${cell.id}" does not match R{row}C{col} format`, cellId: cell.id });
+      errors.push({ field: 'cells', message: `Cell ID "${cell.id}" does not match expected format`, cellId: cell.id });
     }
   }
 
