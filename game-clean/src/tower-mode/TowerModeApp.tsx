@@ -1,27 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { TowerModeController } from './TowerModeController';
-import { TowerHUD } from './components/TowerHUD';
-import { MovementControl } from './components/MovementControl';
-import { BattleEntranceModal } from './components/BattleEntranceModal';
-import { ChanceEventModal } from './components/ChanceEventModal';
-import { BookstoreModal } from './components/BookstoreModal';
-import { SkillPanel } from './components/SkillPanel';
-import { DataPacketSelector } from './components/DataPacketSelector';
-import { LayerTransition } from './components/LayerTransition';
-import { GameCompleteScreen } from './components/GameCompleteScreen';
-import { NotificationContainer } from './components/NotificationContainer';
-import { TowerStartScreen } from './components/TowerStartScreen';
-import { PauseOverlay } from './components/PauseOverlay';
-import { TowerMainMap } from './components/TowerMainMap';
-import { GourdMapRenderer } from './components/GourdMapRenderer';
-import { SRayLandMapRenderer } from './components/SRayLandMapRenderer';
-import { getGourdTopology } from './data/gourdTopologies';
-import { getSRayLandTopology } from './geometry/SRayLandTopologyGenerator';
-import { LAYER_THEMES } from './data/layerThemes';
-import type { LayerState } from './types/layerMetadata.types';
-import { getDefaultLayerStates } from './data/layerRegistry';
-import type { TowerRenderState, GamePhase } from './types';
-import type { GridCell } from './types/grid.types';
+
 
 interface TowerModeAppProps {
   onSaveExit?: () => void;
