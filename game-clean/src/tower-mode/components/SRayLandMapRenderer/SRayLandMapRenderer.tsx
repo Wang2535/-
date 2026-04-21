@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { SRayLandCell as SRayLandCellComponent } from './SRayLandCell';
 import { SRayLandPath } from './SRayLandPath';
 import { LEVEL_POOL_BY_LAYER } from '../../data/levelPool';
@@ -103,7 +103,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
   }, []);
   
   // 导入关卡并分配到战斗格
-  useMemo(() => {
+  useEffect(() => {
     const battleCells = displayCells.filter(cell => cell.type === 'battle');
     if (battleCells.length > 0) {
       const levelPool = LEVEL_POOL_BY_LAYER[layerNumber] || [];
@@ -116,6 +116,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
           id: cell.id,
           type: cell.type,
           coordinate: [cell.position.x, cell.position.y],
+          position: cell.position, // 保留position属性以确保兼容性
           state: cell.state,
           difficulty: 1
         })),
@@ -124,6 +125,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             id: cell.id,
             type: cell.type,
             coordinate: [cell.position.x, cell.position.y],
+            position: cell.position, // 保留position属性以确保兼容性
             state: cell.state,
             difficulty: 1
           };
@@ -165,7 +167,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
         console.error('Level assignment error:', error);
       }
     }
-  }, [layerNumber, displayCells, connections]);
+  }, [layerNumber, connections]);
   
   return (
     <div style={{
