@@ -43,8 +43,10 @@ export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLand
   const scale = isCurrent ? 1.15 : (isHovered ? 1.1 : 1);
   const displaySize = cellSize * scale;
 
-  // 格子填充色 - 橙色和白色交替
-  const fillColor = isAlternate ? '#FFA500' : '#FFFFFF';
+  // 格子填充色 - 橙、黄、白三色交替
+  const colorIndex = parseInt(cell.id.replace(/[^0-9]/g, '')) - 1;
+  const colors = ['#FFA500', '#FFD700', '#FFFFFF'];
+  const fillColor = colors[colorIndex % colors.length];
 
   const typeStyle = CELL_TYPE_STYLES[cell.type] || CELL_TYPE_STYLES.default;
   const icon = CELL_TYPE_ICONS[cell.type] || CELL_TYPE_ICONS.default;
