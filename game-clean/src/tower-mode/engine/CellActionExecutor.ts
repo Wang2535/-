@@ -233,6 +233,7 @@ export class CellActionExecutor {
     
     // 使用分配的关卡ID或默认使用cell的levelId
     const levelId = assignedLevelId || cell.levelId || `L${layerData?.layerNumber}_${cell.id}`;
+    const difficulty = cell.difficulty || 1;
     
     // 获取敌人信息（可以从关卡数据库查询）
     const enemyName = this.getEnemyNameForLevel(levelId);
@@ -242,9 +243,9 @@ export class CellActionExecutor {
       enemyPreview: { 
         name: enemyName, 
         icon: '⚔️', 
-        threatLevel: cell.difficulty > 3 ? 'high' : cell.difficulty > 1 ? 'normal' : 'low' 
+        threatLevel: difficulty > 3 ? 'high' : difficulty > 1 ? 'normal' : 'low' 
       },
-      difficulty: cell.difficulty,
+      difficulty: difficulty,
       estimatedRewards: cell.rewardCardId ? [cell.rewardCardId] : [],
       onConfirm: () => this.uiBridge.resolveUI({ action: 'confirm' }),
       onRetreat: () => this.uiBridge.resolveUI({ action: 'retreat' }),
@@ -262,11 +263,18 @@ export class CellActionExecutor {
       };
     }
 
-    this.eventEmitter.emit('BATTLE_START', { levelId: levelId, cellId: cell.id });
+    this.eventEmitter.emit('BATTLE_START', { levelId: levelId, cellId: cell.id, difficulty });
 
-    const battleEndResult = await this.waitForBattleEnd(levelId);
+    // 模拟真实的战斗流程，这里会有两种结果：胜利或失败
+    // 我们会有更高的失败风险，难度越高失败概率越大
+    const victoryProbability = Math.max(0.2, 1 - difficulty * 0.1);
+    const victory = Math.random() < victoryProbability;
+    const battleEndResult = { victory, exp: difficulty * 10 };
 
-    if (battleEndResult.victory) {
+    // 发送战斗结束事件
+    this.eventEmitter.emit('BATTLE_END', { ...battleEndResult, difficulty });
+
+    if (victory) {
       const rewardResult = await this.rewardSystem.grantBattleReward(
         levelId,
         true
@@ -541,9 +549,20 @@ export class CellActionExecutor {
       cellId: cell.id,
     });
 
-    const battleResult = await this.waitForBossBattleEnd(cell);
+    // 模拟 BOSS 战斗，失败概率更高
+    const difficulty = cell.enhancementLevel || 1;
+    const victoryProbability = Math.max(0.15, 1 - difficulty * 0.15);
+    const battleResult = { 
+      victory: Math.random() < victoryProbability 
+    };
 
     if (!battleResult.victory) {
+      // 战斗失败，发送失败事件（扣除更多技术值）
+      this.eventEmitter.emit('BATTLE_END', { 
+        victory: false, 
+        difficulty, 
+        isBoss: true 
+      });
       return {
         success: false,
         type: 'boss',
@@ -555,6 +574,7 @@ export class CellActionExecutor {
       };
     }
 
+    // 战斗胜利
     this.eventEmitter.emit('BOSS_DEFEATED', {
       cellId: cell.id,
       layerNumber: cell.layerNumber,

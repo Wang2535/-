@@ -10,6 +10,8 @@ import { RewardSystem } from './engine/RewardSystem';
 import { ProgressManager } from './engine/ProgressManager';
 import { getLayerData } from './data/layerRegistry';
 import { THEME_LEVELS, BOSS_LEVELS, TIER_THEME_MAP } from './data/themeLevelMapping';
+import { TechnicalValueManager } from './core/TechnicalValueManager';
+import { CoreResourcesManager } from './core/CoreResourcesManager';
 
 import type {
   GamePhase,
@@ -65,6 +67,8 @@ export class TowerModeController {
   private realCellStateMachine: CellStateMachine | null = null;
   private realZoneManager: ZoneEffectManager | null = null;
   private realMovementEngine: MovementEngine | null = null;
+  private realTechnicalValueManager: TechnicalValueManager | null = null;
+  private realCoreResourcesManager: CoreResourcesManager | null = null;
 
   constructor() {
     this.state = {
@@ -104,6 +108,10 @@ export class TowerModeController {
       this.realProgressManager = new ProgressManager(config?.saveSlotId);
       console.log('[TowerModeController] Creating RewardSystem...');
       this.realRewardSystem = new RewardSystem();
+      console.log('[TowerModeController] Creating TechnicalValueManager...');
+      this.realTechnicalValueManager = new TechnicalValueManager();
+      console.log('[TowerModeController] Creating CoreResourcesManager...');
+      this.realCoreResourcesManager = new CoreResourcesManager();
 
       console.log('[TowerModeController] Creating CellActionExecutor...');
       this.realActionExecutor = new CellActionExecutor(this.realRewardSystem);
@@ -131,6 +139,9 @@ export class TowerModeController {
       this.modules.actionExecutor = this.realActionExecutor;
       this.modules.rewardSystem = this.realRewardSystem;
       this.modules.progressManager = this.realProgressManager;
+      // 添加新模块到modules对象（动态添加）
+      (this.modules as any).technicalValueManager = this.realTechnicalValueManager;
+      (this.modules as any).coreResourcesManager = this.realCoreResourcesManager;
 
       console.log('[TowerModeController] Wiring event bus...');
       this.wireEventBus();
@@ -351,6 +362,9 @@ export class TowerModeController {
     const inventory = this.realRewardSystem?.getInventory();
     const progress = this.realProgressManager?.getCurrentProgress();
     const diceResult = this.realMovementEngine?.getLastDiceResult() ?? null;
+    const coreResources = this.realCoreResourcesManager?.getResources();
+    const technicalValue = this.realTechnicalValueManager?.getValue();
+    const maxTechnicalValue = this.realTechnicalValueManager?.getMaxValue();
 
     return {
       phase: this.state.phase,
@@ -370,6 +384,21 @@ export class TowerModeController {
         packetCount: inventory?.dataPackets?.length ?? 0,
         bookCount: inventory?.readBooks?.length ?? 0,
         moveCount: progress?.totalMoves ?? 0,
+        technicalValue: {
+          current: technicalValue ?? 50,
+          max: maxTechnicalValue ?? 810,
+        },
+        coreResources: coreResources ? {
+          coreComputing: coreResources.coreComputing,
+          coreFunds: coreResources.coreFunds,
+          coreInformation: coreResources.coreInformation,
+          corePrivilege: coreResources.corePrivilege,
+        } : {
+          coreComputing: 10,
+          coreFunds: 15,
+          coreInformation: 5,
+          corePrivilege: 0,
+        },
       },
       uiState: { ...this.state.uiState },
     };
@@ -531,13 +560,44 @@ export class TowerModeController {
     });
 
     const unsub3 = this.eventBus.on('BATTLE_END', (data) => {
-      const battleData = data as { victory: boolean };
+      const battleData = data as { victory: boolean; difficulty?: number; isBoss?: boolean };
       if (battleData.victory) {
+        // 战斗胜利 - 增加技术值和核心资源
+        const difficulty = battleData.difficulty ?? 1;
+        const techValueAdd = [3, 5, 9, 12, 15][Math.min(difficulty - 1, 4)] ?? 3;
+        const { newMilestones } = this.realTechnicalValueManager!.addValue(techValueAdd);
+        
+        // 增加核心资源
+        this.realCoreResourcesManager!.addResource('coreComputing', difficulty + 1);
+        this.realCoreResourcesManager!.addResource('coreFunds', difficulty + 2);
+        this.realCoreResourcesManager!.addResource('coreInformation', difficulty);
+        if (difficulty >= 4) {
+          this.realCoreResourcesManager!.addResource('corePrivilege', 1);
+        }
+        
         this.realRewardSystem!.grantBattleReward('', true);
         this.realProgressManager!.recordBattle({} as BattleActionResult);
-        this.addNotification('success', '战斗胜利！');
+        
+        if (newMilestones.length > 0) {
+          this.addNotification('success', `达成里程碑！获得新奖励`);
+          // TODO: 触发里程碑奖励选择界面
+        } else {
+          this.addNotification('success', `战斗胜利！获得 ${techValueAdd} 技术值`);
+        }
       } else {
-        this.addNotification('warning', '战斗失败，可以重试');
+        // 战斗失败 - 扣除技术值
+        const layer = this.state.currentLayer;
+        // BOSS 战失败时扣除更多
+        const baseDeduction = battleData.isBoss ? 50 : 30;
+        const deduction = baseDeduction + baseDeduction * layer;
+        const { newValue, died } = this.realTechnicalValueManager!.spendValue(deduction);
+        
+        if (died) {
+          this.addNotification('error', '游戏结束！技术值耗尽');
+          this.setPhase('game_over');
+        } else {
+          this.addNotification('warning', `${battleData.isBoss ? 'BOSS' : '战斗'}失败，扣除 ${deduction} 技术值，剩余 ${newValue}`);
+        }
       }
       this.closeModal();
     });
@@ -545,8 +605,17 @@ export class TowerModeController {
     const unsub4 = this.eventBus.on('BOSS_DEFEATED', (data) => {
       const bossData = data as { layerNumber: number; [key: string]: unknown };
       this.realProgressManager!.recordBossDefeat(bossData.layerNumber, []);
+      
+      // BOSS胜利后获得更多奖励
+      const techAdd = 20 + 10 * bossData.layerNumber;
+      this.realTechnicalValueManager!.addValue(techAdd);
+      this.realCoreResourcesManager!.addResource('coreComputing', 10 + 5 * bossData.layerNumber);
+      this.realCoreResourcesManager!.addResource('coreFunds', 15 + 5 * bossData.layerNumber);
+      this.realCoreResourcesManager!.addResource('coreInformation', 5 + 3 * bossData.layerNumber);
+      this.realCoreResourcesManager!.addResource('corePrivilege', 3 + bossData.layerNumber);
+      
       if (bossData.layerNumber < 9) {
-        this.addNotification('success', `第${bossData.layerNumber}层BOSS已击败！`);
+        this.addNotification('success', `第${bossData.layerNumber}层BOSS已击败！获得大量奖励`);
         this.openModal('boss_reward', { dataPackets: [] });
       } else {
         this.realProgressManager!.recordLayerComplete(9);
