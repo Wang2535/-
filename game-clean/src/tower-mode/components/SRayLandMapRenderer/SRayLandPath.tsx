@@ -1,4 +1,4 @@
-import { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
+import type { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
 
 interface SRayLandPathProps {
   connections: { from: string; to: string }[];

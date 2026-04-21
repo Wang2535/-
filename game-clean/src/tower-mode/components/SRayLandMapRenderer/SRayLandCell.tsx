@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
+import type { SRayLandCell as SRayLandCellType } from './SRayLandMapRenderer';
 
 interface SRayLandCellProps {
   cell: SRayLandCellType;
