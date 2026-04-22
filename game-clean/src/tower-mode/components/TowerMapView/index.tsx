@@ -980,7 +980,7 @@ export function TowerMapView({
 
         <div className="main-area">
           <div className="map-container" ref={mapContainerRef}>
-            <img src="./tower-map.png" id="towerMap" alt="9层网络安全塔" />
+            <img src="/tower-map.png" id="towerMap" alt="9层网络安全塔" />
 
             <div className="energy-flow" ref={energyFlowRef} />
 
