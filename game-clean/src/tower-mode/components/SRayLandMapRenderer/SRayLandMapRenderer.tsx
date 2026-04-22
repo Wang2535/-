@@ -19,44 +19,44 @@ export interface SRayLandMapRendererProps {
   layerNumber?: number;
 }
 
-// 葫芦形路径的格子位置 - 连续紧密排列
+// 葫芦形路径的格子位置 - 连续排列，避免拥挤
 function generateGridCells(): SRayLandCell[] {
   const cells: SRayLandCell[] = [];
   const cellSize = 8; // 格子大小，与SRayLandCell.tsx保持一致
   
-  // 短柄延伸（顶部）- 紧密排列
+  // 短柄延伸（顶部）- 均匀排列
   const stemPath = [
-    { id: 's2', position: { x: 40, y: 4 }, type: 'battle', state: 'pending' },     // 短柄
-    { id: 's1', position: { x: 48, y: 4 }, type: 'battle', state: 'pending' },     // 短柄 - 与前一个格子紧密连接
+    { id: 's2', position: { x: 35, y: 10 }, type: 'battle', state: 'pending' },     // 短柄
+    { id: 's1', position: { x: 45, y: 10 }, type: 'battle', state: 'pending' },     // 短柄 - 与前一个格子连接
   ];
   
-  // 上半部分 - 葫芦形上半部分路径（连续排列）
+  // 上半部分 - 葫芦形上半部分路径（均匀排列）
   const upperPath = [
-    { id: 'u1', position: { x: 56, y: 4 }, type: 'start', state: 'current' },      // 顶部起点 - 与前一个格子紧密连接
-    { id: 'u2', position: { x: 64, y: 8 }, type: 'battle', state: 'pending' },     // 右上弧 - 斜向紧密连接
-    { id: 'u3', position: { x: 72, y: 16 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向紧密连接
-    { id: 'u4', position: { x: 76, y: 24 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向紧密连接
-    { id: 'u5', position: { x: 76, y: 32 }, type: 'battle', state: 'pending' },    // 右下方弧 - 垂直紧密连接
-    { id: 'u6', position: { x: 68, y: 40 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向紧密连接
-    { id: 'u7', position: { x: 60, y: 48 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向紧密连接
+    { id: 'u1', position: { x: 55, y: 10 }, type: 'start', state: 'current' },      // 顶部起点 - 与前一个格子连接
+    { id: 'u2', position: { x: 65, y: 18 }, type: 'battle', state: 'pending' },     // 右上弧 - 斜向连接
+    { id: 'u3', position: { x: 75, y: 28 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向连接
+    { id: 'u4', position: { x: 80, y: 38 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向连接
+    { id: 'u5', position: { x: 78, y: 48 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
+    { id: 'u6', position: { x: 70, y: 58 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
+    { id: 'u7', position: { x: 60, y: 65 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
   ];
   
-  // 连接路径 - 连续连接
+  // 连接路径 - 均匀连接
   const connectorPath = [
-    { id: 'c1', position: { x: 52, y: 56 }, type: 'battle', state: 'pending' },    // 连接 - 斜向紧密连接
-    { id: 'c2', position: { x: 44, y: 64 }, type: 'battle', state: 'pending' },    // 连接 - 斜向紧密连接
+    { id: 'c1', position: { x: 50, y: 72 }, type: 'battle', state: 'pending' },    // 连接 - 斜向连接
+    { id: 'c2', position: { x: 40, y: 78 }, type: 'battle', state: 'pending' },    // 连接 - 斜向连接
   ];
   
-  // 下半部分 - 葫芦形底部圆形区域（W-N-I-P十字分区）- 连续排列
+  // 下半部分 - 葫芦形底部圆形区域（W-N-I-P十字分区）- 均匀排列
   const lowerPath = [
-    { id: 'l1', position: { x: 36, y: 72 }, type: 'battle', state: 'pending' },    // 左下（I区域）- 斜向紧密连接
-    { id: 'l2', position: { x: 44, y: 80 }, type: 'battle', state: 'pending' },    // 底部 - 斜向紧密连接
-    { id: 'l3', position: { x: 52, y: 80 }, type: 'battle', state: 'pending' },    // 底部 - 水平紧密连接
-    { id: 'l4', position: { x: 60, y: 80 }, type: 'battle', state: 'pending' },    // 底部 - 水平紧密连接
-    { id: 'l5', position: { x: 68, y: 72 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 斜向紧密连接
-    { id: 'l6', position: { x: 68, y: 64 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 垂直紧密连接
-    { id: 'l7', position: { x: 60, y: 56 }, type: 'boss', state: 'locked' },       // 右下（N区域，Boss格）- 斜向紧密连接
-    { id: 'l8', position: { x: 52, y: 48 }, type: 'end', state: 'locked' },         // 终点（N区域上方）- 斜向紧密连接
+    { id: 'l1', position: { x: 30, y: 85 }, type: 'battle', state: 'pending' },    // 左下（I区域）- 斜向连接
+    { id: 'l2', position: { x: 40, y: 92 }, type: 'battle', state: 'pending' },    // 底部 - 斜向连接
+    { id: 'l3', position: { x: 50, y: 95 }, type: 'battle', state: 'pending' },    // 底部 - 水平连接
+    { id: 'l4', position: { x: 60, y: 95 }, type: 'battle', state: 'pending' },    // 底部 - 水平连接
+    { id: 'l5', position: { x: 70, y: 92 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 斜向连接
+    { id: 'l6', position: { x: 80, y: 85 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 斜向连接
+    { id: 'l7', position: { x: 75, y: 78 }, type: 'boss', state: 'locked' },       // 右下（N区域，Boss格）- 斜向连接
+    { id: 'l8', position: { x: 65, y: 72 }, type: 'end', state: 'locked' },         // 终点（N区域上方）- 斜向连接
   ];
   
   // 添加所有格子
@@ -236,7 +236,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       onMouseLeave={handleMouseUp}
     >
       <svg 
-        viewBox="25 0 60 100" 
+        viewBox="20 0 80 110" 
         preserveAspectRatio="xMidYMid meet"
         style={{ 
           position: 'absolute', 

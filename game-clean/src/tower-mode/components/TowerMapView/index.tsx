@@ -979,12 +979,12 @@ export function TowerMapView({
         )}
 
         <div className="main-area">
-          <div className="map-container" ref={mapContainerRef}>
-            <img src="/tower-map.png" id="towerMap" alt="9层网络安全塔" />
+          <div className="map-container" ref={mapContainerRef} style={{ position: 'relative', zIndex: 1 }}>
+            <img src="/tower-map.png" id="towerMap" alt="9层网络安全塔" style={{ display: 'block', width: '100%', height: 'auto' }} />
 
-            <div className="energy-flow" ref={energyFlowRef} />
+            <div className="energy-flow" ref={energyFlowRef} style={{ zIndex: 2 }} />
 
-            <div ref={hotspotsContainerRef} />
+            <div ref={hotspotsContainerRef} style={{ zIndex: 3 }} />
           </div>
         </div>
 
