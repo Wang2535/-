@@ -24,18 +24,32 @@ export function SRayLandPath({ connections, cells }: SRayLandPathProps) {
         
         if (!from || !to) return null;
 
-        // 复古路径样式 - 更粗的线条
+        // 参考图风格的路径 - 黄色和白色相间的复古路径
         return (
-          <path
-            key={i}
-            d={`M ${from.x} ${from.y} L ${to.x} ${to.y}`}
-            fill="none"
-            stroke="#8B4513"
-            strokeWidth="3"
-            strokeLinecap="round"
-            opacity="0.8"
-            strokeLinejoin="round"
-          />
+          <>
+            {/* 路径底色（白色） */}
+            <path
+              key={`${i}-white`}
+              d={`M ${from.x} ${from.y} L ${to.x} ${to.y}`}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="5"
+              strokeLinecap="round"
+              opacity="0.9"
+              strokeLinejoin="round"
+            />
+            {/* 路径主色（橙黄色） */}
+            <path
+              key={`${i}-orange`}
+              d={`M ${from.x} ${from.y} L ${to.x} ${to.y}`}
+              fill="none"
+              stroke="#FFA500"
+              strokeWidth="3"
+              strokeLinecap="round"
+              opacity="0.9"
+              strokeLinejoin="round"
+            />
+          </>
         );
       })}
     </g>
