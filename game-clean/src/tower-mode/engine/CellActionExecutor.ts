@@ -127,18 +127,25 @@ const TIER_CONFIG: Record<number, { themeName: string; shapeDescription: string;
   9: { themeName: '指挥中心', shapeDescription: '对称王座厅', difficultyRange: [5, 5] },
 };
 
+import { SkillManager } from '../core/SkillManager';
+import { CoreResourcesManager } from '../core/CoreResourcesManager';
+
 export class CellActionExecutor {
   private registry: Partial<ExecutorRegistry>;
   private uiBridge: UIBridge;
   private rewardSystem: RewardSystem;
+  private skillManager: SkillManager;
+  private coreResourcesManager: CoreResourcesManager;
   private _isExecuting: boolean;
   private _cancelled: boolean;
   private eventEmitter: SimpleEventEmitter;
 
-  constructor(rewardSystem: RewardSystem) {
+  constructor(rewardSystem: RewardSystem, skillManager?: SkillManager, coreResourcesManager?: CoreResourcesManager) {
     this.registry = {};
     this.uiBridge = new UIBridge();
     this.rewardSystem = rewardSystem;
+    this.skillManager = skillManager || new SkillManager();
+    this.coreResourcesManager = coreResourcesManager || new CoreResourcesManager();
     this._isExecuting = false;
     this._cancelled = false;
     this.eventEmitter = new SimpleEventEmitter();

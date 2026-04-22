@@ -122,7 +122,7 @@ export class TowerModeController {
       this.realCardManager = new CardManager();
 
       console.log('[TowerModeController] Creating CellActionExecutor...');
-      this.realActionExecutor = new CellActionExecutor(this.realRewardSystem);
+      this.realActionExecutor = new CellActionExecutor(this.realRewardSystem, this.realSkillManager, this.realCoreResourcesManager);
 
       console.log('[TowerModeController] Creating ZoneEffectManager...');
       this.realZoneManager = new ZoneEffectManager([], ZONE_EFFECT_CONFIG);
@@ -375,6 +375,7 @@ export class TowerModeController {
     const coreResources = this.realCoreResourcesManager?.getResources();
     const technicalValue = this.realTechnicalValueManager?.getValue();
     const maxTechnicalValue = this.realTechnicalValueManager?.getMaxValue();
+    const activeSkills = this.realSkillManager?.getActiveSkills() || [];
 
     return {
       phase: this.state.phase,
@@ -386,10 +387,12 @@ export class TowerModeController {
       playerStats: {
         layer: this.state.currentLayer,
         hp: { current: inventory?.hp ?? 100, max: inventory?.maxHp ?? 100 },
-        activeSkills: (inventory?.activeSkillIds ?? []).map(id => ({
-          id,
-          name: id,
-          quality: 'common',
+        activeSkills: activeSkills.map(skill => ({
+          id: skill.id,
+          name: skill.name,
+          quality: skill.quality,
+          description: skill.description,
+          icon: skill.icon,
         })),
         packetCount: inventory?.dataPackets?.length ?? 0,
         bookCount: inventory?.readBooks?.length ?? 0,
@@ -571,16 +574,25 @@ export class TowerModeController {
 
     const unsub3 = this.eventBus.on('BATTLE_END', (data) => {
       const battleData = data as { victory: boolean; difficulty?: number; isBoss?: boolean };
+      
+      // 获取技能效果
+      const passiveEffects = this.realSkillManager?.getPassiveEffects() || {};
+      
       if (battleData.victory) {
         // 战斗胜利 - 增加技术值和核心资源
         const difficulty = battleData.difficulty ?? 1;
         const techValueAdd = [3, 5, 9, 12, 15][Math.min(difficulty - 1, 4)] ?? 3;
-        const { newMilestones } = this.realTechnicalValueManager!.addValue(techValueAdd);
         
-        // 增加核心资源
-        this.realCoreResourcesManager!.addResource('coreComputing', difficulty + 1);
-        this.realCoreResourcesManager!.addResource('coreFunds', difficulty + 2);
-        this.realCoreResourcesManager!.addResource('coreInformation', difficulty);
+        // 应用技能效果对奖励的增益
+        const effectMultiplier = passiveEffects.skillEffectBonus ? 1 + passiveEffects.skillEffectBonus : 1;
+        const finalTechAdd = Math.floor(techValueAdd * effectMultiplier);
+        
+        const { newMilestones } = this.realTechnicalValueManager!.addValue(finalTechAdd);
+        
+        // 增加核心资源（应用技能增益）
+        this.realCoreResourcesManager!.addResource('coreComputing', Math.floor((difficulty + 1) * effectMultiplier));
+        this.realCoreResourcesManager!.addResource('coreFunds', Math.floor((difficulty + 2) * effectMultiplier));
+        this.realCoreResourcesManager!.addResource('coreInformation', Math.floor(difficulty * effectMultiplier));
         if (difficulty >= 4) {
           this.realCoreResourcesManager!.addResource('corePrivilege', 1);
         }
@@ -590,16 +602,22 @@ export class TowerModeController {
         
         if (newMilestones.length > 0) {
           this.addNotification('success', `达成里程碑！获得新奖励`);
-          // TODO: 触发里程碑奖励选择界面
+          // 触发里程碑奖励选择界面
+          this.openModal('milestone', { milestones: newMilestones });
         } else {
-          this.addNotification('success', `战斗胜利！获得 ${techValueAdd} 技术值`);
+          this.addNotification('success', `战斗胜利！获得 ${finalTechAdd} 技术值`);
         }
       } else {
-        // 战斗失败 - 扣除技术值
+        // 战斗失败 - 扣除技术值，应用技能减伤效果
         const layer = this.state.currentLayer;
         // BOSS 战失败时扣除更多
         const baseDeduction = battleData.isBoss ? 50 : 30;
-        const deduction = baseDeduction + baseDeduction * layer;
+        let deduction = baseDeduction + baseDeduction * layer;
+        
+        // 应用技能的伤害减免效果
+        const damageReduction = passiveEffects.damageReduction || 0;
+        deduction = Math.floor(deduction * (1 - damageReduction));
+        
         const { newValue, died } = this.realTechnicalValueManager!.spendValue(deduction);
         
         if (died) {
