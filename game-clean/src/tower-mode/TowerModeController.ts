@@ -12,6 +12,8 @@ import { getLayerData } from './data/layerRegistry';
 import { THEME_LEVELS, BOSS_LEVELS, TIER_THEME_MAP } from './data/themeLevelMapping';
 import { TechnicalValueManager } from './core/TechnicalValueManager';
 import { CoreResourcesManager } from './core/CoreResourcesManager';
+import { SkillManager } from './core/SkillManager';
+import { CardManager } from './core/CardManager';
 
 import type {
   GamePhase,
@@ -69,6 +71,8 @@ export class TowerModeController {
   private realMovementEngine: MovementEngine | null = null;
   private realTechnicalValueManager: TechnicalValueManager | null = null;
   private realCoreResourcesManager: CoreResourcesManager | null = null;
+  private realSkillManager: SkillManager | null = null;
+  private realCardManager: CardManager | null = null;
 
   constructor() {
     this.state = {
@@ -112,6 +116,10 @@ export class TowerModeController {
       this.realTechnicalValueManager = new TechnicalValueManager();
       console.log('[TowerModeController] Creating CoreResourcesManager...');
       this.realCoreResourcesManager = new CoreResourcesManager();
+      console.log('[TowerModeController] Creating SkillManager...');
+      this.realSkillManager = new SkillManager();
+      console.log('[TowerModeController] Creating CardManager...');
+      this.realCardManager = new CardManager();
 
       console.log('[TowerModeController] Creating CellActionExecutor...');
       this.realActionExecutor = new CellActionExecutor(this.realRewardSystem);
@@ -142,6 +150,8 @@ export class TowerModeController {
       // 添加新模块到modules对象（动态添加）
       (this.modules as any).technicalValueManager = this.realTechnicalValueManager;
       (this.modules as any).coreResourcesManager = this.realCoreResourcesManager;
+      (this.modules as any).skillManager = this.realSkillManager;
+      (this.modules as any).cardManager = this.realCardManager;
 
       console.log('[TowerModeController] Wiring event bus...');
       this.wireEventBus();
