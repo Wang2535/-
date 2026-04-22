@@ -8,6 +8,7 @@ export class SkillManager {
   private activeSkills: Skill[] = [];
   private skillStorage: Skill[] = [];
   private config: SkillManagerConfig;
+  private mapSkillCooldowns: Map<string, number> = new Map(); // 地图技能冷却
 
   constructor(config?: Partial<SkillManagerConfig>) {
     this.config = { ...DEFAULT_SKILL_CONFIG, ...config };
@@ -94,24 +95,116 @@ export class SkillManager {
     const effects: Record<string, any> = {};
     
     this.getPassiveSkills().forEach(skill => {
-      // 这里简化处理，实际游戏中需要根据具体技能效果计算
-      if (skill.effectDescription.includes('安全等级')) {
-        const match = skill.effectDescription.match(/\+(\d+)/);
-        if (match) {
-          const bonus = parseInt(match[1]);
-          effects.safetyLevelBonus = (effects.safetyLevelBonus || 0) + bonus;
-        }
-      }
-      if (skill.effectDescription.includes('伤害')) {
-        const match = skill.effectDescription.match(/(\d+)%/);
-        if (match) {
-          const reduction = parseInt(match[1]);
-          effects.damageReduction = (effects.damageReduction || 0) + reduction;
-        }
-      }
+      this.parseSkillEffects(skill, effects);
     });
+
+    // 特殊技能：无限潜能增加技能槽
+    const hasUnlimitedPotential = this.activeSkills.some(s => s.name.includes('无限潜能') || s.name.includes('Unlimited'));
+    if (hasUnlimitedPotential) {
+      effects.skillSlotBonus = 1;
+    }
     
     return effects;
+  }
+
+  // 解析技能效果
+  private parseSkillEffects(skill: Skill, effects: Record<string, any>): void {
+    const desc = skill.effectDescription;
+    
+    // 安全等级加成
+    if (desc.includes('安全等级') && desc.includes('+')) {
+      const match = desc.match(/\+(\d+)/);
+      if (match) {
+        const bonus = parseInt(match[1]);
+        effects.safetyLevelBonus = (effects.safetyLevelBonus || 0) + bonus;
+      }
+    }
+    
+    // 伤害减免
+    if (desc.includes('伤害') && desc.includes('减免')) {
+      const match = desc.match(/(\d+)%/);
+      if (match) {
+        const reduction = parseInt(match[1]);
+        effects.damageReduction = (effects.damageReduction || 0) + reduction;
+      }
+    }
+    
+    // 骰子修正
+    if (desc.includes('骰子') || desc.includes('轻装上阵')) {
+      const minMatch = desc.match(/最低点数为(\d+)/);
+      if (minMatch) {
+        effects.minDiceRoll = parseInt(minMatch[1]);
+      }
+      const diceBonusMatch = desc.match(/骰子点数\+(\d+)/);
+      if (diceBonusMatch) {
+        effects.diceBonus = (effects.diceBonus || 0) + parseInt(diceBonusMatch[1]);
+      }
+    }
+    
+    // 技能效果增益
+    if (desc.includes('技能效果')) {
+      const match = desc.match(/(\d+)%/);
+      if (match) {
+        effects.skillEffectBonus = (effects.skillEffectBonus || 0) + parseInt(match[1]);
+      }
+    }
+    
+    // 临时护盾
+    if (desc.includes('护盾')) {
+      const match = desc.match(/\+(\d+)/);
+      if (match) {
+        effects.shieldBonus = (effects.shieldBonus || 0) + parseInt(match[1]);
+      }
+    }
+  }
+
+  // === 技能冷却系统 ===
+
+  // 获取技能当前冷却
+  getSkillCooldown(skillId: string): number {
+    return this.mapSkillCooldowns.get(skillId) || 0;
+  }
+
+  // 检查技能是否可用
+  isSkillReady(skillId: string): boolean {
+    return this.getSkillCooldown(skillId) <= 0;
+  }
+
+  // 使用主动技能
+  useSkill(skillId: string): boolean {
+    const skill = this.activeSkills.find(s => s.id === skillId);
+    if (!skill || !this.isSkillReady(skillId)) {
+      return false;
+    }
+    
+    if (skill.cooldown) {
+      this.mapSkillCooldowns.set(skillId, skill.cooldown);
+    }
+    return true;
+  }
+
+  // 重置所有战斗技能冷却（战斗结束时）
+  resetBattleSkillCooldowns(): void {
+    // 只重置战斗相关的技能冷却，地图技能冷却保留
+    this.activeSkills.forEach(skill => {
+      if (skill.triggerType !== 'map_trigger') {
+        this.mapSkillCooldowns.set(skill.id, 0);
+      }
+    });
+  }
+
+  // 进入新层时更新地图技能冷却
+  updateMapSkillCooldownsForNewLayer(): void {
+    this.mapSkillCooldowns.forEach((cooldown, skillId) => {
+      if (cooldown > 0) {
+        this.mapSkillCooldowns.set(skillId, cooldown - 1);
+      }
+    });
+  }
+
+  // 重置特定技能冷却
+  resetSkillCooldown(skillId: string): void {
+    this.mapSkillCooldowns.set(skillId, 0);
   }
 
   // 内部：根据概率随机选择品质

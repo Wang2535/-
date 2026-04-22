@@ -578,6 +578,9 @@ export class TowerModeController {
       // 获取技能效果
       const passiveEffects = this.realSkillManager?.getPassiveEffects() || {};
       
+      // 重置战斗技能冷却
+      this.realSkillManager?.resetBattleSkillCooldowns();
+      
       if (battleData.victory) {
         // 战斗胜利 - 增加技术值和核心资源
         const difficulty = battleData.difficulty ?? 1;
@@ -766,6 +769,9 @@ export class TowerModeController {
   private loadLayerData(layerNumber: number): void {
     this.state.currentLayer = layerNumber;
 
+    // 更新地图技能冷却
+    this.realSkillManager?.updateMapSkillCooldownsForNewLayer();
+
     // 从 layerRegistry 加载层数据
     try {
       const layerData = getLayerData(layerNumber);
@@ -836,6 +842,21 @@ export class TowerModeController {
     this.realProgressManager!.recordLayerComplete(layerNumber - 1);
     this.addNotification('info', `进入第${layerNumber}层`);
     this.setPhase('playing');
+  }
+
+  // 获取完整的战斗配置 - 供关卡模式战斗使用
+  getBattleConfig(): {
+    skillBonuses: Record<string, any>;
+    resourceBonuses: Record<string, any>;
+    technicalValue: number;
+    layer: number;
+  } {
+    return {
+      skillBonuses: this.realSkillManager?.getPassiveEffects() || {},
+      resourceBonuses: this.realCoreResourcesManager?.getThresholdBonuses() || {},
+      technicalValue: this.realTechnicalValueManager?.getValue() || 0,
+      layer: this.state.currentLayer,
+    };
   }
 
   private buildRenderCells(): RenderCellData[] {
