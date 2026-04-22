@@ -49,7 +49,7 @@ const CELL_TYPE_STYLES: Record<string, { glow: string; extra: string }> = {
 export function SRayLandCell({ cell, isCurrent, isAlternate, onClick }: SRayLandCellProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const cellSize = 6;
+  const cellSize = 8; // 增大格子尺寸以确保紧密连接
   const scale = isCurrent ? 1.15 : (isHovered ? 1.1 : 1);
   const displaySize = cellSize * scale;
 
