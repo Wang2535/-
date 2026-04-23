@@ -19,45 +19,64 @@ export interface SRayLandMapRendererProps {
   layerNumber?: number;
 }
 
-// 苹果形状的路径格子位置
+// 葫芦形状的路径格子位置 - 严格按照规则设计
 function generateGridCells(): SRayLandCell[] {
   const cells: SRayLandCell[] = [];
   
-  // 上半部分 - 苹果顶部圆弧（从顶部开始顺时针）
-  const upperArcPath = [
-    { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },      // 起点（苹果梗下方）
-    { id: 'u2', position: { x: 58, y: 12 }, type: 'battle', state: 'pending' },
-    { id: 'u3', position: { x: 66, y: 18 }, type: 'battle', state: 'pending' },
-    { id: 'u4', position: { x: 72, y: 26 }, type: 'battle', state: 'pending' },
-    { id: 'u5', position: { x: 74, y: 36 }, type: 'battle', state: 'pending' },
-    { id: 'u6', position: { x: 72, y: 46 }, type: 'battle', state: 'pending' },
-    { id: 'u7', position: { x: 66, y: 56 }, type: 'battle', state: 'pending' },
-    { id: 'u8', position: { x: 58, y: 64 }, type: 'battle', state: 'pending' },
+  // 上半部分 - 小圆（直径为下半椭圆短轴的 3/4）
+  // 上半环右弧段
+  const upperRightArc = [
+    { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },      // 起点（葫芦顶端）
+    { id: 'u2', position: { x: 58, y: 14 }, type: 'battle', state: 'pending' },
+    { id: 'u3', position: { x: 62, y: 22 }, type: 'battle', state: 'pending' },
+    { id: 'u4', position: { x: 60, y: 30 }, type: 'battle', state: 'pending' },
+    { id: 'u5', position: { x: 50, y: 34 }, type: 'battle', state: 'pending' },    // 上半小圆正下方顶点
   ];
   
-  // 连接段 - 连接上弧底部和下圆顶部
-  const connectorPath = [
-    { id: 'c1', position: { x: 50, y: 68 }, type: 'battle', state: 'pending' },    // 连接点
+  // 45° 上行左折段
+  const upperLeftDiagonal = [
+    { id: 'u6', position: { x: 42, y: 30 }, type: 'battle', state: 'pending' },
+    { id: 'u7', position: { x: 38, y: 22 }, type: 'battle', state: 'pending' },    // 上半小圆最左侧顶点
   ];
   
-  // 下半部分 - 苹果底部圆形（顺时针）
-  const lowerCirclePath = [
-    { id: 'l1', position: { x: 42, y: 72 }, type: 'battle', state: 'pending' },    // W象限区域
-    { id: 'l2', position: { x: 34, y: 78 }, type: 'battle', state: 'pending' },
-    { id: 'l3', position: { x: 30, y: 88 }, type: 'battle', state: 'pending' },    // I象限区域
-    { id: 'l4', position: { x: 34, y: 98 }, type: 'battle', state: 'pending' },
-    { id: 'l5', position: { x: 42, y: 106 }, type: 'battle', state: 'pending' },
-    { id: 'l6', position: { x: 50, y: 110 }, type: 'battle', state: 'pending' },    // 底部
-    { id: 'l7', position: { x: 58, y: 106 }, type: 'battle', state: 'pending' },
-    { id: 'l8', position: { x: 66, y: 98 }, type: 'battle', state: 'pending' },
-    { id: 'l9', position: { x: 70, y: 88 }, type: 'battle', state: 'pending' },    // P象限区域
-    { id: 'l10', position: { x: 66, y: 78 }, type: 'battle', state: 'pending' },
-    { id: 'l11', position: { x: 62, y: 72 }, type: 'boss', state: 'locked' },   // N象限（Boss格）
-    { id: 'l12', position: { x: 58, y: 68 }, type: 'end', state: 'locked' },     // 终点（在N象限旁边）
+  // 45° 上行右折段
+  const upperRightDiagonal = [
+    { id: 'u8', position: { x: 42, y: 14 }, type: 'battle', state: 'pending' },
+    { id: 'u9', position: { x: 50, y: 10 }, type: 'battle', state: 'pending' },    // 回到起点顶点
+  ];
+  
+  // 上半环左弧段
+  const upperLeftArc = [
+    { id: 'u10', position: { x: 50, y: 10 }, type: 'battle', state: 'pending' },
+    { id: 'u11', position: { x: 42, y: 14 }, type: 'battle', state: 'pending' },
+    { id: 'u12', position: { x: 38, y: 22 }, type: 'battle', state: 'pending' },
+    { id: 'u13', position: { x: 42, y: 30 }, type: 'battle', state: 'pending' },
+    { id: 'u14', position: { x: 50, y: 34 }, type: 'battle', state: 'pending' },    // 上半小圆正下方顶点
+  ];
+  
+  // 下半环左弧段
+  const lowerLeftArc = [
+    { id: 'l1', position: { x: 50, y: 42 }, type: 'battle', state: 'pending' },
+    { id: 'l2', position: { x: 42, y: 50 }, type: 'battle', state: 'pending' },
+    { id: 'l3', position: { x: 38, y: 60 }, type: 'battle', state: 'pending' },
+    { id: 'l4', position: { x: 42, y: 70 }, type: 'battle', state: 'pending' },
+    { id: 'l5', position: { x: 50, y: 78 }, type: 'battle', state: 'pending' },
+    { id: 'l6', position: { x: 58, y: 70 }, type: 'battle', state: 'pending' },
+    { id: 'l7', position: { x: 62, y: 60 }, type: 'battle', state: 'pending' },    // 下半椭圆右侧 1/5 高度位置
+  ];
+  
+  // 内部正方形闭合段
+  const innerSquare = [
+    { id: 's1', position: { x: 54, y: 60 }, type: 'battle', state: 'pending' },    // 进入正方形
+    { id: 's2', position: { x: 54, y: 52 }, type: 'battle', state: 'pending' },    // 上
+    { id: 's3', position: { x: 46, y: 52 }, type: 'battle', state: 'pending' },    // 左
+    { id: 's4', position: { x: 46, y: 60 }, type: 'battle', state: 'pending' },    // 下
+    { id: 's5', position: { x: 54, y: 60 }, type: 'battle', state: 'pending' },    // 右
+    { id: 's6', position: { x: 58, y: 56 }, type: 'end', state: 'locked' },         // 终点（N象限右上角）
   ];
   
   // 添加所有格子
-  [...upperArcPath, ...connectorPath, ...lowerCirclePath].forEach(cell => {
+  [...upperRightArc, ...upperLeftDiagonal, ...upperRightDiagonal, ...upperLeftArc, ...lowerLeftArc, ...innerSquare].forEach(cell => {
     cells.push(cell);
   });
   
@@ -107,19 +126,40 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
   const connections = useMemo(() => {
     const paths: { from: string; to: string }[] = [];
     
-    // 上半部分圆弧路径
-    const upperArc = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8'];
-    for (let i = 0; i < upperArc.length - 1; i++) {
-      paths.push({ from: upperArc[i], to: upperArc[i + 1] });
+    // 上半环右弧段
+    const upperRightArc = ['u1', 'u2', 'u3', 'u4', 'u5'];
+    for (let i = 0; i < upperRightArc.length - 1; i++) {
+      paths.push({ from: upperRightArc[i], to: upperRightArc[i + 1] });
     }
     
-    // 连接段
-    paths.push({ from: 'u8', to: 'c1' });
+    // 45° 上行左折段
+    const upperLeftDiagonal = ['u5', 'u6', 'u7'];
+    for (let i = 0; i < upperLeftDiagonal.length - 1; i++) {
+      paths.push({ from: upperLeftDiagonal[i], to: upperLeftDiagonal[i + 1] });
+    }
     
-    // 下半部分圆形路径
-    const lowerCircle = ['c1', 'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10', 'l11', 'l12'];
-    for (let i = 0; i < lowerCircle.length - 1; i++) {
-      paths.push({ from: lowerCircle[i], to: lowerCircle[i + 1] });
+    // 45° 上行右折段
+    const upperRightDiagonal = ['u7', 'u8', 'u9'];
+    for (let i = 0; i < upperRightDiagonal.length - 1; i++) {
+      paths.push({ from: upperRightDiagonal[i], to: upperRightDiagonal[i + 1] });
+    }
+    
+    // 上半环左弧段
+    const upperLeftArc = ['u9', 'u10', 'u11', 'u12', 'u13', 'u14'];
+    for (let i = 0; i < upperLeftArc.length - 1; i++) {
+      paths.push({ from: upperLeftArc[i], to: upperLeftArc[i + 1] });
+    }
+    
+    // 下半环左弧段
+    const lowerLeftArc = ['u14', 'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'];
+    for (let i = 0; i < lowerLeftArc.length - 1; i++) {
+      paths.push({ from: lowerLeftArc[i], to: lowerLeftArc[i + 1] });
+    }
+    
+    // 内部正方形闭合段
+    const innerSquare = ['l7', 's1', 's2', 's3', 's4', 's5', 's6'];
+    for (let i = 0; i < innerSquare.length - 1; i++) {
+      paths.push({ from: innerSquare[i], to: innerSquare[i + 1] });
     }
     
     return paths;
@@ -226,7 +266,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       onMouseLeave={handleMouseUp}
     >
       <svg 
-        viewBox="20 5 60 115" 
+        viewBox="30 5 40 90" 
         preserveAspectRatio="xMidYMid meet"
         style={{ 
           position: 'absolute', 
@@ -245,62 +285,57 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             <circle cx="75" cy="75" r="1.5" fill="#DEB887" opacity="0.4" />
             <circle cx="50" cy="50" r="1" fill="#D2B48C" opacity="0.6" />
           </pattern>
-          
-          {/* 格子填充图案 */}
-          <pattern id="orangeTile" width="4" height="4" patternUnits="userSpaceOnUse">
-            <rect width="4" height="4" fill="#FFA500" />
-          </pattern>
-          <pattern id="whiteTile" width="4" height="4" patternUnits="userSpaceOnUse">
-            <rect width="4" height="4" fill="#FFFFFF" />
-          </pattern>
         </defs>
         
-        {/* 复古拼贴风格的奇幻地图背景 */}
+        {/* 复古美式拼贴风格背景 */}
         <g style={{ opacity: 0.6 }}>
           {/* 复古地图纹理 */}
-          <rect width="100" height="120" fill="#F5DEB3" />
+          <rect width="100" height="100" fill="#F5DEB3" />
           <pattern id="vintageTexture" width="20" height="20" patternUnits="userSpaceOnUse">
             <path d="M 0 10 L 20 10" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
             <path d="M 10 0 L 10 20" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
             <circle cx="5" cy="5" r="0.5" fill="#8B4513" opacity="0.2" />
             <circle cx="15" cy="15" r="0.3" fill="#8B4513" opacity="0.1" />
           </pattern>
-          <rect width="100" height="120" fill="url(#vintageTexture)" />
+          <rect width="100" height="100" fill="url(#vintageTexture)" />
           
-          {/* 手绘森林/山脉景观 */}
-          <path d="M 10 100 Q 20 95 30 100 Q 40 105 50 100 Q 60 95 70 100 Q 80 105 90 100" fill="#228B22" opacity="0.4" />
-          <path d="M 15 80 Q 25 75 35 80 Q 45 85 55 80 Q 65 75 75 80 Q 85 85 95 80" fill="#2E8B57" opacity="0.3" />
+          {/* 自然景观元素 */}
+          {/* 森林 */}
+          <path d="M 10 70 Q 20 65 30 70 Q 40 75 50 70 Q 60 65 70 70 Q 80 75 90 70" fill="#228B22" opacity="0.4" />
+          <path d="M 15 60 Q 25 55 35 60 Q 45 65 55 60 Q 65 55 75 60 Q 85 65 95 60" fill="#2E8B57" opacity="0.3" />
           
-          {/* 星球插画 */}
-          <circle cx="10" cy="25" r="4" fill="#FFD700" opacity="0.7" />
-          <circle cx="85" cy="20" r="2.5" fill="#1E90FF" opacity="0.8" />
+          {/* 山脉 */}
+          <path d="M 10 40 L 15 35 L 20 38 L 25 32 L 30 36 L 35 30 L 40 34 L 45 28 L 50 32 L 55 26 L 60 30 L 65 24 L 70 28 L 75 22 L 80 26 L 85 20 L 90 24" fill="#8B4513" opacity="0.3" />
           
-          {/* 复古地理元素 */}
-          <path d="M 20 45 L 25 40 L 30 45 L 25 50 Z" fill="#8B4513" opacity="0.5" />
-          <path d="M 70 55 L 75 50 L 80 55 L 75 60 Z" fill="#8B4513" opacity="0.5" />
+          {/* 火山 */}
+          <path d="M 85 30 L 90 25 L 95 30 Z" fill="#CD5C5C" opacity="0.4" />
+          <path d="M 90 25 L 90 20" stroke="#FF4500" strokeWidth="1" opacity="0.6" />
+          
+          {/* 星球 */}
+          <circle cx="10" cy="20" r="3" fill="#FFD700" opacity="0.7" />
+          <circle cx="85" cy="15" r="2" fill="#1E90FF" opacity="0.8" />
+          
+          {/* 复古罗盘 */}
+          <circle cx="20" cy="40" r="5" fill="#8B4513" opacity="0.5" />
+          <line x1="20" y1="35" x2="20" y2="45" stroke="#D2B48C" strokeWidth="0.5" />
+          <line x1="15" y1="40" x2="25" y2="40" stroke="#D2B48C" strokeWidth="0.5" />
         </g>
         
-        {/* 下方圆形内部的白色十字线 - 分为四个象限 */}
+        {/* 内部正方形的白色十字线 */}
         <g>
           {/* 十字线 */}
-          <line x1="30" y1="88" x2="70" y2="88" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
-          <line x1="50" y1="68" x2="50" y2="108" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
+          <line x1="42" y1="56" x2="58" y2="56" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
+          <line x1="50" y1="52" x2="50" y2="60" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
           
-          {/* 四个象限标注 - W N I P */}
-          <text x="40" y="78" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
-          <text x="60" y="78" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">N</text>
-          <text x="40" y="98" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">I</text>
-          <text x="60" y="98" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">P</text>
+          {/* 四个象限标注 */}
+          <text x="46" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
+          <text x="54" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">N</text>
+          <text x="46" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">I</text>
+          <text x="54" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">P</text>
           
-          {/* End标签 - 在N象限旁边 */}
-          <rect x="61" y="63" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
-          <text x="66" y="67" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="4" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
-        </g>
-        
-        {/* 苹果梗装饰 */}
-        <g>
-          <rect x="48" y="2" width="4" height="10" rx="1" fill="#8B4513" />
-          <ellipse cx="50" cy="2" rx="3" ry="2" fill="#228B22" />
+          {/* End标签 */}
+          <rect x="56" y="50" width="8" height="5" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
+          <text x="60" y="53" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="3" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
         </g>
         
         {/* 路径层 */}
@@ -316,6 +351,11 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             onClick={() => onCellClick?.(cell.id)}
           />
         ))}
+        
+        {/* 底部SRayLand标识 */}
+        <text x="50" y="95" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif" stroke="#FFFFFF" strokeWidth="0.5">
+          SRayLand
+        </text>
       </svg>
     </div>
   );
