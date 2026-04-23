@@ -19,48 +19,45 @@ export interface SRayLandMapRendererProps {
   layerNumber?: number;
 }
 
-// 葫芦形路径的格子位置 - 连续排列，避免拥挤
+// 苹果形状的路径格子位置
 function generateGridCells(): SRayLandCell[] {
   const cells: SRayLandCell[] = [];
-  const cellSize = 8; // 格子大小，与SRayLandCell.tsx保持一致
   
-  // 短柄延伸（顶部）- 均匀排列
-  const stemPath = [
-    { id: 's2', position: { x: 35, y: 10 }, type: 'battle', state: 'pending' },     // 短柄
-    { id: 's1', position: { x: 45, y: 10 }, type: 'battle', state: 'pending' },     // 短柄 - 与前一个格子连接
+  // 上半部分 - 苹果顶部圆弧（从顶部开始顺时针）
+  const upperArcPath = [
+    { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },      // 起点（苹果梗下方）
+    { id: 'u2', position: { x: 58, y: 12 }, type: 'battle', state: 'pending' },
+    { id: 'u3', position: { x: 66, y: 18 }, type: 'battle', state: 'pending' },
+    { id: 'u4', position: { x: 72, y: 26 }, type: 'battle', state: 'pending' },
+    { id: 'u5', position: { x: 74, y: 36 }, type: 'battle', state: 'pending' },
+    { id: 'u6', position: { x: 72, y: 46 }, type: 'battle', state: 'pending' },
+    { id: 'u7', position: { x: 66, y: 56 }, type: 'battle', state: 'pending' },
+    { id: 'u8', position: { x: 58, y: 64 }, type: 'battle', state: 'pending' },
   ];
   
-  // 上半部分 - 葫芦形上半部分路径（均匀排列）
-  const upperPath = [
-    { id: 'u1', position: { x: 55, y: 10 }, type: 'start', state: 'current' },      // 顶部起点 - 与前一个格子连接
-    { id: 'u2', position: { x: 65, y: 18 }, type: 'battle', state: 'pending' },     // 右上弧 - 斜向连接
-    { id: 'u3', position: { x: 75, y: 28 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向连接
-    { id: 'u4', position: { x: 80, y: 38 }, type: 'battle', state: 'pending' },    // 右上弧 - 斜向连接
-    { id: 'u5', position: { x: 78, y: 48 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
-    { id: 'u6', position: { x: 70, y: 58 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
-    { id: 'u7', position: { x: 60, y: 65 }, type: 'battle', state: 'pending' },    // 右下方弧 - 斜向连接
-  ];
-  
-  // 连接路径 - 均匀连接
+  // 连接段 - 连接上弧底部和下圆顶部
   const connectorPath = [
-    { id: 'c1', position: { x: 50, y: 72 }, type: 'battle', state: 'pending' },    // 连接 - 斜向连接
-    { id: 'c2', position: { x: 40, y: 78 }, type: 'battle', state: 'pending' },    // 连接 - 斜向连接
+    { id: 'c1', position: { x: 50, y: 68 }, type: 'battle', state: 'pending' },    // 连接点
   ];
   
-  // 下半部分 - 葫芦形底部圆形区域（W-N-I-P十字分区）- 均匀排列
-  const lowerPath = [
-    { id: 'l1', position: { x: 30, y: 85 }, type: 'battle', state: 'pending' },    // 左下（I区域）- 斜向连接
-    { id: 'l2', position: { x: 40, y: 92 }, type: 'battle', state: 'pending' },    // 底部 - 斜向连接
-    { id: 'l3', position: { x: 50, y: 95 }, type: 'battle', state: 'pending' },    // 底部 - 水平连接
-    { id: 'l4', position: { x: 60, y: 95 }, type: 'battle', state: 'pending' },    // 底部 - 水平连接
-    { id: 'l5', position: { x: 70, y: 92 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 斜向连接
-    { id: 'l6', position: { x: 80, y: 85 }, type: 'battle', state: 'pending' },    // 右下（P区域）- 斜向连接
-    { id: 'l7', position: { x: 75, y: 78 }, type: 'boss', state: 'locked' },       // 右下（N区域，Boss格）- 斜向连接
-    { id: 'l8', position: { x: 65, y: 72 }, type: 'end', state: 'locked' },         // 终点（N区域上方）- 斜向连接
+  // 下半部分 - 苹果底部圆形（顺时针）
+  const lowerCirclePath = [
+    { id: 'l1', position: { x: 42, y: 72 }, type: 'battle', state: 'pending' },    // W象限区域
+    { id: 'l2', position: { x: 34, y: 78 }, type: 'battle', state: 'pending' },
+    { id: 'l3', position: { x: 30, y: 88 }, type: 'battle', state: 'pending' },    // I象限区域
+    { id: 'l4', position: { x: 34, y: 98 }, type: 'battle', state: 'pending' },
+    { id: 'l5', position: { x: 42, y: 106 }, type: 'battle', state: 'pending' },
+    { id: 'l6', position: { x: 50, y: 110 }, type: 'battle', state: 'pending' },    // 底部
+    { id: 'l7', position: { x: 58, y: 106 }, type: 'battle', state: 'pending' },
+    { id: 'l8', position: { x: 66, y: 98 }, type: 'battle', state: 'pending' },
+    { id: 'l9', position: { x: 70, y: 88 }, type: 'battle', state: 'pending' },    // P象限区域
+    { id: 'l10', position: { x: 66, y: 78 }, type: 'battle', state: 'pending' },
+    { id: 'l11', position: { x: 62, y: 72 }, type: 'boss', state: 'locked' },   // N象限（Boss格）
+    { id: 'l12', position: { x: 58, y: 68 }, type: 'end', state: 'locked' },     // 终点（在N象限旁边）
   ];
   
   // 添加所有格子
-  [...stemPath, ...upperPath, ...connectorPath, ...lowerPath].forEach(cell => {
+  [...upperArcPath, ...connectorPath, ...lowerCirclePath].forEach(cell => {
     cells.push(cell);
   });
   
@@ -81,7 +78,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     e.preventDefault();
     const newScrollY = scrollY - e.deltaY * 0.1;
     // 限制滚动范围
-    setScrollY(Math.max(-50, Math.min(50, newScrollY)));
+    setScrollY(Math.max(-20, Math.min(20, newScrollY)));
   };
 
   // 拖拽开始
@@ -97,7 +94,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       const deltaY = e.clientY - dragStartY;
       const newScrollY = dragStartScrollY - deltaY * 0.1;
       // 限制滚动范围
-      setScrollY(Math.max(-50, Math.min(50, newScrollY)));
+      setScrollY(Math.max(-20, Math.min(20, newScrollY)));
     }
   };
 
@@ -106,30 +103,23 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     setIsDragging(false);
   };
 
-  // 构建连接路径 - 葫芦形路径结构
+  // 构建连接路径
   const connections = useMemo(() => {
     const paths: { from: string; to: string }[] = [];
     
-    // 短柄延伸连接
-    paths.push({ from: 's2', to: 's1' });
-    paths.push({ from: 's1', to: 'u1' });
-    
-    // 上半部分 - 葫芦形上半部分路径
-    const upperPath = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7'];
-    for (let i = 0; i < upperPath.length - 1; i++) {
-      paths.push({ from: upperPath[i], to: upperPath[i + 1] });
+    // 上半部分圆弧路径
+    const upperArc = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8'];
+    for (let i = 0; i < upperArc.length - 1; i++) {
+      paths.push({ from: upperArc[i], to: upperArc[i + 1] });
     }
     
-    // 连接路径
-    const connectorPath = ['u7', 'c1', 'c2'];
-    for (let i = 0; i < connectorPath.length - 1; i++) {
-      paths.push({ from: connectorPath[i], to: connectorPath[i + 1] });
-    }
+    // 连接段
+    paths.push({ from: 'u8', to: 'c1' });
     
-    // 下半部分 - 葫芦形底部圆形路径（W-N-I-P十字分区）
-    const lowerPath = ['c2', 'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'u7'];
-    for (let i = 0; i < lowerPath.length - 1; i++) {
-      paths.push({ from: lowerPath[i], to: lowerPath[i + 1] });
+    // 下半部分圆形路径
+    const lowerCircle = ['c1', 'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10', 'l11', 'l12'];
+    for (let i = 0; i < lowerCircle.length - 1; i++) {
+      paths.push({ from: lowerCircle[i], to: lowerCircle[i + 1] });
     }
     
     return paths;
@@ -236,7 +226,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       onMouseLeave={handleMouseUp}
     >
       <svg 
-        viewBox="20 0 80 110" 
+        viewBox="20 5 60 115" 
         preserveAspectRatio="xMidYMid meet"
         style={{ 
           position: 'absolute', 
@@ -256,12 +246,6 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             <circle cx="50" cy="50" r="1" fill="#D2B48C" opacity="0.6" />
           </pattern>
           
-          {/* 罗盘针旋转动画 */}
-          <radialGradient id="compassGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFD700" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
-          </radialGradient>
-          
           {/* 格子填充图案 */}
           <pattern id="orangeTile" width="4" height="4" patternUnits="userSpaceOnUse">
             <rect width="4" height="4" fill="#FFA500" />
@@ -274,49 +258,49 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
         {/* 复古拼贴风格的奇幻地图背景 */}
         <g style={{ opacity: 0.6 }}>
           {/* 复古地图纹理 */}
-          <rect width="100" height="100" fill="#F5DEB3" />
+          <rect width="100" height="120" fill="#F5DEB3" />
           <pattern id="vintageTexture" width="20" height="20" patternUnits="userSpaceOnUse">
             <path d="M 0 10 L 20 10" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
             <path d="M 10 0 L 10 20" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
             <circle cx="5" cy="5" r="0.5" fill="#8B4513" opacity="0.2" />
             <circle cx="15" cy="15" r="0.3" fill="#8B4513" opacity="0.1" />
           </pattern>
-          <rect width="100" height="100" fill="url(#vintageTexture)" />
+          <rect width="100" height="120" fill="url(#vintageTexture)" />
           
           {/* 手绘森林/山脉景观 */}
-          <path d="M 10 70 Q 20 65 30 70 Q 40 75 50 70 Q 60 65 70 70 Q 80 75 90 70" fill="#228B22" opacity="0.4" />
-          <path d="M 15 60 Q 25 55 35 60 Q 45 65 55 60 Q 65 55 75 60 Q 85 65 95 60" fill="#2E8B57" opacity="0.3" />
+          <path d="M 10 100 Q 20 95 30 100 Q 40 105 50 100 Q 60 95 70 100 Q 80 105 90 100" fill="#228B22" opacity="0.4" />
+          <path d="M 15 80 Q 25 75 35 80 Q 45 85 55 80 Q 65 75 75 80 Q 85 85 95 80" fill="#2E8B57" opacity="0.3" />
           
           {/* 星球插画 */}
-          <circle cx="10" cy="20" r="5" fill="#FFD700" opacity="0.7" />
-          <circle cx="85" cy="15" r="3" fill="#1E90FF" opacity="0.8" />
+          <circle cx="10" cy="25" r="4" fill="#FFD700" opacity="0.7" />
+          <circle cx="85" cy="20" r="2.5" fill="#1E90FF" opacity="0.8" />
           
           {/* 复古地理元素 */}
-          <path d="M 20 30 L 25 25 L 30 30 L 25 35 Z" fill="#8B4513" opacity="0.5" />
-          <path d="M 70 40 L 75 35 L 80 40 L 75 45 Z" fill="#8B4513" opacity="0.5" />
+          <path d="M 20 45 L 25 40 L 30 45 L 25 50 Z" fill="#8B4513" opacity="0.5" />
+          <path d="M 70 55 L 75 50 L 80 55 L 75 60 Z" fill="#8B4513" opacity="0.5" />
         </g>
         
-        {/* 下方圆形路径内部的白色十字线 */}
+        {/* 下方圆形内部的白色十字线 - 分为四个象限 */}
         <g>
           {/* 十字线 */}
-          <line x1="50" y1="56" x2="50" y2="84" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.8" />
-          <line x1="40" y1="70" x2="60" y2="70" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.8" />
+          <line x1="30" y1="88" x2="70" y2="88" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
+          <line x1="50" y1="68" x2="50" y2="108" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
           
-          {/* 区域效果视觉指示器 */}
-          {/* W区域（虚弱区）- 淡红色半透明覆盖 */}
-          <rect x="44" y="56" width="6" height="14" fill="#FF6B6B" fillOpacity="0.2" />
-          {/* N区域（知识区）- 淡蓝色半透明覆盖 */}
-          <rect x="50" y="56" width="6" height="14" fill="#4ECDC4" fillOpacity="0.2" />
-          {/* I区域（反转区）- 淡紫色半透明覆盖 */}
-          <rect x="44" y="70" width="6" height="14" fill="#9B59B6" fillOpacity="0.2" />
-          {/* P区域（跳过区）- 淡黄色半透明覆盖 */}
-          <rect x="50" y="70" width="6" height="14" fill="#FFE66D" fillOpacity="0.2" />
+          {/* 四个象限标注 - W N I P */}
+          <text x="40" y="78" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
+          <text x="60" y="78" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">N</text>
+          <text x="40" y="98" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">I</text>
+          <text x="60" y="98" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="10" fontWeight="bold" fontFamily="'Georgia', serif">P</text>
           
-          {/* 四个象限标注 */}
-          <text x="47" y="63" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
-          <text x="53" y="63" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif">N</text>
-          <text x="47" y="77" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif">I</text>
-          <text x="53" y="77" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif">P</text>
+          {/* End标签 - 在N象限旁边 */}
+          <rect x="61" y="63" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
+          <text x="66" y="67" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="4" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
+        </g>
+        
+        {/* 苹果梗装饰 */}
+        <g>
+          <rect x="48" y="2" width="4" height="10" rx="1" fill="#8B4513" />
+          <ellipse cx="50" cy="2" rx="3" ry="2" fill="#228B22" />
         </g>
         
         {/* 路径层 */}
@@ -332,11 +316,6 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             onClick={() => onCellClick?.(cell.id)}
           />
         ))}
-        
-        {/* 底部SRayLand标签 */}
-        <text x="50" y="106" textAnchor="middle" dominantBaseline="middle" fill="#8B4513" fontSize="7" fontWeight="bold" fontFamily="'Georgia', serif" style={{ letterSpacing: '2px' }}>
-          SRayLand
-        </text>
       </svg>
     </div>
   );

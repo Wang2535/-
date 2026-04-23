@@ -979,8 +979,8 @@ export function TowerMapView({
         )}
 
         <div className="main-area">
-          <div className="map-container" ref={mapContainerRef} style={{ position: 'relative', zIndex: 1 }}>
-            <img src="/tower-map.png" id="towerMap" alt="9层网络安全塔" style={{ display: 'block', width: '100%', height: 'auto' }} />
+          <div className="map-container" ref={mapContainerRef} style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img src="/tower-map.png" id="towerMap" alt="9层网络安全塔" style={{ display: 'block', maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
 
             <div className="energy-flow" ref={energyFlowRef} style={{ zIndex: 2 }} />
 
