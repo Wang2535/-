@@ -33,6 +33,10 @@ function generatePathSegments(): PathSegment[] {
   const lowerCircleCenterY = 115.7; // 下半圆圆心在65%处
   const lowerCircleRadius = 30; // 下半圆直径60（上圆直径是下圆的55%：33/60=0.55）
   
+  // 色块尺寸（完全等宽、等面积）
+  const cellWidth = 6;
+  const cellHeight = 4;
+  
   // ================== 【强制约束：上半小圆路径顺序】 ==================
   
   // 1. 起点：仅在小圆正顶端生成1个独立色块
@@ -43,11 +47,15 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 2. 步骤1：右外弧（仅沿外边缘）
-  for (let i = 1; i <= 8; i++) {
-    const angle = (i * 22.5) * Math.PI / 180;
+  // 计算右外弧的步数，确保紧贴圆外边缘
+  const rightArcSteps = 8;
+  for (let i = 1; i <= rightArcSteps; i++) {
+    const angle = (i * 90 / rightArcSteps) * Math.PI / 180;
+    const offsetX = upperCircleRadius * Math.sin(angle) + 0.5; // 向外偏移0.5确保紧贴外边缘
+    const offsetY = upperCircleRadius * Math.cos(angle) - 0.5; // 向外偏移0.5确保紧贴外边缘
     segments.push({
-      centerX: upperCircleCenterX + upperCircleRadius * Math.sin(angle),
-      centerY: upperCircleCenterY - upperCircleRadius * Math.cos(angle),
+      centerX: upperCircleCenterX + offsetX,
+      centerY: upperCircleCenterY - offsetY,
       angle: angle
     });
   }
@@ -60,45 +68,67 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 3. 步骤2：左上直线（仅内切，不交叉）
-  const stepSize = 4.5;
-  for (let i = 1; i <= 4; i++) {
+  // 计算从葫芦腰到小圆最左侧顶点的直线距离
+  const leftVertexX = upperCircleCenterX - upperCircleRadius;
+  const leftVertexY = upperCircleCenterY;
+  const distanceToLeftVertex = Math.sqrt(
+    Math.pow(upperCircleCenterX - leftVertexX, 2) + 
+    Math.pow((upperCircleCenterY + upperCircleRadius) - leftVertexY, 2)
+  );
+  const leftLineSteps = Math.ceil(distanceToLeftVertex / cellWidth);
+  
+  for (let i = 1; i <= leftLineSteps; i++) {
+    const ratio = i / leftLineSteps;
     segments.push({
-      centerX: upperCircleCenterX - i * stepSize,
-      centerY: upperCircleCenterY + upperCircleRadius - i * stepSize,
+      centerX: upperCircleCenterX - ratio * upperCircleRadius,
+      centerY: upperCircleCenterY + upperCircleRadius - ratio * upperCircleRadius,
       angle: -Math.PI * 3 / 4
     });
   }
   
   // 到达上半小圆最左侧顶点
   segments.push({
-    centerX: upperCircleCenterX - upperCircleRadius,
-    centerY: upperCircleCenterY,
+    centerX: leftVertexX,
+    centerY: leftVertexY,
     angle: Math.PI / 2
   });
   
   // 4. 步骤3：右上直线（仅内切，不碰起点）
-  for (let i = 1; i <= 4; i++) {
+  // 计算从最左侧顶点到起点正下方相邻位置的直线距离
+  const startBelowX = upperCircleCenterX;
+  const startBelowY = upperCircleCenterY - upperCircleRadius + cellHeight + 1; // 保持1个色块间距
+  const distanceToStartBelow = Math.sqrt(
+    Math.pow(startBelowX - leftVertexX, 2) + 
+    Math.pow(startBelowY - leftVertexY, 2)
+  );
+  const rightLineSteps = Math.ceil(distanceToStartBelow / cellWidth);
+  
+  for (let i = 1; i <= rightLineSteps; i++) {
+    const ratio = i / rightLineSteps;
     segments.push({
-      centerX: upperCircleCenterX - upperCircleRadius + i * stepSize,
-      centerY: upperCircleCenterY - i * stepSize,
+      centerX: leftVertexX + ratio * upperCircleRadius,
+      centerY: leftVertexY - ratio * upperCircleRadius,
       angle: Math.PI / 4
     });
   }
   
   // 到达小圆正顶端、起点色块的正下方相邻位置（与起点水平相邻，不重合，保持1个色块间距）
-  const cellSpacing = 5;
   segments.push({
-    centerX: upperCircleCenterX,
-    centerY: upperCircleCenterY - upperCircleRadius + cellSpacing,
+    centerX: startBelowX,
+    centerY: startBelowY,
     angle: 0
   });
   
   // 5. 步骤4：左外弧（仅沿外边缘，对称无交叉）
-  for (let i = 7; i >= 0; i--) {
-    const angle = (180 - i * 22.5) * Math.PI / 180;
+  // 计算左外弧的步数，确保紧贴圆外边缘，与右外弧对称
+  const leftArcSteps = rightArcSteps;
+  for (let i = leftArcSteps; i >= 1; i--) {
+    const angle = (180 - i * 90 / leftArcSteps) * Math.PI / 180;
+    const offsetX = upperCircleRadius * Math.sin(angle) - 0.5; // 向外偏移0.5确保紧贴外边缘
+    const offsetY = upperCircleRadius * Math.cos(angle) - 0.5; // 向外偏移0.5确保紧贴外边缘
     segments.push({
-      centerX: upperCircleCenterX + upperCircleRadius * Math.sin(angle),
-      centerY: upperCircleCenterY - upperCircleRadius * Math.cos(angle),
+      centerX: upperCircleCenterX + offsetX,
+      centerY: upperCircleCenterY - offsetY,
       angle: angle
     });
   }
@@ -113,19 +143,24 @@ function generatePathSegments(): PathSegment[] {
   // ================== 【强制约束：下半大圆正方形路径】 ==================
   
   // 1. 切入位置（仅从外弧向内）
-  for (let i = 1; i <= 12; i++) {
-    const angle = (180 + i * 15) * Math.PI / 180;
+  // 沿大圆左侧外弧顺时针行进，绕经大圆最底端，沿右侧外弧向上行进
+  const lowerArcSteps = 16;
+  for (let i = 1; i <= lowerArcSteps; i++) {
+    const angle = (180 + i * 180 / lowerArcSteps) * Math.PI / 180;
+    const offsetX = lowerCircleRadius * Math.sin(angle) + (angle > Math.PI ? 0.5 : -0.5); // 向外偏移确保紧贴外边缘
+    const offsetY = lowerCircleRadius * Math.cos(angle) - 0.5; // 向外偏移确保紧贴外边缘
     segments.push({
-      centerX: lowerCircleCenterX + lowerCircleRadius * Math.sin(angle),
-      centerY: lowerCircleCenterY - lowerCircleRadius * Math.cos(angle),
+      centerX: lowerCircleCenterX + offsetX,
+      centerY: lowerCircleCenterY - offsetY,
       angle: angle
     });
   }
   
   // 到达下半大圆右侧外弧、从上往下数1/5高度的位置
+  const entryY = lowerCircleCenterY - lowerCircleRadius * 0.8; // 1/5高度位置
   segments.push({
-    centerX: lowerCircleCenterX + lowerCircleRadius * 0.6,
-    centerY: lowerCircleCenterY - lowerCircleRadius * 0.8,
+    centerX: lowerCircleCenterX + lowerCircleRadius,
+    centerY: entryY,
     angle: 0
   });
   
@@ -133,18 +168,23 @@ function generatePathSegments(): PathSegment[] {
   const squareCenterX = 50;
   const squareCenterY = 124;
   const squareHalfSize = 12;
+  const squareRightX = squareCenterX + squareHalfSize;
   
-  for (let i = 1; i <= 3; i++) {
+  // 计算从右侧外弧到正方形右边框的距离
+  const entryToSquareDistance = (lowerCircleCenterX + lowerCircleRadius) - squareRightX;
+  const entrySteps = Math.ceil(entryToSquareDistance / cellWidth);
+  
+  for (let i = 1; i <= entrySteps; i++) {
     segments.push({
-      centerX: lowerCircleCenterX + lowerCircleRadius * 0.6 - i * stepSize,
-      centerY: lowerCircleCenterY - lowerCircleRadius * 0.8,
+      centerX: lowerCircleCenterX + lowerCircleRadius - i * cellWidth,
+      centerY: entryY,
       angle: 0
     });
   }
   
   // 进入正方形路径的右边框上半部分
   segments.push({
-    centerX: squareCenterX + squareHalfSize,
+    centerX: squareRightX,
     centerY: squareCenterY - squareHalfSize / 2,
     angle: 0
   });
@@ -152,69 +192,90 @@ function generatePathSegments(): PathSegment[] {
   // 2. 绕行顺序（仅顺时针绕边框）
   
   // ① 沿正方形上边框向左行进，到上边框与左边框的交点
+  const squareTopY = squareCenterY - squareHalfSize;
+  const squareLeftX = squareCenterX - squareHalfSize;
+  
+  // 从右边框上半部分到上边框右上角
   segments.push({
-    centerX: squareCenterX + squareHalfSize,
-    centerY: squareCenterY - squareHalfSize,
+    centerX: squareRightX,
+    centerY: squareTopY,
     angle: 0
   });
   
-  for (let i = 1; i <= 4; i++) {
+  // 沿上边框向左到左上角
+  const topBorderLength = squareHalfSize * 2;
+  const topBorderSteps = Math.ceil(topBorderLength / cellWidth);
+  
+  for (let i = 1; i <= topBorderSteps; i++) {
     segments.push({
-      centerX: squareCenterX + squareHalfSize - i * stepSize,
-      centerY: squareCenterY - squareHalfSize,
+      centerX: squareRightX - i * cellWidth,
+      centerY: squareTopY,
       angle: 0
     });
   }
   
+  // 到达左上角
   segments.push({
-    centerX: squareCenterX - squareHalfSize,
-    centerY: squareCenterY - squareHalfSize,
+    centerX: squareLeftX,
+    centerY: squareTopY,
     angle: Math.PI
   });
   
   // ② 沿正方形左边框向下行进，到左边框与下边框的交点
-  for (let i = 1; i <= 4; i++) {
+  const squareBottomY = squareCenterY + squareHalfSize;
+  const leftBorderLength = squareHalfSize * 2;
+  const leftBorderSteps = Math.ceil(leftBorderLength / cellHeight);
+  
+  for (let i = 1; i <= leftBorderSteps; i++) {
     segments.push({
-      centerX: squareCenterX - squareHalfSize,
-      centerY: squareCenterY - squareHalfSize + i * stepSize,
+      centerX: squareLeftX,
+      centerY: squareTopY + i * cellHeight,
       angle: Math.PI
     });
   }
   
+  // 到达左下角
   segments.push({
-    centerX: squareCenterX - squareHalfSize,
-    centerY: squareCenterY + squareHalfSize,
+    centerX: squareLeftX,
+    centerY: squareBottomY,
     angle: Math.PI / 2
   });
   
   // ③ 沿正方形下边框向右行进，到下边框与右边框的交点
-  for (let i = 1; i <= 4; i++) {
+  const bottomBorderLength = squareHalfSize * 2;
+  const bottomBorderSteps = Math.ceil(bottomBorderLength / cellWidth);
+  
+  for (let i = 1; i <= bottomBorderSteps; i++) {
     segments.push({
-      centerX: squareCenterX - squareHalfSize + i * stepSize,
-      centerY: squareCenterY + squareHalfSize,
+      centerX: squareLeftX + i * cellWidth,
+      centerY: squareBottomY,
       angle: Math.PI / 2
     });
   }
   
+  // 到达右下角
   segments.push({
-    centerX: squareCenterX + squareHalfSize,
-    centerY: squareCenterY + squareHalfSize,
+    centerX: squareRightX,
+    centerY: squareBottomY,
     angle: -Math.PI
   });
   
   // ④ 沿正方形右边框向上行进，到右边框与上边框的交点（即正方形右上角），此为终点色块
-  for (let i = 1; i <= 4; i++) {
+  const rightBorderLength = squareHalfSize * 2;
+  const rightBorderSteps = Math.ceil(rightBorderLength / cellHeight);
+  
+  for (let i = 1; i <= rightBorderSteps; i++) {
     segments.push({
-      centerX: squareCenterX + squareHalfSize,
-      centerY: squareCenterY + squareHalfSize - i * stepSize,
+      centerX: squareRightX,
+      centerY: squareBottomY - i * cellHeight,
       angle: -Math.PI
     });
   }
   
   // 终点色块（正方形右上角）
   segments.push({
-    centerX: squareCenterX + squareHalfSize,
-    centerY: squareCenterY - squareHalfSize,
+    centerX: squareRightX,
+    centerY: squareTopY,
     angle: Math.PI / 4
   });
   
@@ -259,7 +320,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     setIsDragging(false);
   };
 
-  const cellWidth = 6.5;
+  const cellWidth = 6;
   const cellHeight = 4;
   const squareCenterX = 50;
   const squareCenterY = 124;
