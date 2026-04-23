@@ -1,12 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { SRayLandCell as SRayLandCellComponent } from './SRayLandCell';
-import { SRayLandPath } from './SRayLandPath';
-import { LevelAssignmentEngine } from '../../engine/LevelAssignmentEngine';
-import { THEME_LEVELS, BOSS_LEVELS, TIER_THEME_MAP } from '../../data/themeLevelMapping';
+import React, { useMemo, useState } from 'react';
 
 export interface SRayLandCell {
   id: string;
   position: { x: number; y: number };
+  angle?: number;
   type: 'start' | 'battle' | 'chance' | 'bookstore' | 'skill' | 'special' | 'elite' | 'boss' | 'end' | 'default';
   state: 'locked' | 'pending' | 'current' | 'cleared' | 'failed';
   label?: string;
@@ -19,84 +16,224 @@ export interface SRayLandMapRendererProps {
   layerNumber?: number;
 }
 
-// 葫芦形状的路径格子位置 - 严格按照规则设计
-function generateGridCells(): SRayLandCell[] {
-  const cells: SRayLandCell[] = [];
+interface PathSegment {
+  centerX: number;
+  centerY: number;
+  angle: number;
+}
+
+function generatePathSegments(): PathSegment[] {
+  const segments: PathSegment[] = [];
   
-  // 上半部分 - 小圆（直径为下半椭圆短轴的 3/4）
-  // 上半环右弧段
-  const upperRightArc = [
-    { id: 'u1', position: { x: 50, y: 10 }, type: 'start', state: 'current' },      // 起点（葫芦顶端）
-    { id: 'u2', position: { x: 58, y: 14 }, type: 'battle', state: 'pending' },
-    { id: 'u3', position: { x: 62, y: 22 }, type: 'battle', state: 'pending' },
-    { id: 'u4', position: { x: 60, y: 30 }, type: 'battle', state: 'pending' },
-    { id: 'u5', position: { x: 50, y: 34 }, type: 'battle', state: 'pending' },    // 上半小圆正下方顶点
-  ];
+  // 坐标系设定：画布宽度100，高度178（9:16比例）
+  const upperCircleCenterY = 44.5; // 上半圆圆心在25%处
+  const upperCircleRadius = 16.5; // 上半圆直径33
+  const lowerCircleCenterY = 115.7; // 下半圆圆心在65%处
+  const lowerCircleRadius = 30; // 下半圆直径60（上圆直径是下圆的55%：33/60=0.55）
+  const gourdWaistY = 74.76; // 葫芦腰在42%处
   
-  // 45° 上行左折段
-  const upperLeftDiagonal = [
-    { id: 'u6', position: { x: 42, y: 30 }, type: 'battle', state: 'pending' },
-    { id: 'u7', position: { x: 38, y: 22 }, type: 'battle', state: 'pending' },    // 上半小圆最左侧顶点
-  ];
-  
-  // 45° 上行右折段
-  const upperRightDiagonal = [
-    { id: 'u8', position: { x: 42, y: 14 }, type: 'battle', state: 'pending' },
-    { id: 'u9', position: { x: 50, y: 10 }, type: 'battle', state: 'pending' },    // 回到起点顶点
-  ];
-  
-  // 上半环左弧段
-  const upperLeftArc = [
-    { id: 'u10', position: { x: 50, y: 10 }, type: 'battle', state: 'pending' },
-    { id: 'u11', position: { x: 42, y: 14 }, type: 'battle', state: 'pending' },
-    { id: 'u12', position: { x: 38, y: 22 }, type: 'battle', state: 'pending' },
-    { id: 'u13', position: { x: 42, y: 30 }, type: 'battle', state: 'pending' },
-    { id: 'u14', position: { x: 50, y: 34 }, type: 'battle', state: 'pending' },    // 上半小圆正下方顶点
-  ];
-  
-  // 下半环左弧段
-  const lowerLeftArc = [
-    { id: 'l1', position: { x: 50, y: 42 }, type: 'battle', state: 'pending' },
-    { id: 'l2', position: { x: 42, y: 50 }, type: 'battle', state: 'pending' },
-    { id: 'l3', position: { x: 38, y: 60 }, type: 'battle', state: 'pending' },
-    { id: 'l4', position: { x: 42, y: 70 }, type: 'battle', state: 'pending' },
-    { id: 'l5', position: { x: 50, y: 78 }, type: 'battle', state: 'pending' },
-    { id: 'l6', position: { x: 58, y: 70 }, type: 'battle', state: 'pending' },
-    { id: 'l7', position: { x: 62, y: 60 }, type: 'battle', state: 'pending' },    // 下半椭圆右侧 1/5 高度位置
-  ];
-  
-  // 内部正方形闭合段
-  const innerSquare = [
-    { id: 's1', position: { x: 54, y: 60 }, type: 'battle', state: 'pending' },    // 进入正方形
-    { id: 's2', position: { x: 54, y: 52 }, type: 'battle', state: 'pending' },    // 上
-    { id: 's3', position: { x: 46, y: 52 }, type: 'battle', state: 'pending' },    // 左
-    { id: 's4', position: { x: 46, y: 60 }, type: 'battle', state: 'pending' },    // 下
-    { id: 's5', position: { x: 54, y: 60 }, type: 'battle', state: 'pending' },    // 右
-    { id: 's6', position: { x: 58, y: 56 }, type: 'end', state: 'locked' },         // 终点（N象限右上角）
-  ];
-  
-  // 添加所有格子
-  [...upperRightArc, ...upperLeftDiagonal, ...upperRightDiagonal, ...upperLeftArc, ...lowerLeftArc, ...innerSquare].forEach(cell => {
-    cells.push(cell);
+  // ================== 第一段：起点与上半葫芦右外弧段 ==================
+  // 起点：上半圆正顶端
+  segments.push({
+    centerX: 50,
+    centerY: upperCircleCenterY - upperCircleRadius,
+    angle: 0
   });
   
-  return cells;
+  // 沿上半圆右侧外轮廓顺时针走
+  for (let i = 1; i <= 6; i++) {
+    const angle = (i * 30) * Math.PI / 180;
+    segments.push({
+      centerX: 50 + upperCircleRadius * Math.sin(angle),
+      centerY: upperCircleCenterY - upperCircleRadius * Math.cos(angle),
+      angle: angle
+    });
+  }
+  
+  // ================== 第二段：上半葫芦内部菱形折返段 ==================
+  // 45°左上方向直线行进
+  segments.push({
+    centerX: 46,
+    centerY: gourdWaistY - 4,
+    angle: -Math.PI * 3 / 4
+  });
+  segments.push({
+    centerX: 42,
+    centerY: gourdWaistY - 8,
+    angle: -Math.PI * 3 / 4
+  });
+  segments.push({
+    centerX: 38,
+    centerY: gourdWaistY - 12,
+    angle: -Math.PI * 3 / 4
+  });
+  
+  // 到达上半圆最左侧顶点
+  segments.push({
+    centerX: 50 - upperCircleRadius,
+    centerY: upperCircleCenterY,
+    angle: Math.PI / 2
+  });
+  
+  // 45°右上方向直线行进
+  segments.push({
+    centerX: 46,
+    centerY: upperCircleCenterY - 4,
+    angle: Math.PI / 4
+  });
+  segments.push({
+    centerX: 50,
+    centerY: upperCircleCenterY - 8,
+    angle: Math.PI / 4
+  });
+  segments.push({
+    centerX: 54,
+    centerY: upperCircleCenterY - 12,
+    angle: Math.PI / 4
+  });
+  
+  // 到达起点右侧相邻位置
+  segments.push({
+    centerX: 55,
+    centerY: upperCircleCenterY - upperCircleRadius,
+    angle: 0
+  });
+  
+  // 沿上半圆左侧外轮廓顺时针走
+  for (let i = 5; i >= 0; i--) {
+    const angle = (180 - i * 30) * Math.PI / 180;
+    segments.push({
+      centerX: 50 + upperCircleRadius * Math.sin(angle),
+      centerY: upperCircleCenterY - upperCircleRadius * Math.cos(angle),
+      angle: angle
+    });
+  }
+  
+  // ================== 第三段：下半葫芦外弧行进段 ==================
+  // 沿下半圆左侧外轮廓顺时针走
+  for (let i = 1; i <= 8; i++) {
+    const angle = (180 + i * 22.5) * Math.PI / 180;
+    segments.push({
+      centerX: 50 + lowerCircleRadius * Math.sin(angle),
+      centerY: lowerCircleCenterY - lowerCircleRadius * Math.cos(angle),
+      angle: angle
+    });
+  }
+  
+  // ================== 第四段：内部正方形绕行段 ==================
+  const squareCenterX = 50;
+  const squareCenterY = 124;
+  const squareHalfSize = 12;
+  
+  // 切入正方形上边框
+  segments.push({
+    centerX: squareCenterX + 6,
+    centerY: squareCenterY - squareHalfSize,
+    angle: Math.PI / 2
+  });
+  
+  // 沿正方形上边框向左走
+  segments.push({
+    centerX: squareCenterX,
+    centerY: squareCenterY - squareHalfSize,
+    angle: Math.PI / 2
+  });
+  segments.push({
+    centerX: squareCenterX - 6,
+    centerY: squareCenterY - squareHalfSize,
+    angle: Math.PI / 2
+  });
+  segments.push({
+    centerX: squareCenterX - squareHalfSize,
+    centerY: squareCenterY - squareHalfSize,
+    angle: Math.PI
+  });
+  
+  // 沿正方形右边框向下走
+  segments.push({
+    centerX: squareCenterX - squareHalfSize,
+    centerY: squareCenterY - 6,
+    angle: Math.PI
+  });
+  segments.push({
+    centerX: squareCenterX - squareHalfSize,
+    centerY: squareCenterY,
+    angle: Math.PI
+  });
+  segments.push({
+    centerX: squareCenterX - squareHalfSize,
+    centerY: squareCenterY + 6,
+    angle: Math.PI
+  });
+  segments.push({
+    centerX: squareCenterX - squareHalfSize,
+    centerY: squareCenterY + squareHalfSize,
+    angle: -Math.PI / 2
+  });
+  
+  // 沿正方形下边框向右走
+  segments.push({
+    centerX: squareCenterX - 6,
+    centerY: squareCenterY + squareHalfSize,
+    angle: -Math.PI / 2
+  });
+  segments.push({
+    centerX: squareCenterX,
+    centerY: squareCenterY + squareHalfSize,
+    angle: -Math.PI / 2
+  });
+  segments.push({
+    centerX: squareCenterX + 6,
+    centerY: squareCenterY + squareHalfSize,
+    angle: -Math.PI / 2
+  });
+  segments.push({
+    centerX: squareCenterX + squareHalfSize,
+    centerY: squareCenterY + squareHalfSize,
+    angle: 0
+  });
+  
+  // 沿正方形左边框向上走
+  segments.push({
+    centerX: squareCenterX + squareHalfSize,
+    centerY: squareCenterY + 6,
+    angle: 0
+  });
+  segments.push({
+    centerX: squareCenterX + squareHalfSize,
+    centerY: squareCenterY,
+    angle: 0
+  });
+  segments.push({
+    centerX: squareCenterX + squareHalfSize,
+    centerY: squareCenterY - 6,
+    angle: 0
+  });
+  
+  // 终点：正方形右上顶点
+  segments.push({
+    centerX: squareCenterX + squareHalfSize,
+    centerY: squareCenterY - squareHalfSize,
+    angle: Math.PI / 4
+  });
+  
+  return segments;
 }
 
 export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNumber = 1 }: SRayLandMapRendererProps) {
-  const defaultCells = useMemo(() => generateGridCells(), []);
-  const [displayCells, setDisplayCells] = useState<SRayLandCell[]>(cells || defaultCells);
-  const [levelAssignments, setLevelAssignments] = useState<Map<string, any>>(new Map());
   const [scrollY, setScrollY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartScrollY, setDragStartScrollY] = useState(0);
   
+  const pathSegments = useMemo(() => generatePathSegments(), []);
+  
+  const colors = ['#FFA500', '#FAF0E6', '#FFD700']; // 橙色、米白色、亮黄色
+  
   // 滚动事件处理
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     e.preventDefault();
     const newScrollY = scrollY - e.deltaY * 0.1;
-    // 限制滚动范围
     setScrollY(Math.max(-20, Math.min(20, newScrollY)));
   };
 
@@ -112,7 +249,6 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     if (isDragging) {
       const deltaY = e.clientY - dragStartY;
       const newScrollY = dragStartScrollY - deltaY * 0.1;
-      // 限制滚动范围
       setScrollY(Math.max(-20, Math.min(20, newScrollY)));
     }
   };
@@ -122,137 +258,20 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     setIsDragging(false);
   };
 
-  // 构建连接路径
-  const connections = useMemo(() => {
-    const paths: { from: string; to: string }[] = [];
-    
-    // 上半环右弧段
-    const upperRightArc = ['u1', 'u2', 'u3', 'u4', 'u5'];
-    for (let i = 0; i < upperRightArc.length - 1; i++) {
-      paths.push({ from: upperRightArc[i], to: upperRightArc[i + 1] });
-    }
-    
-    // 45° 上行左折段
-    const upperLeftDiagonal = ['u5', 'u6', 'u7'];
-    for (let i = 0; i < upperLeftDiagonal.length - 1; i++) {
-      paths.push({ from: upperLeftDiagonal[i], to: upperLeftDiagonal[i + 1] });
-    }
-    
-    // 45° 上行右折段
-    const upperRightDiagonal = ['u7', 'u8', 'u9'];
-    for (let i = 0; i < upperRightDiagonal.length - 1; i++) {
-      paths.push({ from: upperRightDiagonal[i], to: upperRightDiagonal[i + 1] });
-    }
-    
-    // 上半环左弧段
-    const upperLeftArc = ['u9', 'u10', 'u11', 'u12', 'u13', 'u14'];
-    for (let i = 0; i < upperLeftArc.length - 1; i++) {
-      paths.push({ from: upperLeftArc[i], to: upperLeftArc[i + 1] });
-    }
-    
-    // 下半环左弧段
-    const lowerLeftArc = ['u14', 'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'];
-    for (let i = 0; i < lowerLeftArc.length - 1; i++) {
-      paths.push({ from: lowerLeftArc[i], to: lowerLeftArc[i + 1] });
-    }
-    
-    // 内部正方形闭合段
-    const innerSquare = ['l7', 's1', 's2', 's3', 's4', 's5', 's6'];
-    for (let i = 0; i < innerSquare.length - 1; i++) {
-      paths.push({ from: innerSquare[i], to: innerSquare[i + 1] });
-    }
-    
-    return paths;
-  }, []);
+  const cellWidth = 6.5;
+  const cellHeight = 4;
   
-  // 导入关卡并分配到战斗格
-  useEffect(() => {
-    const battleCells = displayCells.filter(cell => cell.type === 'battle');
-    const bossCell = displayCells.find(cell => cell.type === 'boss');
-    if (battleCells.length > 0 && bossCell) {
-      const levelEngine = new LevelAssignmentEngine();
-      
-      // 创建关卡数据库
-      const levelDatabase = [];
-      const theme = TIER_THEME_MAP[layerNumber];
-      const levels = THEME_LEVELS[theme] || [];
-      
-      for (const levelId of levels) {
-        levelDatabase.push({
-          id: levelId,
-          theme,
-          difficulty: Math.ceil(layerNumber / 3),
-          title: `关卡 ${levelId}`,
-          description: `第 ${layerNumber} 层 ${theme} 主题关卡`,
-        });
-      }
-      
-      // 添加BOSS关卡
-      const bossId = BOSS_LEVELS[theme];
-      if (bossId) {
-        levelDatabase.push({
-          id: bossId,
-          theme,
-          difficulty: Math.ceil(layerNumber / 3) + 1,
-          title: `BOSS 关卡 ${bossId}`,
-          description: `第 ${layerNumber} 层 BOSS 战`,
-          isBoss: true,
-        });
-      }
-      
-      try {
-        levelEngine.initializePools(levelDatabase);
-        const battleCellIds = battleCells.map(cell => cell.id);
-        const assignment = levelEngine.assignLayer(layerNumber, battleCellIds, bossCell.id);
-        
-        // 创建关卡分配映射
-        const assignmentsMap = new Map();
-        Object.entries(assignment.battleCellAssignments).forEach(([cellId, levelId]) => {
-          const levelInfo = levelDatabase.find(l => l.id === levelId);
-          if (levelInfo) {
-            assignmentsMap.set(cellId, {
-              id: levelId,
-              name: levelInfo.title,
-              difficulty: levelInfo.difficulty,
-              isElite: levelInfo.difficulty >= 4
-            });
-          }
-        });
-        
-        setLevelAssignments(assignmentsMap);
-        
-        // 更新战斗格的难度和状态
-        const updatedCells = displayCells.map(cell => {
-          if (cell.type === 'battle') {
-            const assignment = assignmentsMap.get(cell.id);
-            if (assignment) {
-              return {
-                ...cell,
-                metadata: {
-                  levelId: assignment.id,
-                  levelName: assignment.name,
-                  difficulty: assignment.difficulty,
-                  isElite: assignment.isElite
-                }
-              };
-            }
-          }
-          return cell;
-        });
-        setDisplayCells(updatedCells);
-      } catch (error) {
-        console.error('Level assignment error:', error);
-      }
-    }
-  }, [layerNumber, connections]);
-  
+  const squareCenterX = 50;
+  const squareCenterY = 124;
+  const squareHalfSize = 12;
+
   return (
     <div 
       style={{
         position: 'relative',
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(180deg, #F5DEB3 0%, #DEB887 50%, #D2B48C 100%)',
+        background: '#F5DEB3',
         borderRadius: '16px',
         overflow: 'hidden',
         border: '4px solid #8B4513',
@@ -266,7 +285,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       onMouseLeave={handleMouseUp}
     >
       <svg 
-        viewBox="30 5 40 90" 
+        viewBox="5 5 90 170" 
         preserveAspectRatio="xMidYMid meet"
         style={{ 
           position: 'absolute', 
@@ -277,83 +296,261 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
           transition: isDragging ? 'none' : 'transform 0.2s ease-out'
         }}
       >
-        {/* 复古纸张纹理背景 */}
-        <defs>
-          <pattern id="paperTexture" width="100" height="100" patternUnits="userSpaceOnUse">
-            <rect width="100" height="100" fill="#F5DEB3" />
-            <circle cx="25" cy="25" r="1" fill="#D2B48C" opacity="0.5" />
-            <circle cx="75" cy="75" r="1.5" fill="#DEB887" opacity="0.4" />
-            <circle cx="50" cy="50" r="1" fill="#D2B48C" opacity="0.6" />
-          </pattern>
-        </defs>
-        
-        {/* 复古美式拼贴风格背景 */}
-        <g style={{ opacity: 0.6 }}>
-          {/* 复古地图纹理 */}
-          <rect width="100" height="100" fill="#F5DEB3" />
-          <pattern id="vintageTexture" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 0 10 L 20 10" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
-            <path d="M 10 0 L 10 20" stroke="#DEB887" strokeWidth="0.5" strokeOpacity="0.3" />
-            <circle cx="5" cy="5" r="0.5" fill="#8B4513" opacity="0.2" />
-            <circle cx="15" cy="15" r="0.3" fill="#8B4513" opacity="0.1" />
-          </pattern>
-          <rect width="100" height="100" fill="url(#vintageTexture)" />
+        {/* ================== 复古美式拼贴风格背景 ================== */}
+        <g style={{ opacity: 0.7 }}>
+          {/* 米黄色底 */}
+          <rect width="100" height="178" fill="#F5DEB3" />
           
-          {/* 自然景观元素 */}
-          {/* 森林 */}
-          <path d="M 10 70 Q 20 65 30 70 Q 40 75 50 70 Q 60 65 70 70 Q 80 75 90 70" fill="#228B22" opacity="0.4" />
-          <path d="M 15 60 Q 25 55 35 60 Q 45 65 55 60 Q 65 55 75 60 Q 85 65 95 60" fill="#2E8B57" opacity="0.3" />
+          {/* 纸张纹理 */}
+          <pattern id="paperPattern" width="15" height="15" patternUnits="userSpaceOnUse">
+            <rect width="15" height="15" fill="#F5DEB3" />
+            <circle cx="7.5" cy="7.5" r="0.5" fill="#D2B48C" opacity="0.3" />
+            <path d="M 0 7.5 L 15 7.5" stroke="#DEB887" strokeWidth="0.3" strokeOpacity="0.2" />
+          </pattern>
+          <rect width="100" height="178" fill="url(#paperPattern)" />
+          
+          {/* 针叶林 */}
+          <g>
+            {[10, 25, 85, 95].map((x, i) => (
+              <g key={i} transform={`translate(${x}, ${140 + i * 2})`}>
+                <path d="M -3 0 L 0 -8 L 3 0 Z" fill="#228B22" />
+                <path d="M -2.5 -5 L 0 -12 L 2.5 -5 Z" fill="#2E8B57" />
+              </g>
+            ))}
+          </g>
           
           {/* 山脉 */}
-          <path d="M 10 40 L 15 35 L 20 38 L 25 32 L 30 36 L 35 30 L 40 34 L 45 28 L 50 32 L 55 26 L 60 30 L 65 24 L 70 28 L 75 22 L 80 26 L 85 20 L 90 24" fill="#8B4513" opacity="0.3" />
+          <path d="M 5 60 L 15 45 L 25 55 L 35 40 L 45 50 L 55 38 L 65 48 L 75 42 L 85 52 L 95 48" fill="#8B4513" opacity="0.4" />
           
           {/* 火山 */}
-          <path d="M 85 30 L 90 25 L 95 30 Z" fill="#CD5C5C" opacity="0.4" />
-          <path d="M 90 25 L 90 20" stroke="#FF4500" strokeWidth="1" opacity="0.6" />
+          <g transform="translate(88, 50)">
+            <path d="M -4 0 L 0 -10 L 4 0 Z" fill="#CD5C5C" opacity="0.6" />
+            <path d="M 0 -10 L 0 -15 L -1 -12 L 0 -17 L 1 -12" stroke="#FF4500" strokeWidth="0.8" fill="none" />
+          </g>
           
-          {/* 星球 */}
-          <circle cx="10" cy="20" r="3" fill="#FFD700" opacity="0.7" />
-          <circle cx="85" cy="15" r="2" fill="#1E90FF" opacity="0.8" />
+          {/* 雪山 */}
+          <path d="M 10 35 L 20 20 L 30 35 L 40 22 L 50 35" fill="#FFFFFF" opacity="0.6" />
+          <path d="M 15 30 L 20 18 L 25 30 L 35 20 L 40 30" fill="#E8E8E8" opacity="0.7" />
+          
+          {/* 星球天体 */}
+          <g>
+            <circle cx="12" cy="18" r="3" fill="#FFD700" />
+            <circle cx="12" cy="18" r="3.5" fill="none" stroke="#FFA500" strokeWidth="0.3" />
+            <circle cx="82" cy="15" r="2" fill="#1E90FF" />
+            <circle cx="82" cy="15" r="2.5" fill="none" stroke="#00BFFF" strokeWidth="0.3" />
+            <circle cx="22" cy="155" r="1.5" fill="#CD853F" />
+          </g>
           
           {/* 复古罗盘 */}
-          <circle cx="20" cy="40" r="5" fill="#8B4513" opacity="0.5" />
-          <line x1="20" y1="35" x2="20" y2="45" stroke="#D2B48C" strokeWidth="0.5" />
-          <line x1="15" y1="40" x2="25" y2="40" stroke="#D2B48C" strokeWidth="0.5" />
+          <g transform="translate(18, 55)">
+            <circle r="5" fill="#8B4513" opacity="0.7" />
+            <circle r="4.5" fill="#DEB887" />
+            <line x1="0" y1="-4" x2="0" y2="4" stroke="#8B4513" strokeWidth="0.6" />
+            <line x1="-4" y1="0" x2="4" y2="0" stroke="#8B4513" strokeWidth="0.6" />
+            <polygon points="0,-4 0.5,-2 -0.5,-2" fill="#CD5C5C" />
+            <polygon points="0,4 0.5,2 -0.5,2" fill="#2F4F4F" />
+          </g>
+          
+          {/* 手绘地形装饰 */}
+          <g>
+            <path d="M 8 90 Q 15 85 22 90 Q 29 95 36 90" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
+            <path d="M 64 85 Q 71 80 78 85 Q 85 90 92 85" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
+            <circle cx="78" cy="98" r="2" fill="#6B8E23" opacity="0.5" />
+            <circle cx="25" cy="100" r="1.5" fill="#6B8E23" opacity="0.4" />
+          </g>
         </g>
         
-        {/* 内部正方形的白色十字线 */}
+        {/* ================== 内部正方形的白色十字线和字母标注 ================== */}
         <g>
-          {/* 十字线 */}
-          <line x1="42" y1="56" x2="58" y2="56" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
-          <line x1="50" y1="52" x2="50" y2="60" stroke="#FFFFFF" strokeWidth="2" strokeOpacity="0.9" />
+          {/* 白色十字线 */}
+          <line 
+            x1={squareCenterX - squareHalfSize} 
+            y1={squareCenterY} 
+            x2={squareCenterX + squareHalfSize} 
+            y2={squareCenterY} 
+            stroke="#FFFFFF" 
+            strokeWidth="2.5" 
+            strokeOpacity="0.95"
+          />
+          <line 
+            x1={squareCenterX} 
+            y1={squareCenterY - squareHalfSize} 
+            x2={squareCenterX} 
+            y2={squareCenterY + squareHalfSize} 
+            stroke="#FFFFFF" 
+            strokeWidth="2.5" 
+            strokeOpacity="0.95"
+          />
           
-          {/* 四个象限标注 */}
-          <text x="46" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">W</text>
-          <text x="54" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">N</text>
-          <text x="46" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">I</text>
-          <text x="54" y="56" textAnchor="middle" dominantBaseline="middle" fill="#FFA500" fontSize="8" fontWeight="bold" fontFamily="'Georgia', serif">P</text>
+          {/* 四个象限字母标注 */}
+          <text 
+            x={squareCenterX - squareHalfSize / 2} 
+            y={squareCenterY - squareHalfSize / 2} 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fill="#FFA500" 
+            fontSize="10" 
+            fontWeight="bold" 
+            fontFamily="'Georgia', serif"
+          >
+            W
+          </text>
+          <text 
+            x={squareCenterX + squareHalfSize / 2} 
+            y={squareCenterY - squareHalfSize / 2} 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fill="#FFA500" 
+            fontSize="10" 
+            fontWeight="bold" 
+            fontFamily="'Georgia', serif"
+          >
+            N
+          </text>
+          <text 
+            x={squareCenterX - squareHalfSize / 2} 
+            y={squareCenterY + squareHalfSize / 2} 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fill="#FFA500" 
+            fontSize="10" 
+            fontWeight="bold" 
+            fontFamily="'Georgia', serif"
+          >
+            I
+          </text>
+          <text 
+            x={squareCenterX + squareHalfSize / 2} 
+            y={squareCenterY + squareHalfSize / 2} 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fill="#FFA500" 
+            fontSize="10" 
+            fontWeight="bold" 
+            fontFamily="'Georgia', serif"
+          >
+            P
+          </text>
           
-          {/* End标签 */}
-          <rect x="56" y="50" width="8" height="5" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
-          <text x="60" y="53" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="3" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
+          {/* end标识 */}
+          <g transform={`translate(${squareCenterX + squareHalfSize + 2}, ${squareCenterY - squareHalfSize})`}>
+            <rect x="-4" y="-3" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="1" />
+            <text x="1" y="0.5" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="4" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
+          </g>
         </g>
         
-        {/* 路径层 */}
-        <SRayLandPath connections={connections} cells={displayCells} />
+        {/* ================== 路径色块 ================== */}
+        {pathSegments.map((segment, index) => {
+          const colorIndex = index % colors.length;
+          const fillColor = colors[colorIndex];
+          const isStart = index === 0;
+          const isEnd = index === pathSegments.length - 1;
+          const isCurrent = currentCellId === `cell-${index}`;
+          
+          const prevSegment = index > 0 ? pathSegments[index - 1] : null;
+          const nextSegment = index < pathSegments.length - 1 ? pathSegments[index + 1] : null;
+          
+          let angle = segment.angle;
+          if (prevSegment && nextSegment) {
+            const dx1 = segment.centerX - prevSegment.centerX;
+            const dy1 = segment.centerY - prevSegment.centerY;
+            const dx2 = nextSegment.centerX - segment.centerX;
+            const dy2 = nextSegment.centerY - segment.centerY;
+            angle = Math.atan2((dx1 + dx2), (dy1 + dy2));
+          } else if (prevSegment) {
+            const dx = segment.centerX - prevSegment.centerX;
+            const dy = segment.centerY - prevSegment.centerY;
+            angle = Math.atan2(dx, dy);
+          } else if (nextSegment) {
+            const dx = nextSegment.centerX - segment.centerX;
+            const dy = nextSegment.centerY - segment.centerY;
+            angle = Math.atan2(dx, dy);
+          }
+          
+          return (
+            <g 
+              key={index}
+              transform={`translate(${segment.centerX}, ${segment.centerY}) rotate(${angle * 180 / Math.PI})`}
+              style={{ cursor: 'pointer' }}
+              onClick={() => onCellClick?.(`cell-${index}`)}
+            >
+              {/* 长方形色块 */}
+              <rect
+                x={-cellWidth / 2}
+                y={-cellHeight / 2}
+                width={cellWidth}
+                height={cellHeight}
+                fill={fillColor}
+                stroke={isCurrent ? '#4CAF50' : '#000000'}
+                strokeWidth={isCurrent ? 2.5 : 1.5}
+                rx="0.5"
+              />
+              
+              {/* 起点标记 */}
+              {isStart && (
+                <text
+                  x="0"
+                  y="0.5"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize="3.5"
+                  fontWeight="bold"
+                >
+                  🚩
+                </text>
+              )}
+              
+              {/* 终点标记 */}
+              {isEnd && (
+                <text
+                  x="0"
+                  y="0.5"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize="3.5"
+                  fontWeight="bold"
+                >
+                  🏁
+                </text>
+              )}
+              
+              {/* 当前位置高亮 */}
+              {isCurrent && (
+                <rect
+                  x={-cellWidth / 2 - 1}
+                  y={-cellHeight / 2 - 1}
+                  width={cellWidth + 2}
+                  height={cellHeight + 2}
+                  fill="none"
+                  stroke="#4CAF50"
+                  strokeWidth="1"
+                  rx="1"
+                >
+                  <animate
+                    attributeName="stroke-opacity"
+                    values="1;0.4;1"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+              )}
+            </g>
+          );
+        })}
         
-        {/* 格子节点 */}
-        {displayCells.map((cell, index) => (
-          <SRayLandCellComponent
-            key={cell.id}
-            cell={cell}
-            isCurrent={currentCellId === cell.id}
-            isAlternate={index % 2 === 0}
-            onClick={() => onCellClick?.(cell.id)}
-          />
-        ))}
-        
-        {/* 底部SRayLand标识 */}
-        <text x="50" y="95" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="6" fontWeight="bold" fontFamily="'Georgia', serif" stroke="#FFFFFF" strokeWidth="0.5">
+        {/* ================== 底部SRayLand标识 ================== */}
+        <text 
+          x="50" 
+          y="168" 
+          textAnchor="middle" 
+          dominantBaseline="middle" 
+          fill="#000000" 
+          fontSize="9" 
+          fontWeight="bold" 
+          fontFamily="'Georgia', serif"
+          stroke="#FFFFFF"
+          strokeWidth="1.2"
+        >
           SRayLand
         </text>
       </svg>
