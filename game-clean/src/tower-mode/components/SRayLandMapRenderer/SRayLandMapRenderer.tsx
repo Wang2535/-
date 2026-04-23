@@ -279,6 +279,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
         border: '4px solid #8B4513',
         boxShadow: 'inset 0 0 50px rgba(139, 69, 19, 0.3)',
         cursor: isDragging ? 'grabbing' : 'grab',
+        zIndex: 1,
       }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
