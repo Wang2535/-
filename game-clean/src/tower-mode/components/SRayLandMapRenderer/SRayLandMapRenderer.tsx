@@ -49,13 +49,11 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // ② 右外弧：沿上半小圆右侧外轮廓顺时针走平滑弧线
-  // 计算右外弧的步数，确保紧贴圆外边缘
   const rightArcSteps = 8;
   for (let i = 1; i <= rightArcSteps; i++) {
     const angle = (i * 90 / rightArcSteps) * Math.PI / 180;
-    // 向外偏移确保紧贴外边缘
-    const offsetX = upperCircleRadius * Math.sin(angle) + 1;
-    const offsetY = upperCircleRadius * Math.cos(angle) - 1;
+    const offsetX = upperCircleRadius * Math.sin(angle) + 0.8;
+    const offsetY = upperCircleRadius * Math.cos(angle) - 0.8;
     segments.push({
       centerX: upperCircleCenterX + offsetX,
       centerY: upperCircleCenterY - offsetY,
@@ -75,17 +73,14 @@ function generatePathSegments(): PathSegment[] {
   // ③ 左上直线：沿45°西北方向行进到上半小圆的最左侧顶点（B点）
   const pointB_X = upperCircleCenterX - upperCircleRadius;
   const pointB_Y = upperCircleCenterY;
-  const distanceAB = Math.sqrt(
-    Math.pow(pointB_X - pointA_X, 2) + 
-    Math.pow(pointB_Y - pointA_Y, 2)
-  );
-  const leftLineSteps = Math.ceil(distanceAB / cellWidth);
   
+  // 计算从A到B的45°路径点
+  const leftLineSteps = 5;
   for (let i = 1; i <= leftLineSteps; i++) {
-    const ratio = i / leftLineSteps;
+    const t = i / leftLineSteps;
     segments.push({
-      centerX: pointA_X + (pointB_X - pointA_X) * ratio,
-      centerY: pointA_Y + (pointB_Y - pointA_Y) * ratio,
+      centerX: pointA_X - t * upperCircleRadius,
+      centerY: pointA_Y - t * upperCircleRadius,
       angle: -Math.PI * 3 / 4
     });
   }
@@ -99,18 +94,14 @@ function generatePathSegments(): PathSegment[] {
   
   // ④ 右上直线：沿45°东北方向行进到起点正下方1个色块位置（C点）
   const pointC_X = upperCircleCenterX;
-  const pointC_Y = startY + cellHeight;
-  const distanceBC = Math.sqrt(
-    Math.pow(pointC_X - pointB_X, 2) + 
-    Math.pow(pointC_Y - pointB_Y, 2)
-  );
-  const rightLineSteps = Math.ceil(distanceBC / cellWidth);
+  const pointC_Y = startY + cellHeight + 1; // 保持1个色块间距，安全距离
   
+  const rightLineSteps = 5;
   for (let i = 1; i <= rightLineSteps; i++) {
-    const ratio = i / rightLineSteps;
+    const t = i / rightLineSteps;
     segments.push({
-      centerX: pointB_X + (pointC_X - pointB_X) * ratio,
-      centerY: pointB_Y + (pointC_Y - pointB_Y) * ratio,
+      centerX: pointB_X + t * upperCircleRadius,
+      centerY: pointB_Y - t * upperCircleRadius,
       angle: Math.PI / 4
     });
   }
@@ -123,13 +114,11 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // ⑤ 左外弧：沿上半小圆左侧外轮廓顺时针走平滑弧线
-  // 计算左外弧的步数，确保紧贴圆外边缘
   const leftArcSteps = rightArcSteps;
   for (let i = leftArcSteps; i >= 1; i--) {
     const angle = (180 - i * 90 / leftArcSteps) * Math.PI / 180;
-    // 向外偏移确保紧贴外边缘
-    const offsetX = upperCircleRadius * Math.sin(angle) - 1;
-    const offsetY = upperCircleRadius * Math.cos(angle) - 1;
+    const offsetX = upperCircleRadius * Math.sin(angle) - 0.8;
+    const offsetY = upperCircleRadius * Math.cos(angle) - 0.8;
     segments.push({
       centerX: upperCircleCenterX + offsetX,
       centerY: upperCircleCenterY - offsetY,
@@ -149,13 +138,22 @@ function generatePathSegments(): PathSegment[] {
   // ================== 【强制命令式：衔接与下半大圆路径】 ==================
   
   // ⑥ 衔接段：D点与下半大圆的顶端色块无缝衔接
+  const lowerCircleTopX = lowerCircleCenterX;
+  const lowerCircleTopY = lowerCircleCenterY - lowerCircleRadius;
+  
+  // 添加衔接色块
+  segments.push({
+    centerX: lowerCircleTopX,
+    centerY: lowerCircleTopY,
+    angle: 0
+  });
+  
   // 沿下半大圆左侧外轮廓顺时针走平滑弧线，绕经大圆最底端，沿右侧外弧向上行进
   const lowerArcSteps = 16;
   for (let i = 1; i <= lowerArcSteps; i++) {
     const angle = (180 + i * 180 / lowerArcSteps) * Math.PI / 180;
-    // 向外偏移确保紧贴外边缘
-    const offsetX = lowerCircleRadius * Math.sin(angle) + (angle > Math.PI ? 1 : -1);
-    const offsetY = lowerCircleRadius * Math.cos(angle) - 1;
+    const offsetX = lowerCircleRadius * Math.sin(angle) + (angle > Math.PI ? 0.8 : -0.8);
+    const offsetY = lowerCircleRadius * Math.cos(angle) - 0.8;
     segments.push({
       centerX: lowerCircleCenterX + offsetX,
       centerY: lowerCircleCenterY - offsetY,
@@ -165,7 +163,7 @@ function generatePathSegments(): PathSegment[] {
   
   // 到达下半大圆右侧外弧、从上往下数1/5高度的位置（E点）
   const pointE_Y = lowerCircleCenterY - lowerCircleRadius * 0.8;
-  const pointE_X = lowerCircleCenterX + lowerCircleRadius;
+  const pointE_X = lowerCircleCenterX + lowerCircleRadius + 0.5;
   segments.push({
     centerX: pointE_X,
     centerY: pointE_Y,
@@ -178,19 +176,20 @@ function generatePathSegments(): PathSegment[] {
   const squareHalfSize = 12;
   const squareRightX = squareCenterX + squareHalfSize;
   
-  // 计算从E点到正方形右边框的距离
-  const distanceEX = pointE_X - squareRightX;
-  const entrySteps = Math.ceil(distanceEX / cellWidth);
-  
+  const entrySteps = 4;
   for (let i = 1; i <= entrySteps; i++) {
     segments.push({
-      centerX: pointE_X - i * cellWidth,
+      centerX: pointE_X - i * (pointE_X - squareRightX) / entrySteps,
       centerY: pointE_Y,
       angle: 0
     });
   }
   
   // 进入正方形路径的右边框上半部分
+  const squareTopY = squareCenterY - squareHalfSize;
+  const squareLeftX = squareCenterX - squareHalfSize;
+  const squareBottomY = squareCenterY + squareHalfSize;
+  
   segments.push({
     centerX: squareRightX,
     centerY: squareCenterY - squareHalfSize / 2,
@@ -198,9 +197,6 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // ⑧ 正方形绕行：按“上边框向左→左边框向下→下边框向右→右边框向上”的顺序
-  const squareTopY = squareCenterY - squareHalfSize;
-  const squareLeftX = squareCenterX - squareHalfSize;
-  const squareBottomY = squareCenterY + squareHalfSize;
   
   // 从右边框上半部分到上边框右上角
   segments.push({
@@ -210,12 +206,10 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿上边框向左到左上角
-  const topBorderLength = squareHalfSize * 2;
-  const topBorderSteps = Math.ceil(topBorderLength / cellWidth);
-  
+  const topBorderSteps = 5;
   for (let i = 1; i <= topBorderSteps; i++) {
     segments.push({
-      centerX: squareRightX - i * cellWidth,
+      centerX: squareRightX - i * (squareHalfSize * 2) / topBorderSteps,
       centerY: squareTopY,
       angle: 0
     });
@@ -229,13 +223,11 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿左边框向下到左下角
-  const leftBorderLength = squareHalfSize * 2;
-  const leftBorderSteps = Math.ceil(leftBorderLength / cellHeight);
-  
+  const leftBorderSteps = 5;
   for (let i = 1; i <= leftBorderSteps; i++) {
     segments.push({
       centerX: squareLeftX,
-      centerY: squareTopY + i * cellHeight,
+      centerY: squareTopY + i * (squareHalfSize * 2) / leftBorderSteps,
       angle: Math.PI
     });
   }
@@ -248,12 +240,10 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿下边框向右到右下角
-  const bottomBorderLength = squareHalfSize * 2;
-  const bottomBorderSteps = Math.ceil(bottomBorderLength / cellWidth);
-  
+  const bottomBorderSteps = 5;
   for (let i = 1; i <= bottomBorderSteps; i++) {
     segments.push({
-      centerX: squareLeftX + i * cellWidth,
+      centerX: squareLeftX + i * (squareHalfSize * 2) / bottomBorderSteps,
       centerY: squareBottomY,
       angle: Math.PI / 2
     });
@@ -267,13 +257,11 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿右边框向上到右上角（终点）
-  const rightBorderLength = squareHalfSize * 2;
-  const rightBorderSteps = Math.ceil(rightBorderLength / cellHeight);
-  
+  const rightBorderSteps = 5;
   for (let i = 1; i <= rightBorderSteps; i++) {
     segments.push({
       centerX: squareRightX,
-      centerY: squareBottomY - i * cellHeight,
+      centerY: squareBottomY - i * (squareHalfSize * 2) / rightBorderSteps,
       angle: -Math.PI
     });
   }
@@ -366,7 +354,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
           transition: isDragging ? 'none' : 'transform 0.2s ease-out'
         }}
       >
-        {/* ================== 复古美式拼贴风格背景 ================== */}
+        {/* ================== 复古拼贴风格背景 ================== */}
         <g style={{ opacity: 0.7 }}>
           {/* 米黄色底 */}
           <rect width="100" height="178" fill="#F5DEB3" />
@@ -389,7 +377,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             ))}
           </g>
           
-          {/* 山脉 */}
+          {/* 山川 */}
           <path d="M 5 60 L 15 45 L 25 55 L 35 40 L 45 50 L 55 38 L 65 48 L 75 42 L 85 52 L 95 48" fill="#8B4513" opacity="0.4" />
           
           {/* 火山 */}
@@ -423,8 +411,8 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
           
           {/* 手绘地形装饰 */}
           <g>
-            <path d="M 8 90 Q 15 85 22 90 Q 29 95 36 90" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
-            <path d="M 64 85 Q 71 80 78 85 Q 85 90 92 85" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
+            <path d="M 8 90 Q 15 85 Q 22 90 Q 29 95 Q 36 90" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
+            <path d="M 64 85 Q 71 80 Q 78 85 Q 85 90 Q 92 85" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
             <circle cx="78" cy="98" r="2" fill="#6B8E23" opacity="0.5" />
             <circle cx="25" cy="100" r="1.5" fill="#6B8E23" opacity="0.4" />
           </g>
