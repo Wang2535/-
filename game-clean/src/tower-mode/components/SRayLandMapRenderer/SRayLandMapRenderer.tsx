@@ -25,22 +25,22 @@ interface PathSegment {
 function generatePathSegments(): PathSegment[] {
   const segments: PathSegment[] = [];
   
-  // 坐标系设定：画布宽度100，高度178（9:16比例）
-  const upperCircleCenterX = 50; // 上半圆圆心在水平中心
-  const upperCircleCenterY = 44.5; // 上半圆圆心在25%处
-  const upperCircleRadius = 14; // 上半圆直径28
-  const lowerCircleCenterX = 50; // 下半圆圆心在水平中心
-  const lowerCircleCenterY = 115.7; // 下半圆圆心在65%处
-  const lowerCircleRadius = 25.2; // 下半圆直径50.4（上圆直径28:下圆直径50.4 = 1:1.8）
+  // 坐标系设定
+  const upperCircleCenterX = 50;
+  const upperCircleCenterY = 44;
+  const upperCircleRadius = 12;
+  const lowerCircleCenterX = 50;
+  const lowerCircleCenterY = 110;
+  const lowerCircleRadius = 22;
   
-  // 色块尺寸（完全等宽、等面积）
-  const cellWidth = 6;
-  const cellHeight = 4;
-  const cellSpacing = Math.sqrt(cellWidth * cellHeight / 2); // 约等于4.9
+  // 格子尺寸
+  const cellWidth = 5;
+  const cellHeight = 3;
+  const step = cellHeight; // 每个格子的步长
   
-  // ================== 【零理解门槛·机械执行第一步：画上面的小圆】 ==================
+  // ================== 【第一步：上半部分小圆】 ==================
   
-  // 1. 起点：在小圆的最顶端，放一个方块
+  // 1. 起点：在小圆最顶端
   const startX = upperCircleCenterX;
   const startY = upperCircleCenterY - upperCircleRadius;
   segments.push({
@@ -49,10 +49,10 @@ function generatePathSegments(): PathSegment[] {
     angle: 0
   });
   
-  // 2. 画右边的弧线：沿着小圆的右边，画一个向下的半圆弧线到A点（小圆最底部偏右一点）
-  const rightArcSteps = 10;
-  for (let i = 1; i <= rightArcSteps; i++) {
-    const angle = (i * 90 / rightArcSteps) * Math.PI / 180;
+  // 2. 右边圆弧：沿小圆右边向下画弧线
+  const rightArcCount = 12;
+  for (let i = 1; i <= rightArcCount; i++) {
+    const angle = (i * (Math.PI / 2)) / rightArcCount;
     const offsetX = upperCircleRadius * Math.sin(angle);
     const offsetY = upperCircleRadius * Math.cos(angle);
     segments.push({
@@ -62,8 +62,8 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // A点：小圆的最底部偏右一点的位置
-  const pointA_X = upperCircleCenterX + cellWidth / 2;
+  // A点：小圆最底部偏右
+  const pointA_X = upperCircleCenterX + step * 0.5;
   const pointA_Y = upperCircleCenterY + upperCircleRadius;
   segments.push({
     centerX: pointA_X,
@@ -71,50 +71,49 @@ function generatePathSegments(): PathSegment[] {
     angle: Math.PI
   });
   
-  // 3. 画第一条直线：从A点向左上方画直线到B点（小圆里面、离左边线1个方块距离）
-  const pointB_X = upperCircleCenterX - upperCircleRadius + cellSpacing;
-  const pointB_Y = upperCircleCenterY - cellSpacing;
-  
-  const leftLineSteps = 6;
-  for (let i = 1; i <= leftLineSteps; i++) {
-    const t = i / leftLineSteps;
+  // 3. 第一条直线：向左上方45度
+  const diagonalSteps = 8;
+  for (let i = 1; i <= diagonalSteps; i++) {
+    const ratio = i / diagonalSteps;
     segments.push({
-      centerX: pointA_X + (pointB_X - pointA_X) * t,
-      centerY: pointA_Y + (pointB_Y - pointA_Y) * t,
+      centerX: pointA_X - (upperCircleRadius + step) * ratio,
+      centerY: pointA_Y - (upperCircleRadius + step) * ratio,
       angle: -Math.PI * 3 / 4
     });
   }
   
+  // B点：小圆左边内侧
+  const pointB_X = upperCircleCenterX - upperCircleRadius + step;
+  const pointB_Y = upperCircleCenterY - step;
   segments.push({
     centerX: pointB_X,
     centerY: pointB_Y,
     angle: Math.PI / 2
   });
   
-  // 4. 画第二条直线：从B点向右上方画直线到C点（起点方块正下方1个方块位置）
-  const pointC_X = upperCircleCenterX;
-  const pointC_Y = startY + cellHeight + 0.5;
-  
-  const rightLineSteps = 6;
-  for (let i = 1; i <= rightLineSteps; i++) {
-    const t = i / rightLineSteps;
+  // 4. 第二条直线：向右上方45度
+  for (let i = 1; i <= diagonalSteps; i++) {
+    const ratio = i / diagonalSteps;
     segments.push({
-      centerX: pointB_X + (pointC_X - pointB_X) * t,
-      centerY: pointB_Y + (pointC_Y - pointB_Y) * t,
+      centerX: pointB_X + (upperCircleRadius + step) * ratio,
+      centerY: pointB_Y - (upperCircleRadius + step) * ratio,
       angle: Math.PI / 4
     });
   }
   
+  // C点：起点正下方1个位置
+  const pointC_X = upperCircleCenterX;
+  const pointC_Y = startY + cellHeight + step;
   segments.push({
     centerX: pointC_X,
     centerY: pointC_Y,
     angle: 0
   });
   
-  // 5. 画左边的弧线：从C点沿着小圆左边，画一个向下的半圆弧线到D点（小圆最底部偏左一点）
-  const leftArcSteps = rightArcSteps;
-  for (let i = leftArcSteps; i >= 1; i--) {
-    const angle = (180 - i * 90 / leftArcSteps) * Math.PI / 180;
+  // 5. 左边圆弧：沿小圆左边向下画弧线
+  const leftArcCount = 12;
+  for (let i = leftArcCount; i >= 1; i--) {
+    const angle = Math.PI - (i * (Math.PI / 2)) / leftArcCount;
     const offsetX = upperCircleRadius * Math.sin(angle);
     const offsetY = upperCircleRadius * Math.cos(angle);
     segments.push({
@@ -124,8 +123,8 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // D点：小圆的最底部偏左一点的位置
-  const pointD_X = upperCircleCenterX - cellWidth / 2;
+  // D点：小圆最底部偏左
+  const pointD_X = upperCircleCenterX - step * 0.5;
   const pointD_Y = upperCircleCenterY + upperCircleRadius;
   segments.push({
     centerX: pointD_X,
@@ -133,22 +132,32 @@ function generatePathSegments(): PathSegment[] {
     angle: Math.PI
   });
   
-  // ================== 【零理解门槛·机械执行第二步：画下面的大圆】 ==================
+  // ================== 【第二步：下半部分大圆】 ==================
   
-  // 1. 连接：D点直接连到下面大圆的顶端
+  // 1. 连接：从D点到大圆顶端
   const lowerCircleTopX = lowerCircleCenterX;
   const lowerCircleTopY = lowerCircleCenterY - lowerCircleRadius;
+  const connectSteps = 4;
+  for (let i = 1; i <= connectSteps; i++) {
+    const ratio = i / connectSteps;
+    segments.push({
+      centerX: pointD_X + (lowerCircleTopX - pointD_X) * ratio,
+      centerY: pointD_Y + (lowerCircleTopY - pointD_Y) * ratio,
+      angle: Math.PI
+    });
+  }
   
+  // 确保到达大圆顶端
   segments.push({
     centerX: lowerCircleTopX,
     centerY: lowerCircleTopY,
     angle: 0
   });
   
-  // 2. 画大圆的弧线：沿着左边向下，底部向右，右边向上，到E点（大圆右边、从上往下数1/5位置）
-  const lowerArcSteps = 20;
-  for (let i = 1; i <= lowerArcSteps; i++) {
-    const angle = (180 + i * 180 / lowerArcSteps) * Math.PI / 180;
+  // 2. 大圆完整圆弧：从左边向下，底部向右，右边向上
+  const lowerArcCount = 30;
+  for (let i = 1; i <= lowerArcCount; i++) {
+    const angle = Math.PI + (i * Math.PI) / lowerArcCount;
     const offsetX = lowerCircleRadius * Math.sin(angle);
     const offsetY = lowerCircleRadius * Math.cos(angle);
     segments.push({
@@ -158,7 +167,7 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // E点：大圆右边、从上往下数1/5的位置
+  // E点：大圆右边从上往下数1/5位置
   const pointE_Y = lowerCircleCenterY - lowerCircleRadius * 0.8;
   const pointE_X = lowerCircleCenterX + lowerCircleRadius;
   segments.push({
@@ -167,107 +176,118 @@ function generatePathSegments(): PathSegment[] {
     angle: 0
   });
   
-  // ================== 【零理解门槛·机械执行第三步：画中间的正方形】 ==================
+  // ================== 【第三步：中间正方形】 ==================
   
   const squareCenterX = 50;
-  const squareCenterY = 124;
-  const squareHalfSize = 12;
-  const squareRightX = squareCenterX + squareHalfSize;
+  const squareCenterY = 118;
+  const squareHalfSize = 10;
   const squareTopY = squareCenterY - squareHalfSize;
-  const squareLeftX = squareCenterX - squareHalfSize;
   const squareBottomY = squareCenterY + squareHalfSize;
+  const squareLeftX = squareCenterX - squareHalfSize;
+  const squareRightX = squareCenterX + squareHalfSize;
   
-  // 1. 进入正方形：从E点水平向左走，直接走到正方形右边框上
-  const entrySteps = 5;
+  // 1. 水平向左进入正方形右边框
+  const entrySteps = 6;
   for (let i = 1; i <= entrySteps; i++) {
     segments.push({
-      centerX: pointE_X - i * (pointE_X - squareRightX) / entrySteps,
+      centerX: pointE_X - (pointE_X - squareRightX) * (i / entrySteps),
       centerY: pointE_Y,
       angle: 0
     });
   }
   
-  // 进入正方形右边框
+  // 到达正方形右边框
   segments.push({
     centerX: squareRightX,
     centerY: squareCenterY - squareHalfSize / 2,
     angle: 0
   });
   
-  // 2. 绕正方形一圈：
-  // 先沿着正方形的上边框向左走，到左上角
+  // 2. 顺时针绕正方形一圈
+  // 向上到右上角
+  const upSteps = 6;
+  for (let i = 1; i <= upSteps; i++) {
+    segments.push({
+      centerX: squareRightX,
+      centerY: (squareCenterY - squareHalfSize / 2) - (i * squareHalfSize / 2 / upSteps),
+      angle: -Math.PI
+    });
+  }
+  
+  // 到达右上角
   segments.push({
     centerX: squareRightX,
     centerY: squareTopY,
     angle: 0
   });
   
-  const topBorderSteps = 7;
-  for (let i = 1; i <= topBorderSteps; i++) {
+  // 向左到左上角
+  const leftSteps = 8;
+  for (let i = 1; i <= leftSteps; i++) {
     segments.push({
-      centerX: squareRightX - i * (squareHalfSize * 2) / topBorderSteps,
+      centerX: squareRightX - (i * (squareHalfSize * 2) / leftSteps),
       centerY: squareTopY,
       angle: 0
     });
   }
   
-  // 到左上角
+  // 到达左上角
   segments.push({
     centerX: squareLeftX,
     centerY: squareTopY,
     angle: Math.PI
   });
   
-  // 再沿着左边框向下走，到左下角
-  const leftBorderSteps = 7;
-  for (let i = 1; i <= leftBorderSteps; i++) {
+  // 向下到左下角
+  const downSteps = 8;
+  for (let i = 1; i <= downSteps; i++) {
     segments.push({
       centerX: squareLeftX,
-      centerY: squareTopY + i * (squareHalfSize * 2) / leftBorderSteps,
+      centerY: squareTopY + (i * (squareHalfSize * 2) / downSteps),
       angle: Math.PI
     });
   }
   
-  // 到左下角
+  // 到达左下角
   segments.push({
     centerX: squareLeftX,
     centerY: squareBottomY,
     angle: Math.PI / 2
   });
   
-  // 再沿着下边框向右走，到右下角
-  const bottomBorderSteps = 7;
-  for (let i = 1; i <= bottomBorderSteps; i++) {
+  // 向右到右下角
+  const rightSteps = 8;
+  for (let i = 1; i <= rightSteps; i++) {
     segments.push({
-      centerX: squareLeftX + i * (squareHalfSize * 2) / bottomBorderSteps,
+      centerX: squareLeftX + (i * (squareHalfSize * 2) / rightSteps),
       centerY: squareBottomY,
       angle: Math.PI / 2
     });
   }
   
-  // 到右下角
+  // 到达右下角
   segments.push({
     centerX: squareRightX,
     centerY: squareBottomY,
     angle: -Math.PI
   });
   
-  // 最后沿着右边框向上走，到右上角（终点）
-  const rightBorderSteps = 7;
-  for (let i = 1; i <= rightBorderSteps; i++) {
+  // 向上到右上角（终点）
+  const finalUpSteps = 8;
+  for (let i = 1; i <= finalUpSteps; i++) {
     segments.push({
       centerX: squareRightX,
-      centerY: squareBottomY - i * (squareHalfSize * 2) / rightBorderSteps,
+      centerY: squareBottomY - (i * (squareHalfSize * 2) / finalUpSteps),
       angle: -Math.PI
     });
   }
   
-  // 3. 终点：正方形的右上角
-  const endPointX = squareRightX;
-  const endPointY = squareTopY;
+  // 终点：正方形右上角
+  const endX = squareRightX;
+  const endY = squareTopY;
   segments.push({
-    centerX: endPointX,
-    centerY: endPointY,
+    centerX: endX,
+    centerY: endY,
     angle: Math.PI / 4
   });
   
@@ -282,24 +302,20 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
   
   const pathSegments = useMemo(() => generatePathSegments(), []);
   
-  // 颜色：橙色、白色、黄色循环
-  const colors = ['#FFA500', '#FFFFFF', '#FFD700'];
+  const colors = ['#FFA500', '#FFFFFF', '#FFD700']; // 橙、白、黄循环
   
-  // 滚动事件处理
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     e.preventDefault();
     const newScrollY = scrollY - e.deltaY * 0.1;
     setScrollY(Math.max(-20, Math.min(20, newScrollY)));
   };
 
-  // 拖拽开始
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
     setDragStartY(e.clientY);
     setDragStartScrollY(scrollY);
   };
 
-  // 拖拽移动
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isDragging) {
       const deltaY = e.clientY - dragStartY;
@@ -308,16 +324,15 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
     }
   };
 
-  // 拖拽结束
   const handleMouseUp = () => {
     setIsDragging(false);
   };
 
-  const cellWidth = 6;
-  const cellHeight = 4;
+  const cellWidth = 5;
+  const cellHeight = 3;
   const squareCenterX = 50;
-  const squareCenterY = 124;
-  const squareHalfSize = 12;
+  const squareCenterY = 118;
+  const squareHalfSize = 10;
 
   return (
     <div 
@@ -340,7 +355,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       onMouseLeave={handleMouseUp}
     >
       <svg 
-        viewBox="5 5 90 170" 
+        viewBox="5 5 90 155" 
         preserveAspectRatio="xMidYMid meet"
         style={{ 
           position: 'absolute', 
@@ -353,21 +368,12 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
       >
         {/* ================== 复古拼贴风格背景 ================== */}
         <g style={{ opacity: 0.7 }}>
-          {/* 米黄色底 */}
-          <rect width="100" height="178" fill="#F5DEB3" />
-          
-          {/* 纸张纹理 */}
-          <pattern id="paperPattern" width="15" height="15" patternUnits="userSpaceOnUse">
-            <rect width="15" height="15" fill="#F5DEB3" />
-            <circle cx="7.5" cy="7.5" r="0.5" fill="#D2B48C" opacity="0.3" />
-            <path d="M 0 7.5 L 15 7.5" stroke="#DEB887" strokeWidth="0.3" strokeOpacity="0.2" />
-          </pattern>
-          <rect width="100" height="178" fill="url(#paperPattern)" />
+          <rect width="100" height="165" fill="#F5DEB3" />
           
           {/* 针叶林 */}
           <g>
             {[10, 25, 85, 95].map((x, i) => (
-              <g key={i} transform={`translate(${x}, ${140 + i * 2})`}>
+              <g key={i} transform={`translate(${x}, ${135 + i * 2})`}>
                 <path d="M -3 0 L 0 -8 L 3 0 Z" fill="#228B22" />
                 <path d="M -2.5 -5 L 0 -12 L 2.5 -5 Z" fill="#2E8B57" />
               </g>
@@ -375,49 +381,20 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
           </g>
           
           {/* 山川 */}
-          <path d="M 5 60 L 15 45 L 25 55 L 35 40 L 45 50 L 55 38 L 65 48 L 75 42 L 85 52 L 95 48" fill="#8B4513" opacity="0.4" />
+          <path d="M 5 55 L 15 40 L 25 50 L 35 35 L 45 45 L 55 33 L 65 43 L 75 37 L 85 47 L 95 43" fill="#8B4513" opacity="0.4" />
           
           {/* 火山 */}
-          <g transform="translate(88, 50)">
+          <g transform="translate(88, 45)">
             <path d="M -4 0 L 0 -10 L 4 0 Z" fill="#CD5C5C" opacity="0.6" />
             <path d="M 0 -10 L 0 -15 L -1 -12 L 0 -17 L 1 -12" stroke="#FF4500" strokeWidth="0.8" fill="none" />
           </g>
           
           {/* 雪山 */}
-          <path d="M 10 35 L 20 20 L 30 35 L 40 22 L 50 35" fill="#FFFFFF" opacity="0.6" />
-          <path d="M 15 30 L 20 18 L 25 30 L 35 20 L 40 30" fill="#E8E8E8" opacity="0.7" />
-          
-          {/* 星球天体 */}
-          <g>
-            <circle cx="12" cy="18" r="3" fill="#FFD700" />
-            <circle cx="12" cy="18" r="3.5" fill="none" stroke="#FFA500" strokeWidth="0.3" />
-            <circle cx="82" cy="15" r="2" fill="#1E90FF" />
-            <circle cx="82" cy="15" r="2.5" fill="none" stroke="#00BFFF" strokeWidth="0.3" />
-            <circle cx="22" cy="155" r="1.5" fill="#CD853F" />
-          </g>
-          
-          {/* 复古罗盘 */}
-          <g transform="translate(18, 55)">
-            <circle r="5" fill="#8B4513" opacity="0.7" />
-            <circle r="4.5" fill="#DEB887" />
-            <line x1="0" y1="-4" x2="0" y2="4" stroke="#8B4513" strokeWidth="0.6" />
-            <line x1="-4" y1="0" x2="4" y2="0" stroke="#8B4513" strokeWidth="0.6" />
-            <polygon points="0,-4 0.5,-2 -0.5,-2" fill="#CD5C5C" />
-            <polygon points="0,4 0.5,2 -0.5,2" fill="#2F4F4F" />
-          </g>
-          
-          {/* 手绘地形装饰 */}
-          <g>
-            <path d="M 8 90 Q 15 85 Q 22 90 Q 29 95 Q 36 90" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
-            <path d="M 64 85 Q 71 80 Q 78 85 Q 85 90 Q 92 85" stroke="#8B4513" strokeWidth="0.6" fill="none" opacity="0.4" />
-            <circle cx="78" cy="98" r="2" fill="#6B8E23" opacity="0.5" />
-            <circle cx="25" cy="100" r="1.5" fill="#6B8E23" opacity="0.4" />
-          </g>
+          <path d="M 10 30 L 20 15 L 30 30 L 40 17 L 50 30" fill="#FFFFFF" opacity="0.6" />
         </g>
         
-        {/* ================== 内部正方形的白色十字线和字母标注 ================== */}
+        {/* ================== 内部正方形的白色十字线和字母 ================== */}
         <g>
-          {/* 白色十字线 */}
           <line 
             x1={squareCenterX - squareHalfSize} 
             y1={squareCenterY} 
@@ -437,7 +414,6 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             strokeOpacity="0.95"
           />
           
-          {/* 四个象限字母标注：左上W，右上N，左下I，右下P */}
           <text 
             x={squareCenterX - squareHalfSize / 2} 
             y={squareCenterY - squareHalfSize / 2} 
@@ -487,14 +463,13 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             P
           </text>
           
-          {/* end标识：终点方块右边的白色小方块 */}
-          <g transform={`translate(${squareCenterX + squareHalfSize + 6}, ${squareCenterY - squareHalfSize})`}>
-            <rect x="-4" y="-3" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="1" />
-            <text x="1" y="0.5" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="4" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
+          <g transform={`translate(${squareCenterX + squareHalfSize + 5}, ${squareCenterY - squareHalfSize})`}>
+            <rect x="-3.5" y="-2.5" width="8" height="5" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="1" />
+            <text x="0.5" y="0.3" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="3.5" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
           </g>
         </g>
         
-        {/* ================== 路径色块：橙色、白色、黄色循环，1px黑色边框 ================== */}
+        {/* ================== 路径格子 ================== */}
         {pathSegments.map((segment, index) => {
           const colorIndex = index % colors.length;
           const fillColor = colors[colorIndex];
@@ -529,7 +504,6 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
               style={{ cursor: 'pointer' }}
               onClick={() => onCellClick?.(`cell-${index}`)}
             >
-              {/* 方块：1px纯黑色边框 */}
               <rect
                 x={-cellWidth / 2}
                 y={-cellHeight / 2}
@@ -537,49 +511,46 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
                 height={cellHeight}
                 fill={fillColor}
                 stroke={isCurrent ? '#4CAF50' : '#000000'}
-                strokeWidth={isCurrent ? 2.5 : 1}
-                rx="0.5"
+                strokeWidth={isCurrent ? 2 : 1}
+                rx="0.3"
               />
               
-              {/* 起点标记 */}
               {isStart && (
                 <text
                   x="0"
-                  y="0.5"
+                  y="0.4"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fontSize="3.5"
+                  fontSize="3"
                   fontWeight="bold"
                 >
                   🚩
                 </text>
               )}
               
-              {/* 终点标记 */}
               {isEnd && (
                 <text
                   x="0"
-                  y="0.5"
+                  y="0.4"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fontSize="3.5"
+                  fontSize="3"
                   fontWeight="bold"
                 >
                   🏁
                 </text>
               )}
               
-              {/* 当前位置高亮 */}
               {isCurrent && (
                 <rect
-                  x={-cellWidth / 2 - 1}
-                  y={-cellHeight / 2 - 1}
-                  width={cellWidth + 2}
-                  height={cellHeight + 2}
+                  x={-cellWidth / 2 - 0.5}
+                  y={-cellHeight / 2 - 0.5}
+                  width={cellWidth + 1}
+                  height={cellHeight + 1}
                   fill="none"
                   stroke="#4CAF50"
                   strokeWidth="1"
-                  rx="1"
+                  rx="0.5"
                 >
                   <animate
                     attributeName="stroke-opacity"
@@ -596,15 +567,15 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
         {/* ================== 底部SRayLand标识 ================== */}
         <text 
           x="50" 
-          y="168" 
+          y="155" 
           textAnchor="middle" 
           dominantBaseline="middle" 
           fill="#000000" 
-          fontSize="9" 
+          fontSize="8" 
           fontWeight="bold" 
           fontFamily="'Georgia', serif"
           stroke="#FFFFFF"
-          strokeWidth="1.2"
+          strokeWidth="1"
         >
           SRayLand
         </text>
