@@ -28,18 +28,19 @@ function generatePathSegments(): PathSegment[] {
   // 坐标系设定：画布宽度100，高度178（9:16比例）
   const upperCircleCenterX = 50; // 上半圆圆心在水平中心
   const upperCircleCenterY = 44.5; // 上半圆圆心在25%处
-  const upperCircleRadius = 16.5; // 上半圆直径33
+  const upperCircleRadius = 14; // 上半圆直径28
   const lowerCircleCenterX = 50; // 下半圆圆心在水平中心
   const lowerCircleCenterY = 115.7; // 下半圆圆心在65%处
-  const lowerCircleRadius = 30; // 下半圆直径60（上圆直径是下圆的55%：33/60=0.55）
+  const lowerCircleRadius = 25.2; // 下半圆直径50.4（上圆直径28:下圆直径50.4 = 1:1.8）
   
   // 色块尺寸（完全等宽、等面积）
   const cellWidth = 6;
   const cellHeight = 4;
+  const cellSpacing = Math.sqrt(cellWidth * cellHeight / 2); // 约等于4.9
   
-  // ================== 【强制命令式：上半小圆路径】 ==================
+  // ================== 【绝对强制：上半小圆路径】 ==================
   
-  // ① 起点：仅在上半小圆的正顶端放置1个路径色块
+  // ①起点：仅在上半小圆正顶端放置1个路径色块
   const startX = upperCircleCenterX;
   const startY = upperCircleCenterY - upperCircleRadius;
   segments.push({
@@ -48,12 +49,12 @@ function generatePathSegments(): PathSegment[] {
     angle: 0
   });
   
-  // ② 右外弧：沿上半小圆右侧外轮廓顺时针走平滑弧线
-  const rightArcSteps = 8;
+  // ②右外弧段：沿上半小圆右侧外轮廓顺时针走平滑弧线到A点
+  const rightArcSteps = 9;
   for (let i = 1; i <= rightArcSteps; i++) {
     const angle = (i * 90 / rightArcSteps) * Math.PI / 180;
-    const offsetX = upperCircleRadius * Math.sin(angle) + 0.8;
-    const offsetY = upperCircleRadius * Math.cos(angle) - 0.8;
+    const offsetX = upperCircleRadius * Math.sin(angle);
+    const offsetY = upperCircleRadius * Math.cos(angle);
     segments.push({
       centerX: upperCircleCenterX + offsetX,
       centerY: upperCircleCenterY - offsetY,
@@ -61,7 +62,7 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // 到达上半小圆正底端、偏右1个色块的位置（A点）
+  // A点：上半小圆正底端、偏右1个色块位置
   const pointA_X = upperCircleCenterX + cellWidth / 2;
   const pointA_Y = upperCircleCenterY + upperCircleRadius;
   segments.push({
@@ -70,55 +71,54 @@ function generatePathSegments(): PathSegment[] {
     angle: Math.PI
   });
   
-  // ③ 左上直线：沿45°西北方向行进到上半小圆的最左侧顶点（B点）
-  const pointB_X = upperCircleCenterX - upperCircleRadius;
-  const pointB_Y = upperCircleCenterY;
+  // ③左上直线段：从A点沿45°西北方向到B点
+  // B点：上半小圆内部、距离圆最左侧顶点1个色块距离
+  const pointB_X = upperCircleCenterX - upperCircleRadius + cellSpacing;
+  const pointB_Y = upperCircleCenterY - cellSpacing;
   
-  // 计算从A到B的45°路径点
-  const leftLineSteps = 5;
+  const leftLineSteps = 6;
   for (let i = 1; i <= leftLineSteps; i++) {
     const t = i / leftLineSteps;
     segments.push({
-      centerX: pointA_X - t * upperCircleRadius,
-      centerY: pointA_Y - t * upperCircleRadius,
+      centerX: pointA_X + (pointB_X - pointA_X) * t,
+      centerY: pointA_Y + (pointB_Y - pointA_Y) * t,
       angle: -Math.PI * 3 / 4
     });
   }
   
-  // 到达上半小圆的最左侧顶点（B点）
   segments.push({
     centerX: pointB_X,
     centerY: pointB_Y,
     angle: Math.PI / 2
   });
   
-  // ④ 右上直线：沿45°东北方向行进到起点正下方1个色块位置（C点）
+  // ④右上直线段：从B点沿45°东北方向到C点
+  // C点：上半小圆正顶端、起点色块正下方1个色块位置
   const pointC_X = upperCircleCenterX;
-  const pointC_Y = startY + cellHeight + 1; // 保持1个色块间距，安全距离
+  const pointC_Y = startY + cellHeight + 0.5;
   
-  const rightLineSteps = 5;
+  const rightLineSteps = 6;
   for (let i = 1; i <= rightLineSteps; i++) {
     const t = i / rightLineSteps;
     segments.push({
-      centerX: pointB_X + t * upperCircleRadius,
-      centerY: pointB_Y - t * upperCircleRadius,
+      centerX: pointB_X + (pointC_X - pointB_X) * t,
+      centerY: pointB_Y + (pointC_Y - pointB_Y) * t,
       angle: Math.PI / 4
     });
   }
   
-  // 到达上半小圆正顶端、起点色块的正下方1个色块位置（C点）
   segments.push({
     centerX: pointC_X,
     centerY: pointC_Y,
     angle: 0
   });
   
-  // ⑤ 左外弧：沿上半小圆左侧外轮廓顺时针走平滑弧线
+  // ⑤左外弧段：从C点沿上半小圆左侧外轮廓顺时针到D点
   const leftArcSteps = rightArcSteps;
   for (let i = leftArcSteps; i >= 1; i--) {
     const angle = (180 - i * 90 / leftArcSteps) * Math.PI / 180;
-    const offsetX = upperCircleRadius * Math.sin(angle) - 0.8;
-    const offsetY = upperCircleRadius * Math.cos(angle) - 0.8;
+    const offsetX = upperCircleRadius * Math.sin(angle);
+    const offsetY = upperCircleRadius * Math.cos(angle);
     segments.push({
       centerX: upperCircleCenterX + offsetX,
       centerY: upperCircleCenterY - offsetY,
@@ -126,7 +126,7 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // 到达上半小圆正底端、偏左1个色块的位置（D点）
+  // D点：上半小圆正底端、偏左1个色块位置
   const pointD_X = upperCircleCenterX - cellWidth / 2;
   const pointD_Y = upperCircleCenterY + upperCircleRadius;
   segments.push({
@@ -135,9 +135,9 @@ function generatePathSegments(): PathSegment[] {
     angle: Math.PI
   });
   
-  // ================== 【强制命令式：衔接与下半大圆路径】 ==================
+  // ================== 【绝对强制：衔接与下半大圆路径】 ==================
   
-  // ⑥ 衔接段：D点与下半大圆的顶端色块无缝衔接
+  // ⑥衔接段：D点与下半大圆顶端无缝衔接，沿左侧外弧顺时针到E点
   const lowerCircleTopX = lowerCircleCenterX;
   const lowerCircleTopY = lowerCircleCenterY - lowerCircleRadius;
   
@@ -148,12 +148,12 @@ function generatePathSegments(): PathSegment[] {
     angle: 0
   });
   
-  // 沿下半大圆左侧外轮廓顺时针走平滑弧线，绕经大圆最底端，沿右侧外弧向上行进
-  const lowerArcSteps = 16;
+  // 沿下半大圆左侧外轮廓顺时针走平滑弧线
+  const lowerArcSteps = 18;
   for (let i = 1; i <= lowerArcSteps; i++) {
     const angle = (180 + i * 180 / lowerArcSteps) * Math.PI / 180;
-    const offsetX = lowerCircleRadius * Math.sin(angle) + (angle > Math.PI ? 0.8 : -0.8);
-    const offsetY = lowerCircleRadius * Math.cos(angle) - 0.8;
+    const offsetX = lowerCircleRadius * Math.sin(angle);
+    const offsetY = lowerCircleRadius * Math.cos(angle);
     segments.push({
       centerX: lowerCircleCenterX + offsetX,
       centerY: lowerCircleCenterY - offsetY,
@@ -161,22 +161,22 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // 到达下半大圆右侧外弧、从上往下数1/5高度的位置（E点）
+  // E点：下半大圆右侧外弧、从上往下数1/5高度位置
   const pointE_Y = lowerCircleCenterY - lowerCircleRadius * 0.8;
-  const pointE_X = lowerCircleCenterX + lowerCircleRadius + 0.5;
+  const pointE_X = lowerCircleCenterX + lowerCircleRadius;
   segments.push({
     centerX: pointE_X,
     centerY: pointE_Y,
     angle: 0
   });
   
-  // ⑦ 切入正方形：从E点水平向左切入正方形的右边框上半部分
+  // ⑦切入正方形：从E点水平向左切入正方形右边框上半部分
   const squareCenterX = 50;
   const squareCenterY = 124;
   const squareHalfSize = 12;
   const squareRightX = squareCenterX + squareHalfSize;
   
-  const entrySteps = 4;
+  const entrySteps = 5;
   for (let i = 1; i <= entrySteps; i++) {
     segments.push({
       centerX: pointE_X - i * (pointE_X - squareRightX) / entrySteps,
@@ -196,8 +196,7 @@ function generatePathSegments(): PathSegment[] {
     angle: 0
   });
   
-  // ⑧ 正方形绕行：按“上边框向左→左边框向下→下边框向右→右边框向上”的顺序
-  
+  // ⑧正方形绕行：按「上边框向左→左边框向下→下边框向右→右边框向上」顺序
   // 从右边框上半部分到上边框右上角
   segments.push({
     centerX: squareRightX,
@@ -206,7 +205,7 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿上边框向左到左上角
-  const topBorderSteps = 5;
+  const topBorderSteps = 6;
   for (let i = 1; i <= topBorderSteps; i++) {
     segments.push({
       centerX: squareRightX - i * (squareHalfSize * 2) / topBorderSteps,
@@ -223,7 +222,7 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿左边框向下到左下角
-  const leftBorderSteps = 5;
+  const leftBorderSteps = 6;
   for (let i = 1; i <= leftBorderSteps; i++) {
     segments.push({
       centerX: squareLeftX,
@@ -240,7 +239,7 @@ function generatePathSegments(): PathSegment[] {
   });
   
   // 沿下边框向右到右下角
-  const bottomBorderSteps = 5;
+  const bottomBorderSteps = 6;
   for (let i = 1; i <= bottomBorderSteps; i++) {
     segments.push({
       centerX: squareLeftX + i * (squareHalfSize * 2) / bottomBorderSteps,
@@ -256,8 +255,8 @@ function generatePathSegments(): PathSegment[] {
     angle: -Math.PI
   });
   
-  // 沿右边框向上到右上角（终点）
-  const rightBorderSteps = 5;
+  // 沿右边框向上到右上角
+  const rightBorderSteps = 6;
   for (let i = 1; i <= rightBorderSteps; i++) {
     segments.push({
       centerX: squareRightX,
@@ -266,7 +265,7 @@ function generatePathSegments(): PathSegment[] {
     });
   }
   
-  // ⑨ 终点：正方形右上角的色块
+  // ⑨终点：正方形右上角边框色块
   const endPointX = squareRightX;
   const endPointY = squareTopY;
   segments.push({
@@ -490,7 +489,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
             P
           </text>
           
-          {/* end标识：位于终点色块的右侧，白色底、黑色粗体字 */}
+          {/* end标识：位于终点色块右侧，白色底、黑色粗体字 */}
           <g transform={`translate(${squareCenterX + squareHalfSize + 6}, ${squareCenterY - squareHalfSize})`}>
             <rect x="-4" y="-3" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#000000" strokeWidth="1" />
             <text x="1" y="0.5" textAnchor="middle" dominantBaseline="middle" fill="#000000" fontSize="4" fontWeight="bold" fontFamily="'Georgia', serif">end</text>
@@ -532,7 +531,7 @@ export function SRayLandMapRenderer({ cells, currentCellId, onCellClick, layerNu
               style={{ cursor: 'pointer' }}
               onClick={() => onCellClick?.(`cell-${index}`)}
             >
-              {/* 长方形色块，1px黑色描边 */}
+              {/* 长方形色块，1px纯黑色描边 */}
               <rect
                 x={-cellWidth / 2}
                 y={-cellHeight / 2}
